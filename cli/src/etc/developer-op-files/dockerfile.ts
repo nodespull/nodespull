@@ -1,0 +1,13 @@
+
+export default function file(data:any){
+    return`FROM node:10
+
+WORKDIR /usr/app
+
+COPY package*.json ./
+
+RUN npm install --quiet
+
+COPY . .
+`
+}
