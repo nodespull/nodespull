@@ -21,8 +21,6 @@ where \`<tag>\` can be:
     * \`build\`       build a docker image for the app
     * \`deploy\`      deploy your app and get a url
     * \`status\`      show the status of servers 
-    * \`update\`      updates nodespull system files
-
 
 ## Access
 * ${data.rootFile_name}: http://localhost:${data.serverPort}
