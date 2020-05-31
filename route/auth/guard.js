@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Authentication = void 0;
 const jwt_1 = require("./jwt");
 const controller_1 = require("../controller");
 class Authentication {

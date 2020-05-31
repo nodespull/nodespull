@@ -8,52 +8,35 @@ Before installing nodespull, make sure that you have the following:
 * Unix-based OS (e.g. macOS or Linux)
 * Install and start Docker using [Docker Desktop](https://hub.docker.com/editions/community/docker-ce-desktop-mac). Although you will not be working with Docker directly, note that this is a nodespull dependency used to containerize your application. 
 
-Download and install the nodespull package from npm:
+Download and install `pull`, the nodespull manager from npm - if not already installed on your machine:
 ```
-npm init
-npm i nodespull
+sudo npm i -g @nodespull/pull
 ```
-
-Create your root file (e.g. `index.js`) and import the nodespull library:
-```
-const $ = require("nodespull");
-
-$.server.ready();
-```
-
+You can run &nbsp; `pull v` &nbsp; to check if the tool is installed, and &nbsp; `pull help` &nbsp; to see available nodespull commands.
 You are now ready to get started! 
 
 ## Getting Started
 
 ### 1) Initialize your nodespull app
+* create a project directory named after your new app
+* In a terminal window, within the project directory, run:
 ```
-node <rootFile> init
+pull init
 ```
-After running the command, you should expect to see `nodespull-README.md` and `/nodespull` folder in your project.
-
-### 2) Boot up the database servers
-```
-node <rootFile> boot
-```
-This process will continue to run. Make sure that this terminal stays open to keep your database up and running.  
-
-On a new terminal, you can run `node <rootFile> status` to verify that `db-portal` and `db-server` are up and running on specific ports. 
 
 ### 3) Start your app server
-Nodespull also integrates [nodemon](https://www.npmjs.com/package/nodemon) to detect file changes and automatically restart your app server when needed.
-
-Open terminal and run the following command:
+In a terminal window, run the following command in your project root directory:
 ```
-nodemon <rootFile> run
+pull run
 ```
 You should now be able to access the app server and the db portal with the default information below or specified in the `nodespull-README.md` file. 
 * App Server: *http://localhost:8888*
 * Database Portal : *http://localhost:8889*
 
 ## nodespull CLI
-With single-line commands, you can easily create tables and routes using nodespull CLI! To get started, run the following command:
+With single-line commands, you can easily create tables and routes using nodespull CLI! To get started, run the following command in your root directory:
 ```
-node <rootFile> cli
+pull cli
 ``` 
 ### 1) Creating a table
 
@@ -121,7 +104,7 @@ To test your routes and table connections, nodespull makes it easy for you to ru
 * In your terminal, run the command:
 
      ```
-      node <rootFile> test
+      pull test
      ```
 
 For more information, see the following tutorials:

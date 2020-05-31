@@ -8,7 +8,7 @@ function spec(path) {
 const Res = require("nodespull/test/object").res;
 const runDELETE = require("./${fileName}.delete").ctr
 const assert = require("assert")
-$.server.ready({mode: "run", 
+$.server.ready({mode: "run", port:8887,
 database: "nodespull-test-database"});
 describe("DELETE: ${path}", ()=>{
 

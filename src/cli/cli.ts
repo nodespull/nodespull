@@ -2,18 +2,18 @@ import stdin from "../etc/system-tools/stdin"
 import {newRoute} from "./route/route"
 import {newTable} from "./table/table"
 
-export function cli(){
+export function start(){
     console.log("\n*** Nodespull CLI ***  \n(`help` for info)");
     main();
 }
 
 async function main(){
     let input = await stdin("\n>> ");
-    getCmd(input);
+    getCmd(input, true);
 }
 
 
-async function getCmd(input:string){
+export async function getCmd(input:string, loop:boolean){
     let createCmd = ["create", "c"];
     try{
         let args = input.split(" ");
@@ -21,7 +21,7 @@ async function getCmd(input:string){
         let userCmd = args[0];
         if(["help","h","info","?"].includes(userCmd)) return help();
         if(["q","quit","exit"].includes(userCmd)) return exit();
-        if(userCmd.trim() == "") return main();
+        if(userCmd.trim() == "") return !loop?null:main();
 
         let name = args[2]? args[2].toLowerCase():undefined;
         if(!name || name.includes("\"") || name.includes("'") || name.includes("`")) throw error.falseNameFormat;
@@ -41,10 +41,10 @@ async function getCmd(input:string){
                 throw error.falseCmd;
         }
 
-        main()
+        if(loop) main()
     }catch(e){
         console.log(e);
-        main();
+        if(loop) main();
     }
 }
 

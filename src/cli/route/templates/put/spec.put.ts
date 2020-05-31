@@ -7,7 +7,7 @@ export default function spec(path:string):string{
 const Res = require("nodespull/test/object").res;
 const runPUT = require("./${fileName}.put").ctr
 const assert = require("assert")
-$.server.ready({mode: "run", 
+$.server.ready({mode: "run", port:8887,
 database: "nodespull-test-database"});
 describe("PUT: ${path}", ()=>{
 

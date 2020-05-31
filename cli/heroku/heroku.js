@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.herokuPush = exports.herokuCreateApp = exports.herokuLogin = void 0;
 const exe_log_1 = require("../exe/exe.log");
 const fs_1 = __importDefault(require("fs"));
 const dockerfile_1 = require("../deploy/templates/dockerfile");
@@ -31,7 +32,7 @@ exports.herokuLogin = herokuLogin;
 function herokuCreateApp() {
     let appName = packageJson.name + "-" + getRandNumber();
     exe_log_1.cmd("heroku", ["create", "-a", appName], false);
-    exe_log_1.cmd("heroku", ["create", "-a", appName + "-db"], false);
+    //cmd("heroku", ["create", "-a", appName+"-db"], false);
     return appName;
 }
 exports.herokuCreateApp = herokuCreateApp;
@@ -45,11 +46,11 @@ function herokuPush() {
                 appName = name;
             else { // also upload mysql image to new app
                 appName = herokuCreateApp();
-                uploadImage("./Dockerfile", dockerfile_1.heroku_db_dockerfile(), appName + "-db");
+                //uploadImage("./Dockerfile",heroku_db_dockerfile(),appName+"-db");
             }
-            add_dbSettings_toRootFile(appName);
+            //add_dbSettings_toRootFile(appName);
             uploadImage("./Dockerfile", dockerfile_1.appDockerfile(), appName);
-            remove_dbSettings_fromRootFile();
+            //remove_dbSettings_fromRootFile();
         });
     });
 }
@@ -81,7 +82,6 @@ function uploadImage(path, dockerfile, appName) {
     setTimeout(() => {
         exe_log_1.cmd("heroku", ["open", "-a", appName]);
         exe_log_1.cmd("rm", ["./", path]);
-        console.log("deployment complete");
     }, 20000);
 }
 function getRandNumber(max, min) {

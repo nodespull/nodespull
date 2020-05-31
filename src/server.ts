@@ -1,5 +1,5 @@
 import {install, sys_dir, appModule} from "./install"
-import {cli} from "./cli/cli"
+import * as cli from "./cli/cli"
 import express from "express";
 import DB_Controller from "./database/controller";
 import { DatabaseTools, DatabaseToolsFactory } from "./database/tools";
@@ -25,7 +25,7 @@ let noDatabase:boolean = false;
 function startServer(port:number, after?:Function){
     port = parseInt(process.env.PORT!, 10) || port;
     app.listen(port, ()=>{
-        console.log("\n\nApp Server Started at localhost:"+port+". Open \"nodespull_README.md\" for details.");
+        console.log("\n\nApp Server Started at http://localhost:"+port+". Open \"nodespull_README.md\" for details.");
         if(after) after(port);
     });
 }
@@ -71,7 +71,7 @@ class Server {
             db.config.database = args.database;
             if(args.database == "nodespull-test-database") db.config.port = DB_PORT_TEST;
         }
-        if(args && !args.database) noDatabase = true;
+        if(args && args.use_database === false) noDatabase = true;
 
         if(!Route._home_set)app.use("/",express.static(__dirname + '/public'))
         let flag = process.argv[2];
@@ -86,6 +86,7 @@ class Server {
         let runFlag_fromContainer = (flag && flag=="docker-run")?true:false;
         let status = (flag && flag=="status")?true:false;
         let cliFlag = (flag && flag == "cli")?true:false;
+        let doFlag = (flag && flag == "do")?true:false; // runs in nodespull cli
         let testFlag = (flag && flag == "test")?true:false;
         let deployFlag = (flag && flag == "deploy")?true:false;
 
@@ -104,7 +105,9 @@ class Server {
             packageJson["main"] = rootFile_name;
             writeJSON("./package.json",packageJson);
         }else if (cliFlag){
-            cli();
+            cli.start();
+        }else if (doFlag){
+            cli.getCmd(process.argv[3], false)
         }else if (testFlag){
             cmd("npm",["test"]);
         }else if (run_all_images){
@@ -166,7 +169,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // x-site http header config
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*"); // <-- UPDATE SECURITY
-    res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+    res.header("Access-Control-Allow-Methods", "POST, GET, DELETE, PUT, HEAD, OPTIONS");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     next();
 });

@@ -12,21 +12,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getCmd = exports.start = void 0;
 const stdin_1 = __importDefault(require("../etc/system-tools/stdin"));
 const route_1 = require("./route/route");
 const table_1 = require("./table/table");
-function cli() {
+function start() {
     console.log("\n*** Nodespull CLI ***  \n(`help` for info)");
     main();
 }
-exports.cli = cli;
+exports.start = start;
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         let input = yield stdin_1.default("\n>> ");
-        getCmd(input);
+        getCmd(input, true);
     });
 }
-function getCmd(input) {
+function getCmd(input, loop) {
     return __awaiter(this, void 0, void 0, function* () {
         let createCmd = ["create", "c"];
         try {
@@ -37,7 +38,7 @@ function getCmd(input) {
             if (["q", "quit", "exit"].includes(userCmd))
                 return exit();
             if (userCmd.trim() == "")
-                return main();
+                return !loop ? null : main();
             let name = args[2] ? args[2].toLowerCase() : undefined;
             if (!name || name.includes("\"") || name.includes("'") || name.includes("`"))
                 throw error.falseNameFormat;
@@ -59,14 +60,17 @@ function getCmd(input) {
                 default:
                     throw error.falseCmd;
             }
-            main();
+            if (loop)
+                main();
         }
         catch (e) {
             console.log(e);
-            main();
+            if (loop)
+                main();
         }
     });
 }
+exports.getCmd = getCmd;
 function help() {
     console.log(`
 commands:

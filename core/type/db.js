@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.type = void 0;
 const { DataTypes } = require("sequelize");
 /**
  * SQL Database types

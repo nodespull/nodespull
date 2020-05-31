@@ -15,7 +15,7 @@ services:
             - ..:/usr/app/
             - ../usr/app/node_modules
         ports:
-            - "${data.serverPort}:${data.dbConsoleport}"
+            - "${data.serverPort}:${data.serverPort}"
         depends_on:
             - "nodespull-db-server"
         command: ["./${data.sys_dir}/wait-for-it.sh", "nodespull-db-server:3306", "-t","${data.serverWaitTime_forDB}", "--","node","${data.rootFile_name}","docker-run"]

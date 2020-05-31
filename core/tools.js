@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Hash = exports.Session = void 0;
 const hash_1 = require("../etc/system-tools/hash");
 const jwt_1 = require("../route/auth/jwt");
 /**

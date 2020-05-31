@@ -1,6 +1,6 @@
 {
   "name": "nodespull",
-  "version": "0.2.15",
+  "version": "0.3.1",
   "description": "Get started with a stable, scalable Node.js server",
   "main": "server.js",
   "scripts": {

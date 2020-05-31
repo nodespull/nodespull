@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.deploy = void 0;
 const heroku_1 = require("../heroku/heroku");
 const deployFileName = "deploy.md";
 let packageJson;

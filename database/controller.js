@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.dbConnectionType = void 0;
 const sequelize_1 = __importDefault(require("sequelize"));
 const Table_1 = require("./Table");
 const functions_placeholders_1 = __importDefault(require("./etc/functions-placeholders"));
@@ -13,18 +14,21 @@ let DEFAULTS = {
     MYSQL_HOST: "localhost",
     PORT: "3333"
 };
-class DB_Controller {
-    static setup(isModeInstall, dbTools) {
-        DB_Controller.ORM = !isModeInstall ? new ORM(false, dbTools ? dbTools.config : undefined) : new ORM(true, {});
+let DB_Controller = /** @class */ (() => {
+    class DB_Controller {
+        static setup(isModeInstall, dbTools) {
+            DB_Controller.ORM = !isModeInstall ? new ORM(false, dbTools ? dbTools.config : undefined) : new ORM(true, {});
+        }
+        static connect() {
+            this.ORM.interface.sync({ alter: true }).then(() => {
+                console.log("Database Connection Established");
+            });
+        }
     }
-    static connect() {
-        this.ORM.interface.sync({ alter: true }).then(() => {
-            console.log("Database Connection Established");
-        });
-    }
-}
+    DB_Controller.final_HostAddr = "";
+    return DB_Controller;
+})();
 exports.default = DB_Controller;
-DB_Controller.final_HostAddr = "";
 class ORM {
     constructor(isModeInstall, sequelize_user_inputs) {
         if (isModeInstall)
@@ -72,4 +76,8 @@ var dbConnectionType;
      * delete and rebuild schema to match model. All data is lost.
      */
     dbConnectionType[dbConnectionType["reset"] = 1] = "reset";
+    /**
+     * add new tables, do not modify existing ones
+     */
+    dbConnectionType[dbConnectionType["addOnly"] = 2] = "addOnly";
 })(dbConnectionType = exports.dbConnectionType || (exports.dbConnectionType = {}));

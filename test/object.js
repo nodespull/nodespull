@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.res = void 0;
 class res {
     constructor() {
         this.clientResponse = new Promise((resolve, reject) => {

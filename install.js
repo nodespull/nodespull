@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.install = exports.appModule = exports.rootFile_name = exports.sys_dir = void 0;
 const execa = require('execa');
 const fs = require("fs");
 const stdin_1 = __importDefault(require("./etc/system-tools/stdin"));

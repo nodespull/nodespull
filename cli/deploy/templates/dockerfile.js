@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.heroku_db_dockerfile = exports.appDockerfile = void 0;
 function appDockerfile() {
     let rootFile_name = process.argv[1].split("/").pop();
     return `FROM node:10

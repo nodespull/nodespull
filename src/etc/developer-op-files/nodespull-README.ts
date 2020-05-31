@@ -2,8 +2,15 @@
 export default function file(data:any){
     return `# Nodespull Initialized
 
-## How to Run Project
-* From the project root folder, run in terminal:  \`nodemon ${data.rootFile_name} <tag>\`
+## How to Run Project using the \`pull\` command
+* From the project root folder, run in terminal:  \`pull run\`
+* use \`pull help\` in a terminal window to see available \`pull\` commands
+
+------------------------------------------------
+
+## How to Run Project using the \`node\` command
+* From the project root folder, run in terminal:  \`node ${data.rootFile_name} <tag>\`
+where \`<tag>\` can be:
     * \`init\`        initialize nodespull app
     * \`cli\`         open nodespull cli
     * \`boot\`        start nodespull servers: database, db_portal
@@ -14,6 +21,7 @@ export default function file(data:any){
     * \`build\`       build a docker image for the app
     * \`deploy\`      deploy your app and get a url
     * \`status\`      show the status of servers 
+    * \`update\`      updates nodespull system files
 
 
 ## Access

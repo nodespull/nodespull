@@ -20,7 +20,7 @@ export async function herokuLogin(){
 export function herokuCreateApp(){
     let appName = packageJson.name+"-"+getRandNumber();
     cmd("heroku", ["create", "-a", appName], false);
-    cmd("heroku", ["create", "-a", appName+"-db"], false);
+    //cmd("heroku", ["create", "-a", appName+"-db"], false);
     return appName;
 }
 
@@ -32,11 +32,11 @@ export async function herokuPush(){
         if(name && name != "") appName = name;
         else {// also upload mysql image to new app
             appName = herokuCreateApp()
-            uploadImage("./Dockerfile",heroku_db_dockerfile(),appName+"-db");
+           //uploadImage("./Dockerfile",heroku_db_dockerfile(),appName+"-db");
         }
-        add_dbSettings_toRootFile(appName);
+        //add_dbSettings_toRootFile(appName);
         uploadImage("./Dockerfile",appDockerfile(),appName);
-        remove_dbSettings_fromRootFile();
+        //remove_dbSettings_fromRootFile();
     })
 }
 
@@ -69,7 +69,6 @@ function uploadImage(path:string, dockerfile:string, appName:string){
     setTimeout(() => {
         cmd("heroku", ["open", "-a", appName]);
         cmd("rm",["./",path]);
-        console.log("deployment complete");
     }, 20000);
 }
 
