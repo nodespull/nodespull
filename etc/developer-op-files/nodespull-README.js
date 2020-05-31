@@ -23,7 +23,6 @@ where \`<tag>\` can be:
     * \`deploy\`      deploy your app and get a url
     * \`status\`      show the status of servers 
 
-
 ## Access
 * ${data.rootFile_name}: http://localhost:${data.serverPort}
 * nodespull Database Portal, available after \`boot\`: http://localhost:${data.dbConsoleport}

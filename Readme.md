@@ -13,7 +13,7 @@ Download and install `pull`, the nodespull manager from npm - if not already ins
 sudo npm i -g @nodespull/pull
 ```
 You can run &nbsp; `pull v` &nbsp; to check if the tool is installed, and &nbsp; `pull help` &nbsp; to see available nodespull commands.
-You are now ready to get started! 
+You are now ready to get started!
 
 ## Getting Started
 
@@ -23,6 +23,8 @@ You are now ready to get started!
 ```
 pull init
 ```
+For existing nodespull project:
+* run &nbsp; `pull update` &nbsp; in the project's root directory before starting to use the pull command.
 
 ### 3) Start your app server
 In a terminal window, run the following command in your project root directory:
