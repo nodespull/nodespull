@@ -47,10 +47,18 @@ exports.PORT = 8888;
 exports.DB_PORT_TEST = 3332;
 const app = express_1.default();
 let noDatabase = false;
+let cors = {
+    origins: "*",
+    methods: "POST, GET, DELETE, PUT, HEAD, OPTIONS"
+};
 function startServer(port, after) {
+    // check that cors configurations are set
+    if (!isCorsSet)
+        console.log('\n\nERR: CORS config not set. please add (and edit if needed) the codes below to your "' + packageJson.main + '" file before calling $.server.ready():\n\n\
+    \t$.config.cors([  {domain: "*", methods: ["POST, GET, DELETE, PUT, HEAD, OPTIONS"]}  ])\n\n');
     port = parseInt(process.env.PORT, 10) || port;
     app.listen(port, () => {
-        console.log("\n\nApp Server Started at http://localhost:" + port + ". Open \"nodespull_README.md\" for details.");
+        console.log("\n\nApp Server Started at http://localhost:" + port + "\n Open \"nodespull_README.md\" for details.");
         if (after)
             after(port);
     });
@@ -205,13 +213,6 @@ app.use(logger("dev"));
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-// x-site http header config
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*"); // <-- UPDATE SECURITY
-    res.header("Access-Control-Allow-Methods", "POST, GET, DELETE, PUT, HEAD, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-    next();
-});
 // api documentation
 const loader_1 = __importDefault(require("./templates/swagger/loader"));
 loader_1.default(app);
@@ -244,8 +245,33 @@ exports.config = {
      * })
      * ```
      */
-    database: (settings) => exports.db.config = settings
+    database: (settings) => exports.db.config = settings,
+    /**
+     * cross-site configuration
+     * @param {{[domain:string]:string, [methods:string]:string[]}[]} args domains and http methods allowed.
+     * example:
+     * ```
+     * $.config.cors([
+     *      {domain:"*", methods:["GET","POST"]}
+     * ])
+     * ```
+     */
+    cors: (args) => {
+        isCorsSet = true;
+        let origins = [];
+        for (let arg of args)
+            origins.push(arg["domain"]);
+        app.use((req, res, next) => {
+            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+            if (origins.includes(req.headers.origin)) {
+                res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
+                res.setHeader("Access-Control-Allow-Methods", args[origins.indexOf(req.headers.origin)]["methods"]);
+            }
+            next();
+        });
+    }
 };
+let isCorsSet = false;
 // async function cmd(cmd:string, options:string[],stream?:boolean){
 //     let execa = require('execa');
 //     if(stream){
