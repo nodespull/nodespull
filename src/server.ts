@@ -21,16 +21,11 @@ export let DB_PORT_TEST = 3332;
 const app:express.Application = express();
 let noDatabase:boolean = false;
 
-let cors = {
-    origins: "*",
-    methods: "POST, GET, DELETE, PUT, HEAD, OPTIONS"
-}
-
 
 function startServer(port:number, after?:Function){
     // check that cors configurations are set
     if(!isCorsSet) console.log('\n\nERR: CORS config not set. please add (and edit if needed) the codes below to your "'+packageJson.main+'" file before calling $.server.ready():\n\n\
-    \t$.config.cors([  {domain: "*", methods: ["POST, GET, DELETE, PUT, HEAD, OPTIONS"]}  ])\n\n')
+    \t$.config.cors([  {domain: "*", methods: "POST, GET, DELETE, PUT, HEAD, OPTIONS"}  ])\n\n')
 
     port = parseInt(process.env.PORT!, 10) || port;
     app.listen(port, ()=>{
@@ -222,7 +217,7 @@ export const config = {
      * example:
      * ```
      * $.config.cors([
-     *      {domain:"*", methods:["GET","POST"]} 
+     *      {domain:"*", methods:"GET, POST"} 
      * ])
      * ```
      */
@@ -232,6 +227,7 @@ export const config = {
         for(let arg of args) origins.push(arg["domain"]);
         app.use((req,res,next)=>{
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+
             if(origins.includes(req.headers.origin as string)){
                 res.setHeader("Access-Control-Allow-Origin", req.headers.origin as string);
                 res.setHeader("Access-Control-Allow-Methods", args[origins.indexOf(req.headers.origin as string)]["methods"]);

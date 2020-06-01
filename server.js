@@ -47,15 +47,11 @@ exports.PORT = 8888;
 exports.DB_PORT_TEST = 3332;
 const app = express_1.default();
 let noDatabase = false;
-let cors = {
-    origins: "*",
-    methods: "POST, GET, DELETE, PUT, HEAD, OPTIONS"
-};
 function startServer(port, after) {
     // check that cors configurations are set
     if (!isCorsSet)
         console.log('\n\nERR: CORS config not set. please add (and edit if needed) the codes below to your "' + packageJson.main + '" file before calling $.server.ready():\n\n\
-    \t$.config.cors([  {domain: "*", methods: ["POST, GET, DELETE, PUT, HEAD, OPTIONS"]}  ])\n\n');
+    \t$.config.cors([  {domain: "*", methods: "POST, GET, DELETE, PUT, HEAD, OPTIONS"}  ])\n\n');
     port = parseInt(process.env.PORT, 10) || port;
     app.listen(port, () => {
         console.log("\n\nApp Server Started at http://localhost:" + port + "\n Open \"nodespull_README.md\" for details.");
@@ -252,7 +248,7 @@ exports.config = {
      * example:
      * ```
      * $.config.cors([
-     *      {domain:"*", methods:["GET","POST"]}
+     *      {domain:"*", methods:"GET, POST"}
      * ])
      * ```
      */
