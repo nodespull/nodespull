@@ -19,6 +19,11 @@
     blob = DataTypes.BLOB;
     boolean = DataTypes.BOOLEAN;
     enum = DataTypes.ENUM;
+    uuid = DataTypes.UUID;
+    UUIDV1 = DataTypes.UUIDV1;
+    UUIDV4 = DataTypes.UUIDV4;
+    NOW = DataTypes.NOW;
+    array = DataTypes.ARRAY;
 }
 
 export const type = new Type();

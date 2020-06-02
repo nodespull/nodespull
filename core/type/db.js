@@ -19,6 +19,11 @@ class Type {
         this.blob = DataTypes.BLOB;
         this.boolean = DataTypes.BOOLEAN;
         this.enum = DataTypes.ENUM;
+        this.uuid = DataTypes.UUID;
+        this.UUIDV1 = DataTypes.UUIDV1;
+        this.UUIDV4 = DataTypes.UUIDV4;
+        this.NOW = DataTypes.NOW;
+        this.array = DataTypes.ARRAY;
     }
 }
 exports.type = new Type();

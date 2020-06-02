@@ -259,7 +259,11 @@ exports.config = {
             origins.push(arg["domain"]);
         app.use((req, res, next) => {
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-            if (origins.includes(req.headers.origin)) {
+            if (origins.includes("*")) {
+                res.setHeader("Access-Control-Allow-Origin", "*");
+                res.setHeader("Access-Control-Allow-Methods", args[origins.indexOf("*")]["methods"]);
+            }
+            else if (origins.includes(req.headers.origin)) {
                 res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
                 res.setHeader("Access-Control-Allow-Methods", args[origins.indexOf(req.headers.origin)]["methods"]);
             }
