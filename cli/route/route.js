@@ -40,13 +40,6 @@ const templateList = {
     head: { head: head_1.default, spec_head: spec_head_1.default, swag_head: swagger_head_1.default }
 };
 function getTemplate(routeName, template, filePath, extCount) {
-    // let fileNameParts = filePath.split("/").pop()!.split("."); // take last part of path, split fileName parts
-    // fileNameParts = fileNameParts.slice(0, fileNameParts.length- (extCount)); //remove all from .get up
-    // let routePath = "";
-    // while(fileNameParts.length > 0){
-    //     routePath += "/"+fileNameParts.shift(); //reconstruct path without parent dir and .get.ext
-    // }
-    //build path
     let parts = routeName.split("/");
     routeName = "/" + parts.slice(1, parts.length - 2).join("/");
     routeName = routeName.replace("//", "/");
@@ -60,17 +53,20 @@ function getTemplate(routeName, template, filePath, extCount) {
         }
         routeName = deepName;
     }
+    routeName = "/" + routeName.substring(2, routeName.length); // remove underscore, e.g. /_name/path
     return template(routeName); // load template with routePath
 }
 function newRoute(name) {
     return __awaiter(this, void 0, void 0, function* () {
         let args = name.split("/");
         let fileName = "";
+        let fileName_withUnderscore = "";
         let routeDirPath = "routes";
         while (args.length > 0) {
             let e = args.shift();
             fileName = fileName != "" ? (fileName + "." + e) : e;
-            routeDirPath = routeDirPath + "/" + fileName;
+            fileName_withUnderscore = fileName_withUnderscore != "" ? (fileName_withUnderscore + "." + e) : "_" + e;
+            routeDirPath = routeDirPath + "/" + fileName_withUnderscore;
             yield exe_log_1.cmd("mkdir", ["-p", root + "/" + routeDirPath], false);
         }
         setTimeout(() => {
@@ -91,7 +87,8 @@ function newRoute(name) {
                     else
                         templFilePath += ".js";
                     exe_log_1.cmd("touch", [root + "/" + templFilePath]);
-                    fs_1.default.writeFile(root + "/" + templFilePath, getTemplate(templDirPath + "/" + fileName, templateList[templGroupKey][templateKey], templFilePath, extCount), () => { });
+                    fs_1.default.writeFile(root + "/" + templFilePath, getTemplate(templDirPath + "/" + fileName, //remove initial underscore
+                    templateList[templGroupKey][templateKey], templFilePath, extCount), () => { });
                 }
             }
         }, 2000);

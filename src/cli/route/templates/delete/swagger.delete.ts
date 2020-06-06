@@ -25,7 +25,7 @@ export default function del(path:string):string{
 
             ],
             "responses":{
-                "200":{
+                "204":{
                     "description":"success",
                     "content":{
                         

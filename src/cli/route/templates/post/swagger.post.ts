@@ -22,7 +22,7 @@ export default function post(path:string):string{
                     "schema":{
                         "type": "object",
                         "properties":{
-                            "id":{"type":"number"}
+                            "key_example":{"type":"number"}
                             
                         }
                     }

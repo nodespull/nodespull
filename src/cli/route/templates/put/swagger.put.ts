@@ -29,7 +29,7 @@ export default function put(path:string):string{
                     "schema":{
                         "type": "object",
                         "properties":{
-                            "id":{"type":"number"}
+                            "key_example":{"type":"number"}
                             
                         }
                     }

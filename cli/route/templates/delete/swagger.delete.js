@@ -26,7 +26,7 @@ function del(path) {
 
             ],
             "responses":{
-                "200":{
+                "204":{
                     "description":"success",
                     "content":{
                         

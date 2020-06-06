@@ -30,7 +30,7 @@ function put(path) {
                     "schema":{
                         "type": "object",
                         "properties":{
-                            "id":{"type":"number"}
+                            "key_example":{"type":"number"}
                             
                         }
                     }

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 function del(path) {
     let name = path.split("/").pop(); // remove slash, get last
-    name = name.split("-").join("_");
+    name = "_" + name.split("-").join("_");
     return `exports.ctr = ${name};
 const {Router, Database} = require("nodespull")
 const {Hash, Session} = require("nodespull/core/tools")
