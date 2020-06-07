@@ -26,7 +26,7 @@ function ${name}(req, res){
     /** @type {json} */ let query = req.query;
     /* ------------------------------------------ */
 
-    res.status(200).send("delete:${path} works")
+    res.status(204).send()
 
     
     
