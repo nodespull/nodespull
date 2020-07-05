@@ -25,11 +25,10 @@ beforeEach(function(){
 })
 
 
-it("should return status 200 and send 'works' message", function(){
+it("should return status 204", function(){
     return res.toClient().then(_=>{
 
-        assert.equal(res.getStatusVal(),200);
-        assert.equal(res.getSendVal(), "delete:${path} works");
+        assert.equal(res.getStatusVal(),204);
 
     })
 });

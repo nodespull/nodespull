@@ -10,6 +10,9 @@ const rootPath = __dirname+`/../../${appModule}/`;
 recursiveRun(rootPath, "model.js");
 recursiveRun(rootPath, "relation.js");
 
+recursiveRun(rootPath, "module.js");
+recursiveRun(rootPath, "func.js");
+
 recursiveRun(rootPath, "delete.js");
 recursiveRun(rootPath, "get.js");
 recursiveRun(rootPath, "head.js");

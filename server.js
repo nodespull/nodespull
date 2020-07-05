@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.config = exports.server = exports.Router = exports.route = exports.Database = exports.db = exports.DB_PORT_TEST = exports.PORT = void 0;
+exports.config = exports.server = exports.Router = exports.route = exports.appServer = exports.Module = exports.Database = exports.db = exports.DB_PORT_TEST = exports.PORT = void 0;
 const install_1 = require("./install");
 const cli = __importStar(require("./cli/cli"));
 const express_1 = __importDefault(require("express"));
@@ -42,6 +42,7 @@ const jwt_1 = require("./route/auth/jwt");
 const json_1 = require("./etc/system-tools/json");
 const exe_log_1 = require("./cli/exe/exe.log");
 const deploy_1 = require("./cli/deploy/deploy");
+const controller_3 = require("./module/controller");
 const packageJson = json_1.parseJSON("./package.json");
 exports.PORT = 8888;
 exports.DB_PORT_TEST = 3332;
@@ -50,11 +51,11 @@ let noDatabase = false;
 function startServer(port, after) {
     // check that cors configurations are set
     if (!isCorsSet)
-        console.log('\n\nERR: CORS config not set. please add (and edit if needed) the codes below to your "' + packageJson.main + '" file before calling $.server.ready():\n\n\
-    \t$.config.cors([  {domain: "*", methods: "POST, GET, DELETE, PUT, HEAD, OPTIONS"}  ])\n\n');
+        console.warn("\x1b[33m", '\n\Warn: CORS config not set. please add (and edit if needed) the codes below to your "' + packageJson.main + '" file before calling $.server.ready():\n\n\
+    \t$.config.cors([  {domain: "*", methods: "POST, GET, DELETE, PUT, HEAD, OPTIONS"}  ])\n\n', "\x1b[37m");
     port = parseInt(process.env.PORT, 10) || port;
     app.listen(port, () => {
-        console.log("\n\nApp Server Started at http://localhost:" + port + "\n Open \"nodespull_README.md\" for details.");
+        console.log("\x1b[32m", "\n\nApp Server Started at http://localhost:" + port + "\n Open \"nodespull_README.md\" for details.", "\x1b[37m");
         if (after)
             after(port);
     });
@@ -213,6 +214,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const loader_1 = __importDefault(require("./templates/swagger/loader"));
 loader_1.default(app);
 /**
+ * Module controller
+ */
+exports.Module = controller_3.ModuleController.getCallableInstance();
+/**
+ * App server
+ */
+exports.appServer = app;
+/**
  * Create a http route
  */
 exports.route = new controller_2.Route(app);
@@ -272,17 +281,3 @@ exports.config = {
     }
 };
 let isCorsSet = false;
-// async function cmd(cmd:string, options:string[],stream?:boolean){
-//     let execa = require('execa');
-//     if(stream){
-//         const exe = execa(cmd, options)
-//         exe.stdout.pipe(process.stdout);
-//         exe.stderr.pipe(process.stderr);
-//     }
-//     else{
-//         await (async () => {
-//             const {stdout} = await execa(cmd, options);
-//             console.log(stdout);
-//         })();
-//     }
-// }

@@ -86,6 +86,7 @@ function install_others(serverPort) {
         yield run("wait-for-it chmod write", "sudo", ["chmod", "+x", "./" + exports.sys_dir + "/wait-for-it.sh"], (ok, data) => { });
         yield run("npm", "install", ["-g", "nodemon"], (ok, data) => { });
         yield run("npm", "install", ["-g", "heroku"], (ok, data) => { });
+        // await run("npm","install",["-g","sequelize-cli"], (ok:boolean, data?:any)=>{});
     });
 }
 function run(name, cmd, options, callback, data) {

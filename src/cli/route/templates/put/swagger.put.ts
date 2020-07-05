@@ -24,7 +24,7 @@ export default function put(path:string):string{
                 {
                     "in": "body",
                     "name": "body",
-                    "description": "art_object data",
+                    "description": "no description",
                     "required": true,
                     "schema":{
                         "type": "object",

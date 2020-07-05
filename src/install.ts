@@ -77,6 +77,7 @@ async function install_others(serverPort:number){
     await run("wait-for-it chmod write", "sudo", ["chmod", "+x","./"+sys_dir+"/wait-for-it.sh"],(ok:boolean,data?:any)=>{})
     await run("npm","install",["-g","nodemon"], (ok:boolean, data?:any)=>{});
     await run("npm","install",["-g","heroku"], (ok:boolean, data?:any)=>{});
+   // await run("npm","install",["-g","sequelize-cli"], (ok:boolean, data?:any)=>{});
 }
 
 

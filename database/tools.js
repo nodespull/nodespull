@@ -69,13 +69,27 @@ class DatabaseTools {
     /**
      * Return a nodepull table. Example:
      * ```
-     * table('users')
+     * Database.table('users')
      * ```
      */
     table(name) {
         if (!controller_1.default.ORM)
             errors_1.default.db.modelNotSaved();
         return new Table_1.Table(controller_1.default.ORM.interface.model(name));
+    }
+    /**
+     * Upload or revert a database version
+     * ```
+     * Database.Version({
+     * currentName: "table_name",
+     * versionID: "table_name-{{versionNumber}}-{{unixTime}}",
+     * purpose: "changes the name of table"
+     * onUpload: ()=>{Database.rawQuery("ALTER TABLE table_name RENAME TO new_table_name")},
+     * onRevert: ()=>{Database.rawQuery("ALTER TABLE new_table_name RENAME TO table_name")}
+     * })
+     * ```
+     */
+    Version() {
     }
 }
 exports.DatabaseTools = DatabaseTools;

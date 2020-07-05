@@ -9,7 +9,7 @@ import {parseJSON, writeJSON} from "./etc/system-tools/json"
 import fs from "fs"
 import {cmd} from "./cli/exe/exe.log"
 import {deploy} from "./cli/deploy/deploy"
-
+import { ModuleController } from "./module/controller"
 
 const packageJson = parseJSON("./package.json");
 
@@ -24,12 +24,12 @@ let noDatabase:boolean = false;
 
 function startServer(port:number, after?:Function){
     // check that cors configurations are set
-    if(!isCorsSet) console.log('\n\nERR: CORS config not set. please add (and edit if needed) the codes below to your "'+packageJson.main+'" file before calling $.server.ready():\n\n\
-    \t$.config.cors([  {domain: "*", methods: "POST, GET, DELETE, PUT, HEAD, OPTIONS"}  ])\n\n')
+    if(!isCorsSet) console.warn("\x1b[33m",'\n\Warn: CORS config not set. please add (and edit if needed) the codes below to your "'+packageJson.main+'" file before calling $.server.ready():\n\n\
+    \t$.config.cors([  {domain: "*", methods: "POST, GET, DELETE, PUT, HEAD, OPTIONS"}  ])\n\n', "\x1b[37m")
 
     port = parseInt(process.env.PORT!, 10) || port;
     app.listen(port, ()=>{
-        console.log("\n\nApp Server Started at http://localhost:"+port+"\n Open \"nodespull_README.md\" for details.");
+        console.log("\x1b[32m","\n\nApp Server Started at http://localhost:"+port+"\n Open \"nodespull_README.md\" for details.", "\x1b[37m");
         if(after) after(port);
     });
 }
@@ -176,6 +176,17 @@ swaggerLoader(app);
 
 
 
+/**
+ * Module controller
+ */
+export const Module = ModuleController.getCallableInstance();
+
+
+/**
+ * App server
+ */
+export const appServer = app
+
 
 /**
  * Create a http route
@@ -188,6 +199,7 @@ export const Router = route;
  * Main module
  */
 export const server = new Server();
+
 
 
 /**
@@ -241,20 +253,5 @@ export const config = {
 }
 let isCorsSet = false;
 
-
-// async function cmd(cmd:string, options:string[],stream?:boolean){
-//     let execa = require('execa');
-//     if(stream){
-//         const exe = execa(cmd, options)
-//         exe.stdout.pipe(process.stdout);
-//         exe.stderr.pipe(process.stderr);
-//     }
-//     else{
-//         await (async () => {
-//             const {stdout} = await execa(cmd, options);
-//             console.log(stdout);
-//         })();
-//     }
-// }
 
 
