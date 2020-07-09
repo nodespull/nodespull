@@ -5,6 +5,7 @@ import DB_Controller from "./controller";
 import error from "../etc/errors";
 import { setTimeout } from "timers";
 import sequelize from "sequelize";
+import { RawQueryResponse, QueryInterface } from "./models/query";
 
 
 export class DatabaseTools {
@@ -96,6 +97,16 @@ export class DatabaseTools {
     Version():any{
 
     }
+
+    async rawQuery(query:string):Promise<RawQueryResponse>{
+        let [results, metadata] = await DB_Controller.ORM.interface.query(query)
+        return Promise.resolve({results, metadata})
+    }
+
+    queryInterface(): QueryInterface{
+        return DB_Controller.ORM.interface.getQueryInterface()
+    }
+
 }
 
 
@@ -143,5 +154,3 @@ export class Relations{ // hard code reuse from DatabaseTools
         for(let target of args.many_to_many) new TableRelation(rootTable,false).many_to_many(target);
     }
 }
-
-
