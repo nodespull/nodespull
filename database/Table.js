@@ -100,7 +100,7 @@ class Table {
      * ```
      */
     insert(row, callback) {
-        this._model.create(row).then((res) => {
+        this._model.create(row, { include: [{ all: true }] }).then((res) => {
             callback(res.dataValues, null);
         }).catch(e => {
             callback(null, e);

@@ -98,7 +98,7 @@ export class Table{
      * ```
      */
     insert(row:any, callback:Function){
-        this._model.create(row).then((res:any)=>{
+        this._model.create(row, {include:[{all:true}]}).then((res:any)=>{
             callback(res.dataValues, null);
         }).catch(e=>{
             callback(null, e);

@@ -1,4 +1,4 @@
-import {ModuleArgument_Route} from "./models"
+import {ModuleArgument_Route, ModuleArgument_PipeFunction} from "./models"
 import {Router} from "../server"
 import { Route } from "../route/controller"
 
@@ -6,8 +6,9 @@ export class npModule {
 
     private routes: { [path:string]: ModuleArgument_Route } = {}
     private functions: {[name:string]: Function} = {}
-    public isParentPlaceholder:boolean = false
+    private pipeFunctions: {[name:string]: {forward:Function, backward:Function}} = {}
 
+    public isParentPlaceholder:boolean = false
     private isModuleActive:boolean|undefined = undefined
     private isModuleProtected:boolean|undefined = undefined
 
@@ -39,10 +40,40 @@ export class npModule {
         }
     }
 
+    reroute_to(method:Function, path:string, req:Request, res:Response){
+        let route = this.routes[method.name+":"+path]
+        if(!route) console.error("\x1b[31m",new Error(`route "${method.name}:${path}" not found in module "${this.name}"`), "\x1b[37m")
+        else route.handler(req,res);
+    }
+
+    //getters
+    getRoutes():{ [path:string]: ModuleArgument_Route }{
+        return this.routes
+    }
+    getRoute(routeKey:string):ModuleArgument_Route{
+        return this.routes[routeKey]
+    }
+    getIsModuleProtected():boolean|undefined{
+        return this.isModuleProtected
+    }
+
     addChildModules(childModules: npModule[]){
         this.childModules = [...this.childModules, ...childModules]
     }
+    getFunctions():{[name:string]: Function}{
+        return this.functions
+    }
+    getFunction(name:string):Function{
+        return this.functions[name]
+    }
+    getPipeFunctions():{[name:string]: {forward:Function, backward:Function}}{
+        return this.pipeFunctions
+    }
+    getPipeFunction(name:string):{forward:Function, backward:Function}{
+        return this.pipeFunctions[name]
+    }
 
+    //setters
     addAndLoadRoute(route: ModuleArgument_Route){
         // load route into nodespull module
         this.routes[route.method.name+":"+route.path] = route
@@ -62,13 +93,6 @@ export class npModule {
          for(let childModule of this.childModules) if(!Object.keys(childModule.getRoutes()).includes(route.method.name+":"+route.path))
          childModule.addRoute(route)
     }
-    //getters and setters
-    getRoutes():{ [path:string]: ModuleArgument_Route }{
-        return this.routes
-    }
-    getRoute(routeKey:string):ModuleArgument_Route{
-        return this.routes[routeKey]
-    }
     addFunction(name:string, definition: Function){
         //overwrite copies of parent functions if new def with same name
         this.functions[name] = definition
@@ -76,11 +100,12 @@ export class npModule {
         for(let childModule of this.childModules) if(!Object.keys(childModule.getFunctions()).includes(name))
             childModule.addFunction(name,definition)
     }
-    getFunctions():{[name:string]: Function}{
-        return this.functions
-    }
-    getFunction(name:string):Function{
-        return this.functions[name]
+    addPipeFunction(pipeFunction: ModuleArgument_PipeFunction){
+        //overwrite copies of parent functions if new def with same name
+        this.pipeFunctions[pipeFunction.name] = pipeFunction.flow
+        //propagate new function to childModules
+        for(let childModule of this.childModules) if(!Object.keys(childModule.getPipeFunctions()).includes(pipeFunction.name))
+            childModule.addPipeFunction(pipeFunction)
     }
     setIsModuleActive(bool:boolean){
         this.isModuleActive = bool
@@ -94,13 +119,5 @@ export class npModule {
         for(let childModule of this.childModules) childModule.setIsModuleProtected(bool)
 
     }
-    getIsModuleProtected():boolean|undefined{
-        return this.isModuleProtected
-    }
 
-    reroute_to(method:Function, path:string, req:Request, res:Response){
-        let route = this.routes[method.name+":"+path]
-        if(!route) console.error("\x1b[31m",new Error(`route "${method.name}:${path}" not found in module "${this.name}"`), "\x1b[37m")
-        else route.handler(req,res);
-    }
 }

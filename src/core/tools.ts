@@ -59,3 +59,69 @@ export class Hash{
      */
     getValue():string{return this.value;}
 }
+
+
+
+/**
+ * Runs req and res objects through a series of np functions
+ * @param {Request} req client request object
+ * @param {Response} res client response object
+ * Example:
+ * ```
+ *      let pipeRes = new Pipe(req, res).setFunctions( 
+ *          func.myFunction1, 
+ *          func.myFunction2
+ *      ).run()
+ * ```
+ */
+export class Pipe{
+    private _forwardOnly: boolean = false
+    private _ignoreExceptions: boolean = false
+    private _functions:any[] = []
+
+    constructor(public req:Request, public res:Response){
+    }
+
+    /**
+     * run only forward functions in the pipe
+     */
+    forwardOnly(){
+        this._forwardOnly = true
+    }
+
+    /**
+     * do not stop pipe flow if an exception occurs
+     */
+    ignoreExceptions(){
+        this._ignoreExceptions = true
+    }
+
+    setFunctions(...args: any[]){
+        this._functions = args
+    }
+
+    /**
+     * runs req and res objects through a list of pipe functions
+     * @return {any|Error} any data returned from the last function, or the first Error encountered in the pipe
+     */
+    run(){
+        let consumed: any[] = [] // pipe functions that ran forward
+        let forwardResult
+        for(let pipefunc of this._functions){
+            forwardResult = pipefunc.forward(this.req, this.res)
+            consumed.push(pipefunc)
+            if(forwardResult instanceof Error){
+                if(this._ignoreExceptions) continue
+                else {
+                    if(this._forwardOnly)return forwardResult
+                    let backwardResult = forwardResult
+                    for(let consumedPipeFunc of consumed){
+                        backwardResult = consumedPipeFunc.backward(this.req, this.res, backwardResult)
+                    }
+                    return backwardResult
+                }
+            }
+        }
+        return forwardResult
+    }
+}

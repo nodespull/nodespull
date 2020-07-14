@@ -23,6 +23,7 @@ export class ModuleController {
         if(arg.name) actionPerformed = ModuleController.createModule(arg)
         if(arg.source && arg.route) actionPerformed = ModuleController.addRoute(arg)
         if(arg.source && arg.functions) actionPerformed = ModuleController.addFunctions(arg)
+        if(arg.source && arg.pipeFunction) actionPerformed = ModuleController.addPipeFunction(arg) 
 
         // arguments not recognized
         if(!actionPerformed) {
@@ -32,6 +33,7 @@ export class ModuleController {
         //return module data if source exists
         if(ModuleController.isModuleRegistered(arg.source!)) return {
             func: ModuleController.registeredModules[arg.source!].getFunctions(),
+            pipefunc: ModuleController.registeredModules[arg.source!].getPipeFunctions(),
             scope: ModuleController.registeredModules[arg.source!]
         }
     }
@@ -87,7 +89,7 @@ export class ModuleController {
 
     /**
      * register functions to module
-     * called only after all modules have been loaded - used to clean module tree
+     * called only after all modules have been loaded - also used to clean the module-file tree
      */
     static addFunctions(arg:ModuleArgument):boolean{
         //remove parent-placeholder modules if not already
@@ -100,6 +102,16 @@ export class ModuleController {
         for(let functionName of Object.keys(arg.functions!)){
             ModuleController.registeredModules[arg.source!].addFunction(functionName, arg.functions![functionName])
         }
+        return true
+    }
+
+    /**
+     * register pipe functions to module
+     */
+    static addPipeFunction(arg:ModuleArgument):boolean{
+        // register provided functions to a module
+        if(!ModuleController.isModuleRegistered(arg.source!)) return false
+        ModuleController.registeredModules[arg.source!].addPipeFunction(arg.pipeFunction!)
         return true
     }
 

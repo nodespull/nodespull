@@ -14,6 +14,10 @@ export class DatabaseTools {
         this._isModeInstall = isModeInstall;
     }
 
+    defineModel(){
+
+    }
+
     /**
      * Database configuration object as specified by (npm) Sequelize.
      * ```
@@ -98,8 +102,9 @@ export class DatabaseTools {
 
     }
 
-    async rawQuery(query:string):Promise<RawQueryResponse>{
-        let [results, metadata] = await DB_Controller.ORM.interface.query(query)
+    async rawQuery(query?:string):Promise<RawQueryResponse|null>{
+        if(!query) return Promise.resolve(null)
+        let [results, metadata] = await DB_Controller.ORM.interface.query(query!)
         return Promise.resolve({results, metadata})
     }
 
