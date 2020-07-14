@@ -21,6 +21,8 @@ let ModuleController = /** @class */ (() => {
                 actionPerformed = ModuleController.addRoute(arg);
             if (arg.source && arg.functions)
                 actionPerformed = ModuleController.addFunctions(arg);
+            if (arg.source && arg.pipeFunction)
+                actionPerformed = ModuleController.addPipeFunction(arg);
             // arguments not recognized
             if (!actionPerformed) {
                 console.error("\x1b[31m", new Error("module constructor invoked with invalid argument(s)"), "\x1b[37m");
@@ -29,6 +31,7 @@ let ModuleController = /** @class */ (() => {
             if (ModuleController.isModuleRegistered(arg.source))
                 return {
                     func: ModuleController.registeredModules[arg.source].getFunctions(),
+                    pipefunc: ModuleController.registeredModules[arg.source].getPipeFunctions(),
                     scope: ModuleController.registeredModules[arg.source]
                 };
         }
@@ -78,7 +81,7 @@ let ModuleController = /** @class */ (() => {
         }
         /**
          * register functions to module
-         * called only after all modules have been loaded - used to clean module tree
+         * called only after all modules have been loaded - also used to clean the module-file tree
          */
         static addFunctions(arg) {
             //remove parent-placeholder modules if not already
@@ -92,6 +95,16 @@ let ModuleController = /** @class */ (() => {
             for (let functionName of Object.keys(arg.functions)) {
                 ModuleController.registeredModules[arg.source].addFunction(functionName, arg.functions[functionName]);
             }
+            return true;
+        }
+        /**
+         * register pipe functions to module
+         */
+        static addPipeFunction(arg) {
+            // register provided functions to a module
+            if (!ModuleController.isModuleRegistered(arg.source))
+                return false;
+            ModuleController.registeredModules[arg.source].addPipeFunction(arg.pipeFunction);
             return true;
         }
         static isModuleRegistered(moduleName) {

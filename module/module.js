@@ -9,6 +9,7 @@ class npModule {
         this.childModules = childModules;
         this.routes = {};
         this.functions = {};
+        this.pipeFunctions = {};
         this.isParentPlaceholder = false;
         this.isModuleActive = undefined;
         this.isModuleProtected = undefined;
@@ -46,9 +47,39 @@ class npModule {
                 childModule.setIsModuleProtected(this.getIsModuleProtected());
         }
     }
+    reroute_to(method, path, req, res) {
+        let route = this.routes[method.name + ":" + path];
+        if (!route)
+            console.error("\x1b[31m", new Error(`route "${method.name}:${path}" not found in module "${this.name}"`), "\x1b[37m");
+        else
+            route.handler(req, res);
+    }
+    //getters
+    getRoutes() {
+        return this.routes;
+    }
+    getRoute(routeKey) {
+        return this.routes[routeKey];
+    }
+    getIsModuleProtected() {
+        return this.isModuleProtected;
+    }
     addChildModules(childModules) {
         this.childModules = [...this.childModules, ...childModules];
     }
+    getFunctions() {
+        return this.functions;
+    }
+    getFunction(name) {
+        return this.functions[name];
+    }
+    getPipeFunctions() {
+        return this.pipeFunctions;
+    }
+    getPipeFunction(name) {
+        return this.pipeFunctions[name];
+    }
+    //setters
     addAndLoadRoute(route) {
         // load route into nodespull module
         this.routes[route.method.name + ":" + route.path] = route;
@@ -75,13 +106,6 @@ class npModule {
             if (!Object.keys(childModule.getRoutes()).includes(route.method.name + ":" + route.path))
                 childModule.addRoute(route);
     }
-    //getters and setters
-    getRoutes() {
-        return this.routes;
-    }
-    getRoute(routeKey) {
-        return this.routes[routeKey];
-    }
     addFunction(name, definition) {
         //overwrite copies of parent functions if new def with same name
         this.functions[name] = definition;
@@ -90,11 +114,13 @@ class npModule {
             if (!Object.keys(childModule.getFunctions()).includes(name))
                 childModule.addFunction(name, definition);
     }
-    getFunctions() {
-        return this.functions;
-    }
-    getFunction(name) {
-        return this.functions[name];
+    addPipeFunction(pipeFunction) {
+        //overwrite copies of parent functions if new def with same name
+        this.pipeFunctions[pipeFunction.name] = pipeFunction.flow;
+        //propagate new function to childModules
+        for (let childModule of this.childModules)
+            if (!Object.keys(childModule.getPipeFunctions()).includes(pipeFunction.name))
+                childModule.addPipeFunction(pipeFunction);
     }
     setIsModuleActive(bool) {
         this.isModuleActive = bool;
@@ -108,16 +134,6 @@ class npModule {
         this.isModuleProtected = bool;
         for (let childModule of this.childModules)
             childModule.setIsModuleProtected(bool);
-    }
-    getIsModuleProtected() {
-        return this.isModuleProtected;
-    }
-    reroute_to(method, path, req, res) {
-        let route = this.routes[method.name + ":" + path];
-        if (!route)
-            console.error("\x1b[31m", new Error(`route "${method.name}:${path}" not found in module "${this.name}"`), "\x1b[37m");
-        else
-            route.handler(req, res);
     }
 }
 exports.npModule = npModule;
