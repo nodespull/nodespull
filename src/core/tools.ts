@@ -98,6 +98,7 @@ export class Pipe{
 
     setFunctions(...args: any[]){
         this._functions = args
+        return this
     }
 
     /**
@@ -108,8 +109,9 @@ export class Pipe{
         let consumed: any[] = [] // pipe functions that ran forward
         let forwardResult
         for(let pipefunc of this._functions){
+            if(!pipefunc) return console.error("\x1b[31m",new Error(`pipe has undefined or foreign pipefunction(s)`), "\x1b[37m")
             forwardResult = pipefunc.forward(this.req, this.res)
-            consumed.push(pipefunc)
+            consumed.unshift(pipefunc)
             if(forwardResult instanceof Error){
                 if(this._ignoreExceptions) continue
                 else {

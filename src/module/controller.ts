@@ -107,8 +107,14 @@ export class ModuleController {
 
     /**
      * register pipe functions to module
+     * called only after all modules have been loaded - also used to clean the module-file tree
      */
     static addPipeFunction(arg:ModuleArgument):boolean{
+        //remove parent-placeholder modules if not already
+        if(ModuleController.isLoadingModules){
+            ModuleController.isLoadingModules = false
+            ModuleController.pruneModules()
+        }
         // register provided functions to a module
         if(!ModuleController.isModuleRegistered(arg.source!)) return false
         ModuleController.registeredModules[arg.source!].addPipeFunction(arg.pipeFunction!)
