@@ -1,6 +1,6 @@
 
 import {DataTypes, Sequelize} from "sequelize";
-import {Table, TableRelation, TableDefinition} from "./Table";
+import {Table, TableRelation, TableDefinition, ModelDefinition} from "./Table";
 import DB_Controller from "./controller";
 import error from "../etc/errors";
 import { setTimeout } from "timers";
@@ -14,8 +14,8 @@ export class DatabaseTools {
         this._isModeInstall = isModeInstall;
     }
 
-    defineModel(){
-
+    defineModel(tableName:string):ModelDefinition{
+        return new ModelDefinition(tableName) // store somewhere
     }
 
     /**

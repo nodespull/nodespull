@@ -15,6 +15,7 @@ let DEFAULTS = {
 
 export default class DB_Controller{
     static final_HostAddr = ""
+    static isRunningMigration = false
 
     static ORM:ORM;
     static userConfig:any;
@@ -22,7 +23,8 @@ export default class DB_Controller{
         DB_Controller.ORM = !isModeInstall?new ORM(false,dbTools?dbTools.config:undefined):new ORM(true,{});
     }
     static connect(){
-        this.ORM.interface.sync({alter:true}).then(()=>{
+        if(this.isRunningMigration) console.log("Database migration complete")
+        else this.ORM.interface.sync({alter:true}).then(()=>{
             console.log("Database Connection Established");
         })
     }

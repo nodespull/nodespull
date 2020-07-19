@@ -74,12 +74,13 @@ export class Table{
      * ```
      *  Database.table("users").where({
      *      email: "user@email.com"
-     *  }).editOne( (editedUser,err) => {
+     *  }).edit( (editedUser,err) => {
      *      console.log(editedUser.email)
      *  })
      * ```
      */
     edit(row:any, callback:Function){
+        if(row.uuid) delete row.uuid
         if(!this._utils.where) error.db.missingWhere_for(this._model.name+".edit");
         this._model.update(row,{where:this._utils.where}).then((res:any)=>{
             callback(res.dataValues, null);
@@ -98,6 +99,7 @@ export class Table{
      * ```
      */
     insert(row:any, callback:Function){
+        if(row.uuid) delete row.uuid
         this._model.create(row, {include:[{all:true}]}).then((res:any)=>{
             callback(res.dataValues, null);
         }).catch(e=>{
@@ -109,8 +111,8 @@ export class Table{
      * ```
      *  Database.table("users").where({
      *      email: "user@email.com"
-     *  }).delete( (deletedUsed, err) => {
-     *      console.log(deletedUser.email+" removed")
+     *  }).delete( (_, err) => {
+     *      if(!err) console.log("user removed")
      *  })
      * ```
      */
@@ -144,6 +146,34 @@ export class TableDefinition{
         return DB_Controller.ORM.addTable(this._tableName,fields);
     }
 }
+
+
+export class ModelDefinition{
+    constructor(public _tableName:string){}
+    /**
+     * Define fields of the SQL table. Example:
+     * ```
+     * Database.defineModel('users').as({
+     *      email: Database.type.string,
+     *      phone: Database.type.int
+     * })
+     * ```
+     */
+    as(fields:any):void{
+        if(DB_Controller.isRunningMigration) {
+            DB_Controller.ORM.interface.models = {}
+            DB_Controller.ORM.interface.define(this._tableName,fields, {freezeTableName:true});
+            DB_Controller.ORM.interface.sync({alter:true}).error((err:any)=>{
+                console.error("\x1b[31m",`error: failed to update table '${this._tableName}'`, "\x1b[37m")
+            })
+        }
+        else{
+            DB_Controller.ORM.interface.define(this._tableName,fields, {freezeTableName:true});
+        }
+    }
+
+}
+
 
 export class TableRelation{
     private _model:sequelize.ModelCtor<sequelize.Model<any,any>>;

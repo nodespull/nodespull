@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TableRelation = exports.TableDefinition = exports.Table = void 0;
+exports.TableRelation = exports.ModelDefinition = exports.TableDefinition = exports.Table = void 0;
 const controller_1 = __importDefault(require("./controller"));
 const errors_1 = __importDefault(require("../etc/errors"));
 class Table {
@@ -75,12 +75,14 @@ class Table {
      * ```
      *  Database.table("users").where({
      *      email: "user@email.com"
-     *  }).editOne( (editedUser,err) => {
+     *  }).edit( (editedUser,err) => {
      *      console.log(editedUser.email)
      *  })
      * ```
      */
     edit(row, callback) {
+        if (row.uuid)
+            delete row.uuid;
         if (!this._utils.where)
             errors_1.default.db.missingWhere_for(this._model.name + ".edit");
         this._model.update(row, { where: this._utils.where }).then((res) => {
@@ -100,6 +102,8 @@ class Table {
      * ```
      */
     insert(row, callback) {
+        if (row.uuid)
+            delete row.uuid;
         this._model.create(row, { include: [{ all: true }] }).then((res) => {
             callback(res.dataValues, null);
         }).catch(e => {
@@ -111,8 +115,8 @@ class Table {
      * ```
      *  Database.table("users").where({
      *      email: "user@email.com"
-     *  }).delete( (deletedUsed, err) => {
-     *      console.log(deletedUser.email+" removed")
+     *  }).delete( (_, err) => {
+     *      if(!err) console.log("user removed")
      *  })
      * ```
      */
@@ -145,6 +149,33 @@ class TableDefinition {
     }
 }
 exports.TableDefinition = TableDefinition;
+class ModelDefinition {
+    constructor(_tableName) {
+        this._tableName = _tableName;
+    }
+    /**
+     * Define fields of the SQL table. Example:
+     * ```
+     * Database.defineModel('users').as({
+     *      email: Database.type.string,
+     *      phone: Database.type.int
+     * })
+     * ```
+     */
+    as(fields) {
+        if (controller_1.default.isRunningMigration) {
+            controller_1.default.ORM.interface.models = {};
+            controller_1.default.ORM.interface.define(this._tableName, fields, { freezeTableName: true });
+            controller_1.default.ORM.interface.sync({ alter: true }).error((err) => {
+                console.error("\x1b[31m", `error: failed to update table '${this._tableName}'`, "\x1b[37m");
+            });
+        }
+        else {
+            controller_1.default.ORM.interface.define(this._tableName, fields, { freezeTableName: true });
+        }
+    }
+}
+exports.ModelDefinition = ModelDefinition;
 class TableRelation {
     constructor(tableName, isModeInstall) {
         this._isModeInstall = isModeInstall;

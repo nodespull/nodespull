@@ -52,7 +52,8 @@ class DatabaseTools {
         this.op = sequelize_2.default.Op;
         this._isModeInstall = isModeInstall;
     }
-    defineModel() {
+    defineModel(tableName) {
+        return new Table_1.ModelDefinition(tableName); // store somewhere
     }
     /**
      * Add a SQL table relation. Example:

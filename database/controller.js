@@ -20,12 +20,16 @@ let DB_Controller = /** @class */ (() => {
             DB_Controller.ORM = !isModeInstall ? new ORM(false, dbTools ? dbTools.config : undefined) : new ORM(true, {});
         }
         static connect() {
-            this.ORM.interface.sync({ alter: true }).then(() => {
-                console.log("Database Connection Established");
-            });
+            if (this.isRunningMigration)
+                console.log("Database migration complete");
+            else
+                this.ORM.interface.sync({ alter: true }).then(() => {
+                    console.log("Database Connection Established");
+                });
         }
     }
     DB_Controller.final_HostAddr = "";
+    DB_Controller.isRunningMigration = false;
     return DB_Controller;
 })();
 exports.default = DB_Controller;
