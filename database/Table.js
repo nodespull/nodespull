@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TableRelation = exports.ModelDefinition = exports.TableDefinition = exports.Table = void 0;
 const controller_1 = __importDefault(require("./controller"));
-const errors_1 = __importDefault(require("../etc/errors"));
+const log_1 = __importDefault(require("../etc/log"));
 class Table {
     constructor(model) {
         this._utils = {
@@ -42,10 +42,14 @@ class Table {
      *  })
      * ```
      */
-    select(callback) {
+    select(callback, options) {
         if (!this._utils.where)
             this._utils.where = {};
-        this._model.findOne({ where: this._utils.where, include: [{ all: true }] }).then((res) => {
+        this._model.findOne({
+            where: this._utils.where,
+            include: [{ all: true }],
+            paranoid: options ? (options.softDeleted ? options.softDeleted == true : false) : false
+        }).then((res) => {
             callback(res.dataValues, null);
         }).catch(e => {
             callback(null, e);
@@ -61,10 +65,14 @@ class Table {
      *  })
      * ```
      */
-    selectAll(callback) {
+    selectAll(callback, options) {
         if (!this._utils.where)
             this._utils.where = {};
-        this._model.findAll({ where: this._utils.where, include: [{ all: true }] }).then((res) => {
+        this._model.findAll({
+            where: this._utils.where,
+            include: [{ all: true }],
+            paranoid: options ? (options.softDeleted ? options.softDeleted == true : false) : false
+        }).then((res) => {
             callback(res.map((v) => v.dataValues), null);
         }).catch(e => {
             callback(null, e);
@@ -84,7 +92,7 @@ class Table {
         if (row.uuid)
             delete row.uuid;
         if (!this._utils.where)
-            errors_1.default.db.missingWhere_for(this._model.name + ".edit");
+            log_1.default.db.missingWhere_for(this._model.name + ".edit");
         this._model.update(row, { where: this._utils.where }).then((res) => {
             callback(res.dataValues, null);
         }).catch(e => {
@@ -111,7 +119,7 @@ class Table {
         });
     }
     /**
-     * Delete one entry from the table as specified. Example:
+     * Mark one entry from the table as deleted. Example:
      * ```
      *  Database.table("users").where({
      *      email: "user@email.com"
@@ -122,8 +130,59 @@ class Table {
      */
     delete(callback) {
         if (!this._utils.where)
-            errors_1.default.db.missingWhere_for(this._model.name + ".delete");
+            log_1.default.db.missingWhere_for(this._model.name + ".delete");
         this._model.destroy({ where: this._utils.where }).then((res) => {
+            callback(res.dataValues, null);
+        }).catch(e => {
+            callback(null, e);
+        });
+    }
+    /**
+     * Mark one entry from the table as deleted. Example:
+     * ```
+     *  Database.table("users").where({
+     *      email: "user@email.com"
+     *  }).deleteSoft( (_, err) => {
+     *      if(!err) console.log("user removed")
+     *  })
+     * ```
+     */
+    deleteSoft(callback) {
+        this.delete(callback);
+    }
+    /**
+     * Remove one entry from the table. Example:
+     * ```
+     *  Database.table("users").where({
+     *      email: "user@email.com"
+     *  }).deleteHard( (_, err) => {
+     *      if(!err) console.log("user removed")
+     *  })
+     * ```
+     */
+    deleteHard(callback) {
+        if (!this._utils.where)
+            log_1.default.db.missingWhere_for(this._model.name + ".deleteHard");
+        this._model.destroy({ where: this._utils.where, force: true }).then((res) => {
+            callback(res.dataValues, null);
+        }).catch(e => {
+            callback(null, e);
+        });
+    }
+    /**
+     * Restore one deleted entry in the table. Example:
+     * ```
+     *  Database.table("users").where({
+     *      email: "user@email.com"
+     *  }).restore( (restoredUser, err) => {
+     *      if(!err) console.log(restoredUser+" restored")
+     *  })
+     * ```
+     */
+    restore(callback) {
+        if (!this._utils.where)
+            log_1.default.db.missingWhere_for(this._model.name + ".restore");
+        this._model.restore({ where: this._utils.where }).then((res) => {
             callback(res.dataValues, null);
         }).catch(e => {
             callback(null, e);
@@ -163,12 +222,9 @@ class ModelDefinition {
      * ```
      */
     as(fields) {
-        if (controller_1.default.isRunningMigration) {
-            controller_1.default.ORM.interface.models = {};
+        if (controller_1.default.migration.isRunning) {
+            //DB_Controller.ORM.interface.models = {}
             controller_1.default.ORM.interface.define(this._tableName, fields, { freezeTableName: true });
-            controller_1.default.ORM.interface.sync({ alter: true }).error((err) => {
-                console.error("\x1b[31m", `error: failed to update table '${this._tableName}'`, "\x1b[37m");
-            });
         }
         else {
             controller_1.default.ORM.interface.define(this._tableName, fields, { freezeTableName: true });

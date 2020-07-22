@@ -20,16 +20,19 @@ let DB_Controller = /** @class */ (() => {
             DB_Controller.ORM = !isModeInstall ? new ORM(false, dbTools ? dbTools.config : undefined) : new ORM(true, {});
         }
         static connect() {
-            if (this.isRunningMigration)
-                console.log("Database migration complete");
-            else
-                this.ORM.interface.sync({ alter: true }).then(() => {
+            this.ORM.interface.sync({ alter: true }).then(() => {
+                if (this.migration.isRunning)
+                    console.log("Database migration complete");
+                else
                     console.log("Database Connection Established");
-                });
+            });
         }
     }
     DB_Controller.final_HostAddr = "";
-    DB_Controller.isRunningMigration = false;
+    DB_Controller.migration = {
+        isRunning: false,
+        isRevertMode: false
+    };
     return DB_Controller;
 })();
 exports.default = DB_Controller;
@@ -60,7 +63,7 @@ class ORM {
             define: config.define ? config.define : {
                 charset: 'utf8',
                 collate: 'utf8_general_ci',
-                paranoid: config.paranoid ? config.paranoid : false // for now, we delete permanently - until we review db dependencies
+                paranoid: true
             }
         });
     }

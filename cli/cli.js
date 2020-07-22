@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getCmd = exports.start = void 0;
 const stdin_1 = __importDefault(require("../etc/system-tools/stdin"));
 const route_1 = require("./route/route");
-const table_1 = require("./table/table");
+const db_1 = require("./db");
 function start() {
     console.log("\n*** Nodespull CLI ***  \n(`help` for info)");
     main();
@@ -52,7 +52,7 @@ function getCmd(input, loop) {
                     break;
                 case "table":
                     if (createCmd.includes(userCmd))
-                        yield table_1.newTable(name, args[3]);
+                        yield db_1.newTable(name);
                     else
                         throw error.falseCmd;
                     console.log("\nTable \"" + name + "\" successfully created");

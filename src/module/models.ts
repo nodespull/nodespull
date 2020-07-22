@@ -22,10 +22,11 @@ export interface ModuleArgument_Route {
 
 export interface ModuleArgument_PipeFunction {
     name: string,
-    flow: {
-        forward: Function,
-        backward: Function
-    }
+    flow: PipeFunction
+}
+export interface PipeFunction {
+    forward:Function, 
+    backward:Function
 }
 
 export interface Module_CallableInstanceResponse {

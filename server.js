@@ -43,6 +43,7 @@ const json_1 = require("./etc/system-tools/json");
 const exe_log_1 = require("./cli/exe/exe.log");
 const deploy_1 = require("./cli/deploy/deploy");
 const controller_3 = require("./module/controller");
+const migration_1 = require("./database/migration");
 const packageJson = json_1.parseJSON("./package.json");
 exports.PORT = 8888;
 exports.DB_PORT_TEST = 3332;
@@ -51,11 +52,11 @@ let noDatabase = false;
 function startServer(port, after) {
     // check that cors configurations are set
     if (!isCorsSet)
-        console.warn("\x1b[33m", '\n\Warn: CORS config not set. please add (and edit if needed) the codes below to your "' + packageJson.main + '" file before calling $.server.ready():\n\n\
-    \t$.config.cors([  {domain: "*", methods: "POST, GET, DELETE, PUT, HEAD, OPTIONS"}  ])\n\n', "\x1b[37m");
+        new log_1.Log('CORS config not set. please add (and edit if needed) the codes below to your "' + packageJson.main + '" file before calling $.server.ready():\n\n\
+    \t$.config.cors([  {domain: "*", methods: "POST, GET, DELETE, PUT, HEAD, OPTIONS"}  ])\n\n').throwWarn();
     port = parseInt(process.env.PORT, 10) || port;
     app.listen(port, () => {
-        console.log("\x1b[32m", "\n\nApp Server Started at http://localhost:" + port + "\n Open \"nodespull_README.md\" for details.", "\x1b[37m");
+        new log_1.Log("\n\nApp Server Started at http://localhost:" + port + "\n Open \"nodespull_README.md\" for details.").FgGreen().printValue();
         if (after)
             after(port);
     });
@@ -122,6 +123,7 @@ let Server = /** @class */ (() => {
                 let doFlag = (flag && flag == "do") ? true : false; // runs in nodespull cli
                 let testFlag = (flag && flag == "test") ? true : false;
                 let deployFlag = (flag && flag == "deploy") ? true : false;
+                let migrateFlag = (flag && flag == "migrate") ? true : false;
                 if (runFlag_fromContainer) {
                     exports.db.config.host = "nodespull-db-server";
                     exports.db.config.port = "3306";
@@ -168,13 +170,16 @@ let Server = /** @class */ (() => {
                 }
                 else if (runFlag || runFlag_fromContainer) {
                     Server.isRunning = true;
-                    require("./fileRunner"); // now that sequelize obj is initialized, load routes, tables, and relations
+                    require("./files-runner"); // now that sequelize obj is initialized, load routes, tables, and relations
                     if (this._sys._beforeStart)
                         this._sys._beforeStart();
                     yield this._sys._start(this._sys._afterStart);
                 }
                 else if (deployFlag) {
                     deploy_1.deploy();
+                }
+                else if (migrateFlag) {
+                    new migration_1.Migration(process.argv[3]);
                 }
                 else {
                     console.log("\nTag missing. See options below: \n\
@@ -212,6 +217,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 // api documentation
 const loader_1 = __importDefault(require("./templates/swagger/loader"));
+const log_1 = require("./etc/log");
 loader_1.default(app);
 /**
  * Module controller

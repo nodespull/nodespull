@@ -15,7 +15,10 @@ let DEFAULTS = {
 
 export default class DB_Controller{
     static final_HostAddr = ""
-    static isRunningMigration = false
+    static migration = {
+        isRunning: false,
+        isRevertMode: false
+    }
 
     static ORM:ORM;
     static userConfig:any;
@@ -23,9 +26,9 @@ export default class DB_Controller{
         DB_Controller.ORM = !isModeInstall?new ORM(false,dbTools?dbTools.config:undefined):new ORM(true,{});
     }
     static connect(){
-        if(this.isRunningMigration) console.log("Database migration complete")
-        else this.ORM.interface.sync({alter:true}).then(()=>{
-            console.log("Database Connection Established");
+        this.ORM.interface.sync({alter:true}).then(()=>{
+            if(this.migration.isRunning) console.log("Database migration complete")
+            else console.log("Database Connection Established");
         })
     }
 }
@@ -61,7 +64,7 @@ class ORM {
             define: config.define?config.define:{ 
               charset: 'utf8',
               collate: 'utf8_general_ci',
-              paranoid: config.paranoid?config.paranoid:false // for now, we delete permanently - until we review db dependencies
+              paranoid: true
             }
         })
     }

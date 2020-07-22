@@ -1,12 +1,13 @@
-import {ModuleArgument_Route, ModuleArgument_PipeFunction} from "./models"
+import {ModuleArgument_Route, ModuleArgument_PipeFunction, PipeFunction} from "./models"
 import {Router} from "../server"
 import { Route } from "../route/controller"
+import {Log} from "../etc/log"
 
 export class npModule {
 
     private routes: { [path:string]: ModuleArgument_Route } = {}
     private functions: {[name:string]: Function} = {}
-    private pipeFunctions: {[name:string]: {forward:Function, backward:Function}} = {}
+    private pipeFunctions: {[name:string]: PipeFunction} = {}
 
     public isParentPlaceholder:boolean = false
     private isModuleActive:boolean|undefined = undefined
@@ -40,9 +41,17 @@ export class npModule {
         }
     }
 
-    reroute_to(method:Function, path:string, req:Request, res:Response){
+    /**
+     * 
+     * @param {Function} method http method of endpoint - from Router object
+     * @param {String} path path of endpoint
+     * @param {Request} req request object
+     * @param {Response} res response object
+     * example: reroute_to(Router.GET, "/home", req, res)
+     */
+    reroute_to(method:Function, path:string, req:Request, res:Response):void{
         let route = this.routes[method.name+":"+path]
-        if(!route) console.error("\x1b[31m",new Error(`route "${method.name}:${path}" not found in module "${this.name}"`), "\x1b[37m")
+        if(!route) new Log(`route "${method.name}:${path}" not found in module "${this.name}"`).throwError()
         else route.handler(req,res);
     }
 
@@ -66,10 +75,10 @@ export class npModule {
     getFunction(name:string):Function{
         return this.functions[name]
     }
-    getPipeFunctions():{[name:string]: {forward:Function, backward:Function}}{
+    getPipeFunctions():{[name:string]: PipeFunction}{
         return this.pipeFunctions
     }
-    getPipeFunction(name:string):{forward:Function, backward:Function}{
+    getPipeFunction(name:string):PipeFunction{
         return this.pipeFunctions[name]
     }
 

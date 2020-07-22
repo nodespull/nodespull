@@ -10,6 +10,7 @@ import fs from "fs"
 import {cmd} from "./cli/exe/exe.log"
 import {deploy} from "./cli/deploy/deploy"
 import { ModuleController } from "./module/controller"
+import { Migration } from "./database/migration"
 
 const packageJson = parseJSON("./package.json");
 
@@ -24,12 +25,11 @@ let noDatabase:boolean = false;
 
 function startServer(port:number, after?:Function){
     // check that cors configurations are set
-    if(!isCorsSet) console.warn("\x1b[33m",'\n\Warn: CORS config not set. please add (and edit if needed) the codes below to your "'+packageJson.main+'" file before calling $.server.ready():\n\n\
-    \t$.config.cors([  {domain: "*", methods: "POST, GET, DELETE, PUT, HEAD, OPTIONS"}  ])\n\n', "\x1b[37m")
-
+    if(!isCorsSet) new Log('CORS config not set. please add (and edit if needed) the codes below to your "'+packageJson.main+'" file before calling $.server.ready():\n\n\
+    \t$.config.cors([  {domain: "*", methods: "POST, GET, DELETE, PUT, HEAD, OPTIONS"}  ])\n\n').throwWarn()
     port = parseInt(process.env.PORT!, 10) || port;
     app.listen(port, ()=>{
-        console.log("\x1b[32m","\n\nApp Server Started at http://localhost:"+port+"\n Open \"nodespull_README.md\" for details.", "\x1b[37m");
+        new Log("\n\nApp Server Started at http://localhost:"+port+"\n Open \"nodespull_README.md\" for details.").FgGreen().printValue()
         if(after) after(port);
     });
 }
@@ -93,6 +93,7 @@ class Server {
         let doFlag = (flag && flag == "do")?true:false; // runs in nodespull cli
         let testFlag = (flag && flag == "test")?true:false;
         let deployFlag = (flag && flag == "deploy")?true:false;
+        let migrateFlag = (flag && flag == "migrate")?true:false;
 
         if(runFlag_fromContainer){
             db.config.host = "nodespull-db-server";
@@ -131,11 +132,13 @@ class Server {
             cmd('docker-compose', ["-f",sys_dir+"/docker-compose-all.yml","ps"], true);
         }else if(runFlag || runFlag_fromContainer){
             Server.isRunning = true;
-            require("./fileRunner"); // now that sequelize obj is initialized, load routes, tables, and relations
+            require("./files-runner"); // now that sequelize obj is initialized, load routes, tables, and relations
             if(this._sys._beforeStart) this._sys._beforeStart();
             await this._sys._start(this._sys._afterStart);
         }else if(deployFlag){
             deploy();
+        }else if(migrateFlag){
+            new Migration(process.argv[3])
         }else{
             console.log("\nTag missing. See options below: \n\
             \n  init        initialize nodespull app\
@@ -172,6 +175,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 // api documentation
 import swaggerLoader from "./templates/swagger/loader"
+import { Log } from "./etc/log";
 swaggerLoader(app);
 
 

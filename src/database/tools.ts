@@ -2,7 +2,7 @@
 import {DataTypes, Sequelize} from "sequelize";
 import {Table, TableRelation, TableDefinition, ModelDefinition} from "./Table";
 import DB_Controller from "./controller";
-import error from "../etc/errors";
+import error, { Log } from "../etc/log";
 import { setTimeout } from "timers";
 import sequelize from "sequelize";
 import { RawQueryResponse, QueryInterface } from "./models/query";
@@ -86,20 +86,22 @@ export class DatabaseTools {
         return new Table(DB_Controller.ORM.interface.model(name));
     }
 
-    /**
-     * Upload or revert a database version
-     * ```
-     * Database.Version({
-     * currentName: "table_name",
-     * versionID: "table_name-{{versionNumber}}-{{unixTime}}",
-     * purpose: "changes the name of table"
-     * onUpload: ()=>{Database.rawQuery("ALTER TABLE table_name RENAME TO new_table_name")},
-     * onRevert: ()=>{Database.rawQuery("ALTER TABLE new_table_name RENAME TO table_name")}
-     * })
-     * ```
-     */
-    Version():any{
 
+    /**
+     * Upload database version
+     * @param {Function} actions
+     */
+    onUpload(actions:Function){
+        if(!DB_Controller.migration.isRunning || DB_Controller.migration.isRevertMode) return;
+        actions()
+    }
+    /**
+     * Revert database to previous version
+     * @param {Function} actions
+     */
+    onRevert(actions:Function){
+        if(!DB_Controller.migration.isRunning || !DB_Controller.migration.isRevertMode) return;
+        actions()
     }
 
     async rawQuery(query?:string):Promise<RawQueryResponse|null>{
@@ -108,7 +110,7 @@ export class DatabaseTools {
         return Promise.resolve({results, metadata})
     }
 
-    queryInterface(): QueryInterface{
+    getQueryInterface(): QueryInterface{
         return DB_Controller.ORM.interface.getQueryInterface()
     }
 

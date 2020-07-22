@@ -1,5 +1,6 @@
-import { ModuleArgument, Module_CallableInstanceResponse } from "./models"
+import { ModuleArgument, Module_CallableInstanceResponse, PipeFunction } from "./models"
 import { npModule } from "./module";
+import { Log } from "../etc/log";
 
 
 
@@ -16,7 +17,7 @@ export class ModuleController {
      */
     hanlder(arg:ModuleArgument):Module_CallableInstanceResponse|undefined{
         if(!arg) {
-            console.error("\x1b[31m",new Error("module constructor called without argument"), "\x1b[37m")
+            new Log("module constructor called without argument").throwError()
             return undefined;
         }
         let actionPerformed = false;
@@ -27,14 +28,14 @@ export class ModuleController {
 
         // arguments not recognized
         if(!actionPerformed) {
-            console.error("\x1b[31m",new Error("module constructor invoked with invalid argument(s)"), "\x1b[37m")
+            new Log("module constructor invoked with invalid argument(s)").throwError()
         }
 
         //return module data if source exists
         if(ModuleController.isModuleRegistered(arg.source!)) return {
-            func: ModuleController.registeredModules[arg.source!].getFunctions(),
-            pipefunc: ModuleController.registeredModules[arg.source!].getPipeFunctions(),
-            scope: ModuleController.registeredModules[arg.source!]
+            /** @type {{[name:string]: Function}} */func: ModuleController.registeredModules[arg.source!].getFunctions(),
+            /** @type {{[name:string]: PipeFunction}} */ pipefunc: ModuleController.registeredModules[arg.source!].getPipeFunctions(),
+            /** @type {npModule} */ scope: ModuleController.registeredModules[arg.source!]
         }
     }
 
@@ -51,7 +52,7 @@ export class ModuleController {
         }
         // new module has existing twin (which is Not another module's parent-placeholder)
         if(ModuleController.isModuleRegistered(arg.name!) && !ModuleController.registeredModules[arg.name!].isParentPlaceholder){ //duplicate
-            console.error("\x1b[31m",new Error(`duplicate module with name "${arg.name}". Pointer not updated`), "\x1b[37m")
+            new Log(`duplicate module with name "${arg.name}". Pointer not updated`).throwError()
             return false
         }
         // new module has existing twin as another module's parent-placeholder
@@ -131,7 +132,7 @@ export class ModuleController {
             if(ModuleController.registeredModules[moduleName].isParentPlaceholder){
                 for(let childModule of ModuleController.registeredModules[moduleName].childModules){
                     childModule.parentModule = null
-                    console.error("\x1b[31m",new Error(`cannot find parent module "${moduleName}", pointer set to null`), "\x1b[37m")
+                    new Log(`cannot find parent module "${moduleName}", pointer set to null`).throwError()
                 }
             }
         }

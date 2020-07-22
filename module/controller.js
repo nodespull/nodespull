@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ModuleController = void 0;
 const module_1 = require("./module");
+const log_1 = require("../etc/log");
 let ModuleController = /** @class */ (() => {
     class ModuleController {
         constructor() { }
@@ -11,7 +12,7 @@ let ModuleController = /** @class */ (() => {
          */
         hanlder(arg) {
             if (!arg) {
-                console.error("\x1b[31m", new Error("module constructor called without argument"), "\x1b[37m");
+                new log_1.Log("module constructor called without argument").throwError();
                 return undefined;
             }
             let actionPerformed = false;
@@ -25,14 +26,14 @@ let ModuleController = /** @class */ (() => {
                 actionPerformed = ModuleController.addPipeFunction(arg);
             // arguments not recognized
             if (!actionPerformed) {
-                console.error("\x1b[31m", new Error("module constructor invoked with invalid argument(s)"), "\x1b[37m");
+                new log_1.Log("module constructor invoked with invalid argument(s)").throwError();
             }
             //return module data if source exists
             if (ModuleController.isModuleRegistered(arg.source))
                 return {
-                    func: ModuleController.registeredModules[arg.source].getFunctions(),
-                    pipefunc: ModuleController.registeredModules[arg.source].getPipeFunctions(),
-                    scope: ModuleController.registeredModules[arg.source]
+                    /** @type {{[name:string]: Function}} */ func: ModuleController.registeredModules[arg.source].getFunctions(),
+                    /** @type {{[name:string]: PipeFunction}} */ pipefunc: ModuleController.registeredModules[arg.source].getPipeFunctions(),
+                    /** @type {npModule} */ scope: ModuleController.registeredModules[arg.source]
                 };
         }
         /**
@@ -47,7 +48,7 @@ let ModuleController = /** @class */ (() => {
             }
             // new module has existing twin (which is Not another module's parent-placeholder)
             if (ModuleController.isModuleRegistered(arg.name) && !ModuleController.registeredModules[arg.name].isParentPlaceholder) { //duplicate
-                console.error("\x1b[31m", new Error(`duplicate module with name "${arg.name}". Pointer not updated`), "\x1b[37m");
+                new log_1.Log(`duplicate module with name "${arg.name}". Pointer not updated`).throwError();
                 return false;
             }
             // new module has existing twin as another module's parent-placeholder
@@ -123,7 +124,7 @@ let ModuleController = /** @class */ (() => {
                 if (ModuleController.registeredModules[moduleName].isParentPlaceholder) {
                     for (let childModule of ModuleController.registeredModules[moduleName].childModules) {
                         childModule.parentModule = null;
-                        console.error("\x1b[31m", new Error(`cannot find parent module "${moduleName}", pointer set to null`), "\x1b[37m");
+                        new log_1.Log(`cannot find parent module "${moduleName}", pointer set to null`).throwError();
                     }
                 }
             }

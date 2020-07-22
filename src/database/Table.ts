@@ -1,7 +1,8 @@
 import sequelize, { Sequelize } from "sequelize"
 import {DataTypes} from "sequelize"
 import DB_Controller from "./controller"
-import error from "../etc/errors"
+import error, { Log } from "../etc/log"
+import { QueryOption } from "./models/option";
 
 
 
@@ -43,9 +44,13 @@ export class Table{
      *  })
      * ```
      */
-    select(callback:Function){
+    select(callback:Function, options?:QueryOption){
         if(!this._utils.where) this._utils.where = {};
-        this._model.findOne({where:this._utils.where, include:[{all:true}]}).then((res:any)=>{
+        this._model.findOne({
+            where:this._utils.where, 
+            include:[{all:true}],
+            paranoid:options?(options.softDeleted?options.softDeleted==true:false):false
+        }).then((res:any)=>{
             callback(res.dataValues, null);
         }).catch(e=>{
             callback(null, e)
@@ -61,9 +66,13 @@ export class Table{
      *  })
      * ```
      */
-    selectAll(callback:Function){
+    selectAll(callback:Function, options?:QueryOption){
         if(!this._utils.where) this._utils.where = {};
-        this._model.findAll({where:this._utils.where, include:[{all:true}]}).then((res:any)=>{
+        this._model.findAll({
+            where:this._utils.where, 
+            include:[{all:true}], 
+            paranoid:options?(options.softDeleted?options.softDeleted==true:false):false
+        }).then((res:any)=>{
             callback(res.map((v:any)=>v.dataValues), null);
         }).catch(e=>{
             callback(null, e);
@@ -107,7 +116,7 @@ export class Table{
         })
     }
     /**
-     * Delete one entry from the table as specified. Example:
+     * Mark one entry from the table as deleted. Example:
      * ```
      *  Database.table("users").where({
      *      email: "user@email.com"
@@ -119,6 +128,55 @@ export class Table{
     delete(callback:Function){
         if(!this._utils.where) error.db.missingWhere_for(this._model.name+".delete");
         this._model.destroy({where:this._utils.where}).then((res:any)=>{
+            callback(res.dataValues, null);
+        }).catch(e=>{
+            callback(null, e);
+        })
+    }
+    /**
+     * Mark one entry from the table as deleted. Example:
+     * ```
+     *  Database.table("users").where({
+     *      email: "user@email.com"
+     *  }).deleteSoft( (_, err) => {
+     *      if(!err) console.log("user removed")
+     *  })
+     * ```
+     */
+    deleteSoft(callback:Function){
+        this.delete(callback)
+    }
+    /**
+     * Remove one entry from the table. Example:
+     * ```
+     *  Database.table("users").where({
+     *      email: "user@email.com"
+     *  }).deleteHard( (_, err) => {
+     *      if(!err) console.log("user removed")
+     *  })
+     * ```
+     */
+    deleteHard(callback:Function){
+        if(!this._utils.where) error.db.missingWhere_for(this._model.name+".deleteHard");
+        this._model.destroy({where:this._utils.where, force:true}).then((res:any)=>{
+            callback(res.dataValues, null);
+        }).catch(e=>{
+            callback(null, e);
+        })
+    }
+    /**
+     * Restore one deleted entry in the table. Example:
+     * ```
+     *  Database.table("users").where({
+     *      email: "user@email.com"
+     *  }).restore( (restoredUser, err) => {
+     *      if(!err) console.log(restoredUser+" restored")
+     *  })
+     * ```
+     */
+    restore(callback:Function){
+        if(!this._utils.where) error.db.missingWhere_for(this._model.name+".restore");
+        this._model.restore({where:this._utils.where}).then((res:any)=>{
             callback(res.dataValues, null);
         }).catch(e=>{
             callback(null, e);
@@ -160,15 +218,12 @@ export class ModelDefinition{
      * ```
      */
     as(fields:any):void{
-        if(DB_Controller.isRunningMigration) {
-            DB_Controller.ORM.interface.models = {}
-            DB_Controller.ORM.interface.define(this._tableName,fields, {freezeTableName:true});
-            DB_Controller.ORM.interface.sync({alter:true}).error((err:any)=>{
-                console.error("\x1b[31m",`error: failed to update table '${this._tableName}'`, "\x1b[37m")
-            })
+        if(DB_Controller.migration.isRunning) {
+            //DB_Controller.ORM.interface.models = {}
+            DB_Controller.ORM.interface.define(this._tableName, fields, {freezeTableName:true});
         }
         else{
-            DB_Controller.ORM.interface.define(this._tableName,fields, {freezeTableName:true});
+            DB_Controller.ORM.interface.define(this._tableName, fields, {freezeTableName:true});
         }
     }
 

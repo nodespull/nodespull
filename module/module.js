@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.npModule = void 0;
 const server_1 = require("../server");
+const log_1 = require("../etc/log");
 class npModule {
     constructor(name, parentModule, childModules) {
         this.name = name;
@@ -47,10 +48,18 @@ class npModule {
                 childModule.setIsModuleProtected(this.getIsModuleProtected());
         }
     }
+    /**
+     *
+     * @param {Function} method http method of endpoint - from Router object
+     * @param {String} path path of endpoint
+     * @param {Request} req request object
+     * @param {Response} res response object
+     * example: reroute_to(Router.GET, "/home", req, res)
+     */
     reroute_to(method, path, req, res) {
         let route = this.routes[method.name + ":" + path];
         if (!route)
-            console.error("\x1b[31m", new Error(`route "${method.name}:${path}" not found in module "${this.name}"`), "\x1b[37m");
+            new log_1.Log(`route "${method.name}:${path}" not found in module "${this.name}"`).throwError();
         else
             route.handler(req, res);
     }

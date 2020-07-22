@@ -1,6 +1,6 @@
 import stdin from "../etc/system-tools/stdin"
 import {newRoute} from "./route/route"
-import {newTable} from "./table/table"
+import {newTable} from "./db"
 
 export function start(){
     console.log("\n*** Nodespull CLI ***  \n(`help` for info)");
@@ -33,7 +33,7 @@ export async function getCmd(input:string, loop:boolean){
                 console.log("\nRoute \""+ name+"\" successfully created")
                 break;
             case "table": 
-                if(createCmd.includes(userCmd)) await newTable(name, args[3]);
+                if(createCmd.includes(userCmd)) await newTable(name);
                 else throw error.falseCmd;
                 console.log("\nTable \""+ name+"\" successfully created")
                 break;

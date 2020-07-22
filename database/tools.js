@@ -16,7 +16,7 @@ exports.Relations = exports.DatabaseToolsFactory = exports.DatabaseTools = void 
 const sequelize_1 = require("sequelize");
 const Table_1 = require("./Table");
 const controller_1 = __importDefault(require("./controller"));
-const errors_1 = __importDefault(require("../etc/errors"));
+const log_1 = __importDefault(require("../etc/log"));
 const sequelize_2 = __importDefault(require("sequelize"));
 class DatabaseTools {
     constructor(isModeInstall) {
@@ -86,22 +86,26 @@ class DatabaseTools {
      */
     table(name) {
         if (!controller_1.default.ORM)
-            errors_1.default.db.modelNotSaved();
+            log_1.default.db.modelNotSaved();
         return new Table_1.Table(controller_1.default.ORM.interface.model(name));
     }
     /**
-     * Upload or revert a database version
-     * ```
-     * Database.Version({
-     * currentName: "table_name",
-     * versionID: "table_name-{{versionNumber}}-{{unixTime}}",
-     * purpose: "changes the name of table"
-     * onUpload: ()=>{Database.rawQuery("ALTER TABLE table_name RENAME TO new_table_name")},
-     * onRevert: ()=>{Database.rawQuery("ALTER TABLE new_table_name RENAME TO table_name")}
-     * })
-     * ```
+     * Upload database version
+     * @param {Function} actions
      */
-    Version() {
+    onUpload(actions) {
+        if (!controller_1.default.migration.isRunning || controller_1.default.migration.isRevertMode)
+            return;
+        actions();
+    }
+    /**
+     * Revert database to previous version
+     * @param {Function} actions
+     */
+    onRevert(actions) {
+        if (!controller_1.default.migration.isRunning || !controller_1.default.migration.isRevertMode)
+            return;
+        actions();
     }
     rawQuery(query) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -111,7 +115,7 @@ class DatabaseTools {
             return Promise.resolve({ results, metadata });
         });
     }
-    queryInterface() {
+    getQueryInterface() {
         return controller_1.default.ORM.interface.getQueryInterface();
     }
 }
