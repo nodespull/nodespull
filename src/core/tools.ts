@@ -85,18 +85,20 @@ export class Pipe{
     /**
      * run only forward functions in the pipe
      */
-    forwardOnly(){
+    forwardOnly():Pipe{
         this._forwardOnly = true
+        return this
     }
 
     /**
      * do not stop pipe flow if an exception occurs
      */
-    ignoreExceptions(){
+    ignoreExceptions():Pipe{
         this._ignoreExceptions = true
+        return this
     }
 
-    setFunctions(...args: any[]){
+    setFunctions(...args: any[]):Pipe{
         this._functions = args
         return this
     }
@@ -105,7 +107,7 @@ export class Pipe{
      * runs req and res objects through a list of pipe functions
      * @return {any|Error} any data returned from the last function, or the first Error encountered in the pipe
      */
-    run(){
+    run():any|Error{
         let consumed: any[] = [] // pipe functions that ran forward
         let forwardResult
         for(let pipefunc of this._functions){

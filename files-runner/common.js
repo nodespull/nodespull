@@ -3,17 +3,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FilesRunner = void 0;
+exports.FilesEngine = void 0;
 const fs_1 = __importDefault(require("fs"));
 const install_1 = require("../install");
 // runner template
-let FilesRunner = /** @class */ (() => {
-    class FilesRunner {
+let FilesEngine = /** @class */ (() => {
+    class FilesEngine {
         constructor() { }
         /**
          * run all .js file recursively, given a folder
          */
-        recursiveRun(path, extension) {
+        recursiveSearch(path, extension, options) {
             try {
                 const dirents = fs_1.default.readdirSync(path, { withFileTypes: true });
                 const fileNames = dirents
@@ -22,17 +22,25 @@ let FilesRunner = /** @class */ (() => {
                 const folderNames = dirents
                     .filter(dirent => !dirent.isFile())
                     .map(dirent => dirent.name);
+                let paths = [];
                 for (let folderName of folderNames)
-                    this.recursiveRun(path + "/" + folderName, extension);
+                    paths = [...paths, ...this.recursiveSearch(path + "/" + folderName, extension, options)];
                 for (let fileName of fileNames) {
-                    if (fileName.slice(-1 * (extension.length + 1)).toLowerCase() === "." + extension.toLowerCase())
-                        require(path + "/" + fileName);
+                    if (fileName.slice(-1 * (extension.length + 1)).toLowerCase() === "." + extension.toLowerCase()) {
+                        if (options.runFiles)
+                            require(path + "/" + fileName);
+                        paths.push(path + "/" + fileName);
+                    }
                 }
+                return paths;
             }
-            catch (_a) { }
+            catch (e) {
+                console.error(e);
+                return [];
+            }
         }
     }
-    FilesRunner.rootPath = __dirname + `/../../../${install_1.appModule}/`;
-    return FilesRunner;
+    FilesEngine.rootPath = __dirname + `/../../../${install_1.appModule}/`;
+    return FilesEngine;
 })();
-exports.FilesRunner = FilesRunner;
+exports.FilesEngine = FilesEngine;

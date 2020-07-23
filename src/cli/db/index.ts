@@ -17,7 +17,10 @@ function getTemplate(template:string, tableName:string):string{
 
 export async function newTable(tableName:string){
     let currVersion = getCurrentDBVersion()
+    
     await cmd("mkdir", ["-p", root+`/database/stage.v${currVersion+1}/`+tableName], false);
+    await cmd("mkdir", ["-p", root+`/database/archives`], false);
+
     for(let template of Object.keys(templates)){
         let path = root+`/database/stage.v${currVersion+1}/`+tableName+ "/"+tableName+"."+template+".js";
         await cmd("touch",[path]), false;

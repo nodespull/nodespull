@@ -1,9 +1,9 @@
-import { FilesRunner } from "./common" ;
+import { FilesEngine } from "./common" ;
 
 
-export class Function_FilesRunner extends FilesRunner{
+export class Function_FilesRunner extends FilesEngine{
     constructor(){
         super()
-        super.recursiveRun(FilesRunner.rootPath, "func.js");
+        super.recursiveSearch(FilesEngine.rootPath, "func.js", {runFiles:true});
     }
 }

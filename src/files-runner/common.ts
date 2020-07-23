@@ -3,7 +3,7 @@ import {appModule} from "../install"
 
 
 // runner template
-export abstract class FilesRunner {
+export abstract class FilesEngine {
 
     static rootPath = __dirname+`/../../../${appModule}/`
 
@@ -12,7 +12,7 @@ export abstract class FilesRunner {
     /**
      * run all .js file recursively, given a folder
      */
-    recursiveRun(path: string, extension:string){
+    recursiveSearch(path: string, extension:string, options:RecursiveSearchOptions):string[]{
         try{
             const dirents = fs.readdirSync(path, { withFileTypes: true });
     
@@ -24,11 +24,25 @@ export abstract class FilesRunner {
                 .filter(dirent => !dirent.isFile())
                 .map(dirent => dirent.name);
             
-            for(let folderName of folderNames) this.recursiveRun(path+"/"+folderName, extension);
+            let paths: string[] = []
+
+            for(let folderName of folderNames) paths = [...paths, ...this.recursiveSearch(path+"/"+folderName, extension, options)];
             for(let fileName of fileNames) {
-                if(fileName.slice(-1*(extension.length+1)).toLowerCase() === "."+extension.toLowerCase()) require(path+"/"+fileName);
+                if(fileName.slice(-1*(extension.length+1)).toLowerCase() === "."+extension.toLowerCase()){
+                    if(options.runFiles) require(path+"/"+fileName);
+                    paths.push(path+"/"+fileName)
+                }
             }
+            return paths
         }
-        catch{}
+        catch(e){ 
+            console.error(e)
+            return []
+        }
     }
+
+}
+
+interface RecursiveSearchOptions {
+    runFiles: boolean
 }

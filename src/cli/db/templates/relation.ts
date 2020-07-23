@@ -2,30 +2,22 @@
 export default function relation(tableName:string):string{
 return `const { Relations } = require("nodespull/database/tools")
 const { Database } = require("nodespull")
-const { onUpload, onRevert } = Database
+const { onUpload, onRevert, rawQuery } = Database
 
 
 onUpload(() => {
-    Database.rawQuery(null)
     Relations.set(forTable = "${tableName}", {
-        one_to_one: {
-            /** add FK to other tables */ has: [],
-            /** add FKs to this table */ belongsTo: []
-        },
-        /** add FK to other tables */ one_to_many: ["messages"],
+        /** add FK to other tables */ has_one: [],
+        /** add FK to other tables */ has_many: [],
         /** create join tables */ many_to_many: []
     });
 })
 
 
 onRevert(() => {
-    Database.rawQuery(null)
     Relations.set(forTable = "${tableName}", {
-        one_to_one: {
-            /** add FK to other tables */ has: [],
-            /** add FKs to this table */ belongsTo: []
-        },
-        /** add FK to other tables */ one_to_many: [],
+        /** add FK to other tables */ has_one: [],
+        /** add FK to other tables */ has_many: [],
         /** create join tables */ many_to_many: []
     });
 })`

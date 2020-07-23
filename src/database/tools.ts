@@ -104,10 +104,14 @@ export class DatabaseTools {
         actions()
     }
 
-    async rawQuery(query?:string):Promise<RawQueryResponse|null>{
+    async runRawQuery(query?:string):Promise<RawQueryResponse|null>{
         if(!query) return Promise.resolve(null)
         let [results, metadata] = await DB_Controller.ORM.interface.query(query!)
         return Promise.resolve({results, metadata})
+    }
+    // only loads it into the migration obj -- will be ran migration.ts
+    rawQuery(query:string):void{
+        DB_Controller.migration.rawQueries.push(query)
     }
 
     getQueryInterface(): QueryInterface{
@@ -150,14 +154,20 @@ export class Relations{ // hard code reuse from DatabaseTools
         ){
         for(let oTo of one_to_one) new TableRelation(rootCopy1,false).one_to_one(oTo);
         for(let oTm of one_to_many) new TableRelation(rootCopy1,false).one_to_many(oTm);
-        for(let oTm of many_to_one) new TableRelation(oTm,false).one_to_many(rootCopy1);
+        if(many_to_one) for(let oTm of many_to_one) new TableRelation(oTm,false).one_to_many(rootCopy1);
         for(let mTm of many_to_many) new TableRelation(rootCopy1,false).many_to_many(mTm);
     }
     static set(rootTable:string, args:any){
-        for(let target of args.one_to_one.has) new TableRelation(rootTable,false).has_one(target);
-        for(let target of args.one_to_one.belongsTo) new TableRelation(rootTable,false).belongsTo_one(target);
-        for(let target of args.one_to_many) new TableRelation(rootTable,false).one_to_many(target);
-        for(let target of args.many_to_one) new TableRelation(target,false).many_to_many(rootTable);
+        if(args.one_to_one){
+            for(let target of args.one_to_one.has) new TableRelation(rootTable,false).has_one(target);
+            for(let target of args.one_to_one.belongsTo) new TableRelation(rootTable,false).belongsTo_one(target);
+        }
+        if(args.has_one) for(let target of args.has_one) new TableRelation(rootTable,false).has_one(target);
+
+        if(args.one_to_many) for(let target of args.one_to_many) new TableRelation(rootTable,false).one_to_many(target);
+        if(args.has_many) for(let target of args.has_many) new TableRelation(rootTable,false).one_to_many(target);
+
+        if(args.many_to_one) for(let target of args.many_to_one) new TableRelation(target,false).many_to_many(rootTable);
         for(let target of args.many_to_many) new TableRelation(rootTable,false).many_to_many(target);
     }
 }

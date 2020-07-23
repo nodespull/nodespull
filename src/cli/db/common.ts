@@ -5,11 +5,7 @@ const root = appModule;
 
 
 export function getCurrentDBVersion():number{
-    let rootDirs = fs.readdirSync(root, { withFileTypes: true });
-    let dbDirExists:boolean = false
-    for(let dirName of getDirNames(rootDirs)) if(dirName == "database") dbDirExists = true
-    if(!dbDirExists) cmd("mkdir", ["-p", root+"/database"], true);
-
+    if(!fs.existsSync(root+"/database")) return 0
     const dbDirents = fs.readdirSync(root+"/database", { withFileTypes: true });
     for(let dirName of getDirNames(dbDirents)) if(dirName.slice(0,4) == "at.v") return Number(dirName.slice(4))
     return 0

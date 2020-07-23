@@ -31,7 +31,8 @@ let DB_Controller = /** @class */ (() => {
     DB_Controller.final_HostAddr = "";
     DB_Controller.migration = {
         isRunning: false,
-        isRevertMode: false
+        isRevertMode: false,
+        rawQueries: new Array() // runs after model and relations are updated
     };
     return DB_Controller;
 })();

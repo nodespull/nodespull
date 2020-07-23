@@ -80,12 +80,14 @@ class Pipe {
      */
     forwardOnly() {
         this._forwardOnly = true;
+        return this;
     }
     /**
      * do not stop pipe flow if an exception occurs
      */
     ignoreExceptions() {
         this._ignoreExceptions = true;
+        return this;
     }
     setFunctions(...args) {
         this._functions = args;

@@ -28,6 +28,7 @@ function newTable(tableName) {
     return __awaiter(this, void 0, void 0, function* () {
         let currVersion = common_1.getCurrentDBVersion();
         yield exe_1.default("mkdir", ["-p", root + `/database/stage.v${currVersion + 1}/` + tableName], false);
+        yield exe_1.default("mkdir", ["-p", root + `/database/archives`], false);
         for (let template of Object.keys(templates)) {
             let path = root + `/database/stage.v${currVersion + 1}/` + tableName + "/" + tableName + "." + template + ".js";
             yield exe_1.default("touch", [path]), false;

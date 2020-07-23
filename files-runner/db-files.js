@@ -8,25 +8,25 @@ const fs_1 = __importDefault(require("fs"));
 const common_1 = require("./common");
 const controller_1 = __importDefault(require("../database/controller"));
 const log_1 = require("../etc/log");
-class DB_FilesRunner extends common_1.FilesRunner {
+class DB_FilesRunner extends common_1.FilesEngine {
     constructor() {
         super();
         if (controller_1.default.migration.isRunning) {
             let targetFolderPath;
             if (controller_1.default.migration.isRevertMode)
-                targetFolderPath = this.getFolderPath(common_1.FilesRunner.rootPath, "at.v"); // migration down scripts are in this folder
+                targetFolderPath = this.getFolderPath(common_1.FilesEngine.rootPath, "stage.v"); // migration down scripts are in this folder
             else
-                targetFolderPath = this.getFolderPath(common_1.FilesRunner.rootPath, "stage.v"); // migration up are here
+                targetFolderPath = this.getFolderPath(common_1.FilesEngine.rootPath, "at.v"); // migration up are here
             if (!targetFolderPath)
-                new log_1.Log(`missing folder with prefix '${controller_1.default.migration.isRevertMode ? "at.v" : "stage.v"}' in '${common_1.FilesRunner.rootPath.split("/").slice(-2)[0]}' directory tree`).throwError();
+                new log_1.Log(`missing folder with prefix '${controller_1.default.migration.isRevertMode ? "stage.v" : "at.v"}' in '${common_1.FilesEngine.rootPath.split("/").slice(-2)[0]}' directory tree`).throwError();
             else {
-                super.recursiveRun(targetFolderPath, "model.js");
-                super.recursiveRun(targetFolderPath, "relation.js");
+                super.recursiveSearch(targetFolderPath, "model.js", { runFiles: true });
+                super.recursiveSearch(targetFolderPath, "relation.js", { runFiles: true });
             }
         }
         else {
-            super.recursiveRun(common_1.FilesRunner.rootPath, "model.js");
-            super.recursiveRun(common_1.FilesRunner.rootPath, "relation.js");
+            super.recursiveSearch(common_1.FilesEngine.rootPath, "model.js", { runFiles: true });
+            super.recursiveSearch(common_1.FilesEngine.rootPath, "relation.js", { runFiles: true });
         }
     }
     /**

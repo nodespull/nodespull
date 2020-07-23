@@ -17,8 +17,10 @@ export default class DB_Controller{
     static final_HostAddr = ""
     static migration = {
         isRunning: false,
-        isRevertMode: false
+        isRevertMode: false,
+        rawQueries: new Array<string>() // runs after model and relations are updated
     }
+
 
     static ORM:ORM;
     static userConfig:any;

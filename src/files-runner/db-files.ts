@@ -1,28 +1,28 @@
 import fs from "fs"
-import { FilesRunner } from "./common" ;
+import { FilesEngine } from "./common" ;
 import DB_Controller from "../database/controller";
 import { Log } from "../etc/log";
 
-export class DB_FilesRunner extends FilesRunner{
+export class DB_FilesRunner extends FilesEngine{
 
     constructor(){
         super()
 
         if(DB_Controller.migration.isRunning) {
             let targetFolderPath:string|undefined
-            if(DB_Controller.migration.isRevertMode) targetFolderPath = this.getFolderPath(FilesRunner.rootPath, "at.v") // migration down scripts are in this folder
-            else targetFolderPath = this.getFolderPath(FilesRunner.rootPath, "stage.v") // migration up are here
+            if(DB_Controller.migration.isRevertMode) targetFolderPath = this.getFolderPath(FilesEngine.rootPath, "stage.v") // migration down scripts are in this folder
+            else targetFolderPath = this.getFolderPath(FilesEngine.rootPath, "at.v") // migration up are here
 
             if(!targetFolderPath) 
-                new Log(`missing folder with prefix '${DB_Controller.migration.isRevertMode?"at.v":"stage.v"}' in '${FilesRunner.rootPath.split("/").slice(-2)[0]}' directory tree`).throwError()
+                new Log(`missing folder with prefix '${DB_Controller.migration.isRevertMode?"stage.v":"at.v"}' in '${FilesEngine.rootPath.split("/").slice(-2)[0]}' directory tree`).throwError()
             else{
-                super.recursiveRun(targetFolderPath, "model.js");
-                super.recursiveRun(targetFolderPath, "relation.js");
+                super.recursiveSearch(targetFolderPath, "model.js", {runFiles:true});
+                super.recursiveSearch(targetFolderPath, "relation.js", {runFiles:true});
             }
         }
         else{
-            super.recursiveRun(FilesRunner.rootPath, "model.js");
-            super.recursiveRun(FilesRunner.rootPath, "relation.js");
+            super.recursiveSearch(FilesEngine.rootPath, "model.js", {runFiles:true});
+            super.recursiveSearch(FilesEngine.rootPath, "relation.js", {runFiles:true});
         }
     }
 
