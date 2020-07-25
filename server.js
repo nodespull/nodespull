@@ -192,6 +192,7 @@ let Server = /** @class */ (() => {
             \n  stop        stop nodespull servers: database, db_portal\
             \n  boot -c     start nodespull servers and run app in container: app, database, db_portal\
             \n  stop -c     stop all nodespull servers: app, database, db_portal\
+            \n  migrate     use with (up | down | freeze)\
             \n  build       build your app\
             \n  deploy      deploy your app and get a url\
             \n  status      show the status of servers\n");

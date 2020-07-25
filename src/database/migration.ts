@@ -22,11 +22,24 @@ export class Migration extends FilesEngine{
         this.currDBVersion = getCurrentDBVersion()
         if(arg == "up") this.up()
         else if(arg == "down") this.down()
-        else new Log("migration command incorrect. use 'up' or 'down'").throwError()
+        else if(arg == "freeze") this.inplace()
+        else new Log("migration command incorrect. use 'up', 'down', or 'update'").throwError()
+    }
+
+    inplace(){
+        console.log(`start database update using schema 'at.v${this.currDBVersion+1}' ..`)
+        DB_Controller.migration.isRunning = true // pseudo migration
+        new DB_FilesRunner()
+        DB_Controller.ORM.interface.sync({alter:true}).then((res:any, err:any)=>{
+            if(err) return console.log(err)
+            for(let query of DB_Controller.migration.rawQueries) Database.runRawQuery(query)
+            new Log(`job ran for database '${res.config.database}'`).FgGreen().printValue()
+            console.log("closing migration job ..\n")
+        })
     }
 
     up(){
-        console.log(`start database migration toward schema at 'stage.v${this.currDBVersion+1}' ..`)
+        console.log(`start database migration toward schema 'stage.v${this.currDBVersion+1}' ..`)
         DB_Controller.migration.isRunning = true
         this.update_FileStructure_onUp()
         new DB_FilesRunner()
@@ -34,7 +47,7 @@ export class Migration extends FilesEngine{
             if(err) return console.log(err)
             for(let query of DB_Controller.migration.rawQueries) Database.runRawQuery(query)
             new Log(`job ran for database '${res.config.database}'`).FgGreen().printValue()
-            console.log("closing connection ..\n")
+            console.log("closing migration job ..\n")
         })
     }
 
@@ -47,7 +60,7 @@ export class Migration extends FilesEngine{
             new Log("database already at initial version").throwWarn()
             process.exit(1)
         }
-        console.log(`start database revert towards schema at 'archives/last.v${this.currDBVersion-1}' ..`)
+        console.log(`start database revert towards schema 'archives/last.v${this.currDBVersion-1}' ..`)
         DB_Controller.migration.isRunning = true
         DB_Controller.migration.isRevertMode = true
         this.update_FileStructure_onDown()
@@ -56,34 +69,24 @@ export class Migration extends FilesEngine{
             if(err) return console.log(err)
             for(let query of DB_Controller.migration.rawQueries) Database.runRawQuery(query)
             new Log(`job ran for database '${res.config.database}'`).FgGreen().printValue()
-            console.log("closing connection ..\n")
+            console.log("closing migration job ..\n")
         })
     }
 
     private update_FileStructure_onUp(){
-        if(this.currDBVersion > 1) 
+        if(this.currDBVersion >= 2) 
             cmd("mv", [root+"/database/archives/last.v"+(this.currDBVersion-1), root+"/database/archives/v"+(this.currDBVersion-1)], true); // mv last.vx to vx
-        if (this.currDBVersion > 0)
+        if (this.currDBVersion >= 1)
             cmd("mv", [root+"/database/at.v"+(this.currDBVersion), root+"/database/archives/last.v"+(this.currDBVersion)], true); // mv at.vx to last.vx
         cmd("cp",["-r" ,root+"/database/stage.v"+(this.currDBVersion+1), root+"/database/at.v"+(this.currDBVersion+1)], true); // cp stage.vx to at.vx
-        cmd("mv", [root+"/database/stage.v"+(this.currDBVersion+1), root+"/database/stage.v"+(this.currDBVersion+2)], true); // mv stage.vx to stage.vx+1
-        
-        // empty the files contents in stage.v
-        // setTimeout(()=>{
-        //     let stageModelPaths = this.recursiveSearch(FilesEngine.rootPath+"/database/stage.v"+(this.currDBVersion+2), "model.js", {runFiles:false})
-        //     let stageRelationsPaths = this.recursiveSearch(FilesEngine.rootPath+"/database/stage.v"+(this.currDBVersion+2), "relation.js", {runFiles:false})
-        //     for(let filePath of stageModelPaths) fs.writeFileSync(filePath,stageModelTemplate(),{encoding:'utf8',flag:'w'})
-        //     for(let filePath of stageRelationsPaths) fs.writeFileSync(filePath,stageRelationTemplate(),{encoding:'utf8',flag:'w'})
-        // },2000)
-        
+        cmd("mv", [root+"/database/stage.v"+(this.currDBVersion+1), root+"/database/stage.v"+(this.currDBVersion+2)], true); // mv stage.vx to stage.v(x+1)
     }
-
 
     private update_FileStructure_onDown(){
         cmd("rm", ["-rf", root+"/database/stage.v"+(this.currDBVersion+1)], true); // rm stage.vx
         cmd("mv", [root+"/database/at.v"+(this.currDBVersion), root+"/database/stage.v"+(this.currDBVersion)], true); // mv at.vx to stage.vx
         cmd("mv", [root+"/database/archives/last.v"+(this.currDBVersion-1), root+"/database/at.v"+(this.currDBVersion-1)], true); // mv last.vx to at.vx
-        if(this.currDBVersion > 2)
+        if(this.currDBVersion >= 3)
             cmd("mv", [root+"/database/archives/v"+(this.currDBVersion-2), root+"/database/archives/last.v"+(this.currDBVersion-2)], true); // mv vx to last.vx
     }
 

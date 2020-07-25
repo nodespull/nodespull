@@ -15,6 +15,14 @@ export interface npModuleArgInterface { // interface for arguments used to creat
     imports: npModule[]
 }
 
+export interface npModuleSelfObjectInterface {
+    name: string,
+    imports: npModule[],
+    forward: Function,
+    service: { [name: string]: any },
+    route: { [selector: string]: npRouteInterface }
+}
+
 export interface npRouteInterface {
     loader: npModule,
     method: Function,

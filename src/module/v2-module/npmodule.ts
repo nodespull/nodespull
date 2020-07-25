@@ -1,4 +1,4 @@
-import { npServiceInterface, npModuleUserInterface, npRouteInterface } from "./models"
+import { npServiceInterface, npModuleUserInterface, npRouteInterface, npModuleSelfObjectInterface } from "./models"
 import { http } from "../../server"
 import { Log } from "../../etc/log"
 
@@ -114,7 +114,8 @@ export class npModule {
 
 
 class npRouteForward {
-    constructor(private req:Request, private res:Response, private module:npModule){}
+    constructor(private req:Request, private res:Response, private module:any){}
+    // module type will be npModuleSelfObjectInterface
 
     /**
      * @param {Function} method http method of endpoint - from Router object
@@ -122,9 +123,9 @@ class npRouteForward {
      * example: forward(req, res).to(Router.GET, "/home")
      */
     to(method: Function, path: string): void {
-        let route = this.module._route[method.name + ":" + path]
-        if(!route && this.module._importedModules.length > 0) 
-            for(let module of this.module._importedModules) module._forward(this.req,this.res).to(method,path)
+        let route = this.module.route[method.name + ":" + path]
+        if(!route && this.module.imports.length > 0) 
+            for(let module of this.module.imports) module._forward(this.req,this.res).to(method,path)
         else if (!route) new Log(`route forwarding: "${method.name}:${path}" not found"`).throwError()
         else route.handler(this.req, this.res);
     }

@@ -118,15 +118,16 @@ class npRouteForward {
         this.res = res;
         this.module = module;
     }
+    // module type will be npModuleSelfObjectInterface
     /**
      * @param {Function} method http method of endpoint - from Router object
      * @param {String} path path of endpoint
      * example: forward(req, res).to(Router.GET, "/home")
      */
     to(method, path) {
-        let route = this.module._route[method.name + ":" + path];
-        if (!route && this.module._importedModules.length > 0)
-            for (let module of this.module._importedModules)
+        let route = this.module.route[method.name + ":" + path];
+        if (!route && this.module.imports.length > 0)
+            for (let module of this.module.imports)
                 module._forward(this.req, this.res).to(method, path);
         else if (!route)
             new log_1.Log(`route forwarding: "${method.name}:${path}" not found"`).throwError();
