@@ -2,6 +2,8 @@
 import {Hash_Sha} from "../etc/system-tools/hash"
 import {JWT} from "../route/auth/jwt"
 import {json} from "./type/sys"
+import { npServiceInterface } from "../module/v2-module/models";
+import { Log } from "../etc/log";
 
 
 /**
@@ -77,7 +79,9 @@ export class Hash{
 export class Pipe{
     private _forwardOnly: boolean = false
     private _ignoreExceptions: boolean = false
-    private _functions:any[] = []
+    private _pipeServices:npServiceInterface[] = []
+    private _consumed: npServiceInterface[] = [] // pipe services that ran forward
+    private _callback:Function = (result:any,error:Error)=>{}
 
     constructor(public req:Request, public res:Response){
     }
@@ -98,8 +102,14 @@ export class Pipe{
         return this
     }
 
-    setFunctions(...args: any[]):Pipe{
-        this._functions = args
+    setFunctions(...args: npServiceInterface[]):Pipe{
+        for(let service of args) {
+            if(!service.functions.forward || !service.functions.backward){
+                new Log(`non pipe-usable service '${service.selector}' - missisng 'forward' or 'backward' function`).throwError()
+                process.exit(1)
+            }
+        }
+        this._pipeServices = args
         return this
     }
 
@@ -107,25 +117,34 @@ export class Pipe{
      * runs req and res objects through a list of pipe functions
      * @return {any|Error} any data returned from the last function, or the first Error encountered in the pipe
      */
-    run():any|Error{
-        let consumed: any[] = [] // pipe functions that ran forward
-        let forwardResult
-        for(let pipefunc of this._functions){
-            if(!pipefunc) return console.error("\x1b[31m",new Error(`pipe has undefined or foreign pipefunction(s)`), "\x1b[37m")
-            forwardResult = pipefunc.forward(this.req, this.res)
-            consumed.unshift(pipefunc)
-            if(forwardResult instanceof Error){
-                if(this._ignoreExceptions) continue
-                else {
-                    if(this._forwardOnly)return forwardResult
-                    let backwardResult = forwardResult
-                    for(let consumedPipeFunc of consumed){
-                        backwardResult = consumedPipeFunc.backward(this.req, this.res, backwardResult)
-                    }
-                    return backwardResult
-                }
+    run(callback:Function){
+        this._callback = callback
+        this._forwardFlow(null)
+    }
+
+    /**
+     * defines the flow of the pipe -- service call order
+     */
+    _forwardFlow(data:any){
+        if(data instanceof Error){
+            if(!this._ignoreExceptions){
+                if(this._forwardOnly) this._callback(null, data)
+                else this._backwardFlow(data)
             }
         }
-        return forwardResult
+        else{
+            let service = this._pipeServices.shift()
+            if(service){
+                this._consumed.push(service)
+                service.functions.forward(this.req, this.res, this._forwardFlow, data)
+            }
+            else this._callback(data, null)
+        }
+    }
+
+    _backwardFlow(error:Error){
+        let service = this._consumed.pop()
+        if(service) service.functions.backward(this.req, this.res, this._backwardFlow, error)
+        else this._callback(null, error)
     }
 }

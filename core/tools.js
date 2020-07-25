@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Pipe = exports.Hash = exports.Session = void 0;
 const hash_1 = require("../etc/system-tools/hash");
 const jwt_1 = require("../route/auth/jwt");
+const log_1 = require("../etc/log");
 /**
  * Create a client session that stores data
  * @param data any information you'd like to save
@@ -73,7 +74,9 @@ class Pipe {
         this.res = res;
         this._forwardOnly = false;
         this._ignoreExceptions = false;
-        this._functions = [];
+        this._pipeServices = [];
+        this._consumed = []; // pipe services that ran forward
+        this._callback = (result, error) => { };
     }
     /**
      * run only forward functions in the pipe
@@ -90,36 +93,51 @@ class Pipe {
         return this;
     }
     setFunctions(...args) {
-        this._functions = args;
+        for (let service of args) {
+            if (!service.functions.forward || !service.functions.backward) {
+                new log_1.Log(`non pipe-usable service '${service.selector}' - missisng 'forward' or 'backward' function`).throwError();
+                process.exit(1);
+            }
+        }
+        this._pipeServices = args;
         return this;
     }
     /**
      * runs req and res objects through a list of pipe functions
      * @return {any|Error} any data returned from the last function, or the first Error encountered in the pipe
      */
-    run() {
-        let consumed = []; // pipe functions that ran forward
-        let forwardResult;
-        for (let pipefunc of this._functions) {
-            if (!pipefunc)
-                return console.error("\x1b[31m", new Error(`pipe has undefined or foreign pipefunction(s)`), "\x1b[37m");
-            forwardResult = pipefunc.forward(this.req, this.res);
-            consumed.unshift(pipefunc);
-            if (forwardResult instanceof Error) {
-                if (this._ignoreExceptions)
-                    continue;
-                else {
-                    if (this._forwardOnly)
-                        return forwardResult;
-                    let backwardResult = forwardResult;
-                    for (let consumedPipeFunc of consumed) {
-                        backwardResult = consumedPipeFunc.backward(this.req, this.res, backwardResult);
-                    }
-                    return backwardResult;
-                }
+    run(callback) {
+        this._callback = callback;
+        this._forwardFlow(null);
+    }
+    /**
+     * defines the flow of the pipe -- service call order
+     */
+    _forwardFlow(data) {
+        if (data instanceof Error) {
+            if (!this._ignoreExceptions) {
+                if (this._forwardOnly)
+                    this._callback(null, data);
+                else
+                    this._backwardFlow(data);
             }
         }
-        return forwardResult;
+        else {
+            let service = this._pipeServices.shift();
+            if (service) {
+                this._consumed.push(service);
+                service.functions.forward(this.req, this.res, this._forwardFlow, data);
+            }
+            else
+                this._callback(data, null);
+        }
+    }
+    _backwardFlow(error) {
+        let service = this._consumed.pop();
+        if (service)
+            service.functions.backward(this.req, this.res, this._backwardFlow, error);
+        else
+            this._callback(null, error);
     }
 }
 exports.Pipe = Pipe;

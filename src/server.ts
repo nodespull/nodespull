@@ -9,7 +9,11 @@ import {parseJSON, writeJSON} from "./etc/system-tools/json"
 import fs from "fs"
 import {cmd} from "./cli/exe/exe.log"
 import {deploy} from "./cli/deploy/deploy"
-import { ModuleController } from "./module/controller"
+import { npModuleController } from "./module/v2-module/controllers/npModuleController"
+import { npRouteController } from "./module/v2-module/controllers/npRouteController"
+import { npServiceController } from "./module/v2-module/controllers/npServiceController"
+
+
 import { Migration } from "./database/migration"
 
 const packageJson = parseJSON("./package.json");
@@ -183,7 +187,9 @@ swaggerLoader(app);
 /**
  * Module controller
  */
-export const Module = ModuleController.getCallableInstance();
+export const npModule = npModuleController.handler
+export const npRoute = npRouteController.handler
+export const npService = npRouteController.handler
 
 
 /**
@@ -197,6 +203,7 @@ export const appServer = app
  */
 export const route = new Route(app);
 export const Router = route;
+export const http = route;
 
 
 /**

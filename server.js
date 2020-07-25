@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.config = exports.server = exports.Router = exports.route = exports.appServer = exports.Module = exports.Database = exports.db = exports.DB_PORT_TEST = exports.PORT = void 0;
+exports.config = exports.server = exports.http = exports.Router = exports.route = exports.appServer = exports.npService = exports.npRoute = exports.npModule = exports.Database = exports.db = exports.DB_PORT_TEST = exports.PORT = void 0;
 const install_1 = require("./install");
 const cli = __importStar(require("./cli/cli"));
 const express_1 = __importDefault(require("express"));
@@ -42,7 +42,8 @@ const jwt_1 = require("./route/auth/jwt");
 const json_1 = require("./etc/system-tools/json");
 const exe_log_1 = require("./cli/exe/exe.log");
 const deploy_1 = require("./cli/deploy/deploy");
-const controller_3 = require("./module/controller");
+const npModuleController_1 = require("./module/v2-module/controllers/npModuleController");
+const npRouteController_1 = require("./module/v2-module/controllers/npRouteController");
 const migration_1 = require("./database/migration");
 const packageJson = json_1.parseJSON("./package.json");
 exports.PORT = 8888;
@@ -222,7 +223,9 @@ loader_1.default(app);
 /**
  * Module controller
  */
-exports.Module = controller_3.ModuleController.getCallableInstance();
+exports.npModule = npModuleController_1.npModuleController.handler;
+exports.npRoute = npRouteController_1.npRouteController.handler;
+exports.npService = npRouteController_1.npRouteController.handler;
 /**
  * App server
  */
@@ -232,6 +235,7 @@ exports.appServer = app;
  */
 exports.route = new controller_2.Route(app);
 exports.Router = exports.route;
+exports.http = exports.route;
 /**
  * Main module
  */
