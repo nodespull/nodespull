@@ -48,14 +48,17 @@ class npModule {
     _addService(service) {
         let val = {};
         // load functions and fields with function taking precedence
-        for (let fieldName of Object.keys(service.fields))
-            val[fieldName] = service.fields[fieldName];
-        for (let funcName of Object.keys(service.functions)) {
-            if (!(service.functions[funcName] instanceof Function)) {
-                new log_1.Log(`element '${funcName}' in service '${this._name}' is not a function`).throwError();
-                process.exit(1);
+        if (service.fields)
+            for (let fieldName of Object.keys(service.fields))
+                val[fieldName] = service.fields[fieldName];
+        if (service.functions) {
+            for (let funcName of Object.keys(service.functions)) {
+                if (!(service.functions[funcName] instanceof Function)) {
+                    new log_1.Log(`element '${funcName}' in service '${this._name}' is not a function`).throwError();
+                    process.exit(1);
+                }
+                val[funcName] = service.functions[funcName];
             }
-            val[funcName] = service.functions[funcName];
         }
         val = service.default || val; // set value of service to default if exist
         if (service.bootstrap) { // selector returns promise(s) if bootstrap is true
@@ -81,17 +84,19 @@ class npModule {
             return res;
         }
         res = {};
-        for (let funcName of Object.keys(service.functions)) {
-            if (!(service.functions[funcName] instanceof Function)) {
-                new log_1.Log(`element '${funcName}' in service '${this._name}' is not a function`).throwError();
-                process.exit(1);
+        if (service.functions) {
+            for (let funcName of Object.keys(service.functions)) {
+                if (!(service.functions[funcName] instanceof Function)) {
+                    new log_1.Log(`element '${funcName}' in service '${service.selector}' is not a function`).throwError();
+                    process.exit(1);
+                }
+                let funcRes = service.functions[funcName]();
+                if (funcRes && !(funcRes instanceof Promise)) {
+                    new log_1.Log(`self booted function '${funcName}' of service '${service.selector}' has return value type other than 'Promise'`).throwError();
+                    process.exit(1);
+                }
+                res[funcName] = funcRes;
             }
-            let funcRes = service.functions[funcName]();
-            if (funcRes && !(funcRes instanceof Promise)) {
-                new log_1.Log(`self booted function '${funcName}' of service '${this._name}' has return value type other than 'Promise'`).throwError();
-                process.exit(1);
-            }
-            res[funcName] = funcRes;
         }
         return res;
     }

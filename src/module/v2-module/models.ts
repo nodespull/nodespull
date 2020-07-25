@@ -31,7 +31,12 @@ export interface npServiceInterface {
     selector: string,
     bootstrap: boolean,
     isCallable: boolean,
-    default: any,
-    functions: {[name:string]: Function},
-    fields: any
+    default: any|undefined,
+    functions: {[name:string]: Function}|undefined, //includes npServicePipeFunction
+    fields: any|undefined
+}
+
+export interface npServicePipeFunction{
+    forward: Function,
+    backward: Function
 }

@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.config = exports.server = exports.http = exports.Router = exports.route = exports.appServer = exports.npService = exports.npRoute = exports.npModule = exports.Database = exports.db = exports.DB_PORT_TEST = exports.PORT = void 0;
+exports.config = exports.server = exports.http = exports.Router = exports.route = exports.appServer = exports.Pipe = exports.npService = exports.npRoute = exports.npModule = exports.Database = exports.db = exports.DB_PORT_TEST = exports.PORT = void 0;
 const install_1 = require("./install");
 const cli = __importStar(require("./cli/cli"));
 const express_1 = __importDefault(require("express"));
@@ -220,6 +220,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // api documentation
 const loader_1 = __importDefault(require("./templates/swagger/loader"));
 const log_1 = require("./etc/log");
+const pipe_1 = require("./core/pipe");
 loader_1.default(app);
 /**
  * Module controller
@@ -227,6 +228,21 @@ loader_1.default(app);
 exports.npModule = npModuleController_1.npModuleController.handler;
 exports.npRoute = npRouteController_1.npRouteController.handler;
 exports.npService = npServiceController_1.npServiceController.handler;
+/**
+ * Runs req and res objects through a series of np functions
+ * @param {Request} req client request object
+ * @param {Response} res client response object
+ * Example:
+ * ```
+ *      Pipe(req, res).useServices(
+ *          func.myFunction1,
+ *          func.myFunction2
+ *      ).run((result,error)=>{
+ *          console.log(result)
+ *      })
+ * ```
+ */
+exports.Pipe = pipe_1.npPipe.handler;
 /**
  * App server
  */

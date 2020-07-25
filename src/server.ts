@@ -180,6 +180,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // api documentation
 import swaggerLoader from "./templates/swagger/loader"
 import { Log } from "./etc/log";
+import { npPipe } from "./core/pipe";
 swaggerLoader(app);
 
 
@@ -191,6 +192,22 @@ export const npModule = npModuleController.handler
 export const npRoute = npRouteController.handler
 export const npService = npServiceController.handler
 
+
+/**
+ * Runs req and res objects through a series of np functions
+ * @param {Request} req client request object
+ * @param {Response} res client response object
+ * Example:
+ * ```
+ *      Pipe(req, res).useServices( 
+ *          func.myFunction1, 
+ *          func.myFunction2
+ *      ).run((result,error)=>{
+ *          console.log(result)
+ *      })
+ * ```
+ */
+export const Pipe = npPipe.handler
 
 /**
  * App server
