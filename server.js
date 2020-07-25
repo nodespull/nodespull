@@ -44,6 +44,7 @@ const exe_log_1 = require("./cli/exe/exe.log");
 const deploy_1 = require("./cli/deploy/deploy");
 const npModuleController_1 = require("./module/v2-module/controllers/npModuleController");
 const npRouteController_1 = require("./module/v2-module/controllers/npRouteController");
+const npServiceController_1 = require("./module/v2-module/controllers/npServiceController");
 const migration_1 = require("./database/migration");
 const packageJson = json_1.parseJSON("./package.json");
 exports.PORT = 8888;
@@ -225,7 +226,7 @@ loader_1.default(app);
  */
 exports.npModule = npModuleController_1.npModuleController.handler;
 exports.npRoute = npRouteController_1.npRouteController.handler;
-exports.npService = npRouteController_1.npRouteController.handler;
+exports.npService = npServiceController_1.npServiceController.handler;
 /**
  * App server
  */

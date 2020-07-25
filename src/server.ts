@@ -189,7 +189,7 @@ swaggerLoader(app);
  */
 export const npModule = npModuleController.handler
 export const npRoute = npRouteController.handler
-export const npService = npRouteController.handler
+export const npService = npServiceController.handler
 
 
 /**

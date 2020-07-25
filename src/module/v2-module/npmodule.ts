@@ -34,8 +34,9 @@ export class npModule {
         // load route into nodespull module
         this._route[route.method.name + ":" + route.path] = route
         // load route into nodespull router
-        route.isRouteActive = route.isRouteActive || this._isModuleActive || false
-        route.isRouteProtected = route.isRouteProtected || this._isModuleProtected || true
+        route.isRouteActive = route.isRouteActive!=undefined?route.isRouteActive:(this._isModuleActive!=undefined?this._isModuleActive:false)
+        route.isRouteProtected = route.isRouteProtected!=undefined?route.isRouteProtected:(this._isModuleProtected!=undefined?this._isModuleProtected:true)
+        
         if (route.method.name == "HEAD") http.HEAD(route.handler, route.isRouteActive, route.isRouteProtected, route.urlParams, route.path)
         if (route.method.name == "GET") http.GET(route.handler, route.isRouteActive, route.isRouteProtected, route.urlParams, route.path)
         if (route.method.name == "DELETE") http.DELETE(route.handler, route.isRouteActive, route.isRouteProtected, route.urlParams, route.path)
