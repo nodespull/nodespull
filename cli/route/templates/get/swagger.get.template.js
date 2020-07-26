@@ -1,7 +1,8 @@
-
-export default function get(path:string):string{
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+function get(path) {
     return `{
-    "${path}/{id}":{
+    "${path}/{uuid}":{
         "get":{
             "summary": "no summary",
             "description":"no description",
@@ -45,5 +46,6 @@ export default function get(path:string):string{
             }
         }
     }
-}`
+}`;
 }
+exports.default = get;

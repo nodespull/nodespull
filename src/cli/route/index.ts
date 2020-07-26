@@ -2,23 +2,23 @@ import {cmd} from "../exe/exe.log"
 import fs from "fs"
 import {appModule} from "../../install"
 
-import del from "./templates/delete/delete"
-import get from "./templates/get/get"
-import post from "./templates/post/post"
-import put from "./templates/put/put"
-import head from "./templates/head/head"
+import del from "./templates/delete/delete.template"
+import get from "./templates/get/get.template"
+import post from "./templates/post/post.template"
+import put from "./templates/put/put.template"
+import head from "./templates/head/head.template"
 
-import spec_del from "./templates/delete/spec.delete"
-import spec_get from "./templates/get/spec.get"
-import spec_post from "./templates/post/spec.post"
-import spec_put from "./templates/put/spec.put"
-import spec_head from "./templates/head/spec.head"
+import spec_del from "./templates/delete/spec.delete.template"
+import spec_get from "./templates/get/spec.get.template"
+import spec_post from "./templates/post/spec.post.template"
+import spec_put from "./templates/put/spec.put.template"
+import spec_head from "./templates/head/spec.head.template"
 
-import swag_del from "./templates/delete/swagger.delete"
-import swag_get from "./templates/get/swagger.get"
-import swag_post from "./templates/post/swagger.post"
-import swag_put from "./templates/put/swagger.put"
-import swag_head from "./templates/head/swagger.head"
+import swag_del from "./templates/delete/swagger.delete.template"
+import swag_get from "./templates/get/swagger.get.template"
+import swag_post from "./templates/post/swagger.post.template"
+import swag_put from "./templates/put/swagger.put.template"
+import swag_head from "./templates/head/swagger.head.template"
 
 const root = appModule;
 
@@ -31,14 +31,17 @@ const templateList:  {[_:string]:{[_:string]:any}} = {
 }
 
 
-function getTemplate(routeName:string,template:Function, filePath:string, extCount:number):string{
+function getTemplate(moduleName:string, routeName:string,template:Function, filePath:string, extCount:number):string{
     let parts =  routeName.split("/")
-    routeName = "/"+parts.slice(1,parts.length-2).join("/");
+    if(moduleName == "serverModule") routeName = "/"+parts.slice(2,parts.length-2).join("/"); // remove 'server/_routes'
+    else routeName = "/"+parts.slice(3,parts.length-2).join("/"); // remove 'server/$moduleName/_routes'
     routeName = routeName.replace("//","/")
+
 
     //remove dot in last part of deep paths
     parts = routeName.split("/");
     parts.shift(); // remove empty first e
+    let depthCountFromModule = 2+parts.length //levels deep from module
     if(parts.length>1){
         let deepName:string = "/"+parts.shift()!;
         for(let part of parts){
@@ -49,7 +52,7 @@ function getTemplate(routeName:string,template:Function, filePath:string, extCou
     
     routeName = "/"+routeName.substring(2,routeName.length); // remove underscore, e.g. /_name/path
 
-    return template(routeName); // load template with routePath
+    return template(routeName, moduleName, depthCountFromModule); // load template with routePath
 }
 
 
@@ -57,9 +60,15 @@ function getTemplate(routeName:string,template:Function, filePath:string, extCou
 
 export async function newRoute(name:string){
     let args = name.split("/");
+    let moduleVarName:string = "serverModule"
+    if(args[0].toLowerCase().includes(".module")){
+        moduleVarName = args[0].toLowerCase().split(".")[0]+"Module"
+        args = args.slice(1)
+    }
     let fileName = "";
     let fileName_withUnderscore = "";
-    let routeDirPath = "routes";
+    let routeDirPath = "server/_routes";
+    if(moduleVarName != "serverModule") routeDirPath = "server/"+moduleVarName+"/_routes"
     while(args.length > 0){
         let e = args.shift();
         fileName = fileName!=""?(fileName+"."+e):e!;
@@ -76,7 +85,7 @@ export async function newRoute(name:string){
                 let extCount = 2;
                 if(templateKey.startsWith("spec")){
                     templFilePath += ".spec.js";
-                    extCount  = 3;
+                    extCount = 3;
                 }
                 else if(templateKey.startsWith("swag")){
                     templFilePath = templDirPath+"/swagger.json";
@@ -85,6 +94,7 @@ export async function newRoute(name:string){
                 else templFilePath += ".js";
                 cmd("touch",[root+"/"+templFilePath]);
                 fs.writeFile(root+"/"+templFilePath,getTemplate(
+                    moduleVarName,
                     templDirPath+"/"+fileName, //remove initial underscore
                     templateList[templGroupKey][templateKey], 
                     templFilePath,extCount),()=>{})

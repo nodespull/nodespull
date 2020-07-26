@@ -1,6 +1,8 @@
 import stdin from "../etc/system-tools/stdin"
-import {newRoute} from "./route/route"
+import {newRoute} from "./route"
 import {newTable} from "./db"
+import { newModule } from "./module";
+import { newService } from "./service";
 
 export function start(){
     console.log("\n*** Nodespull CLI ***  \n(`help` for info)");
@@ -27,10 +29,20 @@ export async function getCmd(input:string, loop:boolean){
         if(!name || name.includes("\"") || name.includes("'") || name.includes("`")) throw error.falseNameFormat;
         
         switch (args[1]) {
+            case "module": 
+                if(createCmd.includes(userCmd)) await newModule(name);
+                else throw error.falseCmd;
+                console.log("\nModule \""+ name+"\" successfully created")
+                break;
             case "route": 
                 if(createCmd.includes(userCmd)) await newRoute(name);
                 else throw error.falseCmd;
                 console.log("\nRoute \""+ name+"\" successfully created")
+                break;
+            case "service": 
+                if(createCmd.includes(userCmd)) await newService(args.slice(2));
+                else throw error.falseCmd;
+                console.log("\nService \""+ name+"\" successfully created")
                 break;
             case "table": 
                 if(createCmd.includes(userCmd)) await newTable(name);
@@ -66,7 +78,8 @@ function exit(){
 }
 
 
-const error = {
+export const error = {
     falseCmd: "ERR: Command not recognized. Enter `help` for info.",
-    falseNameFormat: "ERR: Name format incorrect."
+    falseNameFormat: "ERR: Name format incorrect.",
+    wrongUsage: "ERR: command usage incorrect"
 }
