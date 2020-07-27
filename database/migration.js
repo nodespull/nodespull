@@ -83,6 +83,7 @@ class Migration extends common_2.FilesEngine {
             exe_1.default("mv", [root + "/database/at.v" + (this.currDBVersion), root + "/database/archives/last.v" + (this.currDBVersion)], true); // mv at.vx to last.vx
         exe_1.default("cp", ["-r", root + "/database/stage.v" + (this.currDBVersion + 1), root + "/database/at.v" + (this.currDBVersion + 1)], true); // cp stage.vx to at.vx
         exe_1.default("mv", [root + "/database/stage.v" + (this.currDBVersion + 1), root + "/database/stage.v" + (this.currDBVersion + 2)], true); // mv stage.vx to stage.v(x+1)
+        new db_files_1.DB_FilesRunner({ overwrite_newStageScripts: true });
     }
     update_FileStructure_onDown() {
         exe_1.default("rm", ["-rf", root + "/database/stage.v" + (this.currDBVersion + 1)], true); // rm stage.vx

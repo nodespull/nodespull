@@ -1,4 +1,3 @@
-import fs from "fs"
 import { Log } from "../etc/log"
 import DB_Controller from "./controller"
 import {DB_FilesRunner} from "../files-runner/db-files"
@@ -80,6 +79,7 @@ export class Migration extends FilesEngine{
             cmd("mv", [root+"/database/at.v"+(this.currDBVersion), root+"/database/archives/last.v"+(this.currDBVersion)], true); // mv at.vx to last.vx
         cmd("cp",["-r" ,root+"/database/stage.v"+(this.currDBVersion+1), root+"/database/at.v"+(this.currDBVersion+1)], true); // cp stage.vx to at.vx
         cmd("mv", [root+"/database/stage.v"+(this.currDBVersion+1), root+"/database/stage.v"+(this.currDBVersion+2)], true); // mv stage.vx to stage.v(x+1)
+        new DB_FilesRunner({overwrite_newStageScripts:true})
     }
 
     private update_FileStructure_onDown(){

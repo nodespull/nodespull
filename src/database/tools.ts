@@ -14,7 +14,7 @@ export class DatabaseTools {
         this._isModeInstall = isModeInstall;
     }
 
-    defineModel(tableName:string):ModelDefinition{
+    defineModel(tableName:string):ModelDefinition|any{
         return new ModelDefinition(tableName) // store somewhere
     }
 

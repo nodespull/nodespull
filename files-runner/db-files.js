@@ -8,9 +8,14 @@ const fs_1 = __importDefault(require("fs"));
 const common_1 = require("./common");
 const controller_1 = __importDefault(require("../database/controller"));
 const log_1 = require("../etc/log");
+const common_2 = require("../cli/db/common");
+const stage_model_1 = __importDefault(require("../cli/db/templates/stage.model"));
+const stage_relation_1 = __importDefault(require("../cli/db/templates/stage.relation"));
 class DB_FilesRunner extends common_1.FilesEngine {
-    constructor() {
+    constructor(option) {
         super();
+        this.tableNames_definitions_map = {}; // used to store the "at.vx" definitions and update "stage.vx" files
+        this.tableNames_relations_map = {};
         if (controller_1.default.migration.isRunning) {
             let targetFolderPath;
             if (controller_1.default.migration.isRevertMode)
@@ -24,6 +29,8 @@ class DB_FilesRunner extends common_1.FilesEngine {
                 super.recursiveSearch(targetFolderPath, "relation.js", { runFiles: true });
             }
         }
+        if (controller_1.default.migration.isRunning && option && option.overwrite_newStageScripts)
+            this.updateStageFiles();
         else {
             super.recursiveSearch(common_1.FilesEngine.rootPath, "model.js", { runFiles: true });
             super.recursiveSearch(common_1.FilesEngine.rootPath, "relation.js", { runFiles: true });
@@ -47,6 +54,27 @@ class DB_FilesRunner extends common_1.FilesEngine {
         }
         catch (_a) {
             return;
+        }
+    }
+    /**
+     * update stage files with scripts from 'at.vx'
+    */
+    updateStageFiles() {
+        let modelPaths = super.recursiveSearch(common_1.FilesEngine.rootPath + "/database/stage.v" + (common_2.getCurrentDBVersion() + 1) + "/", "model.js", { runFiles: false });
+        let relPaths = super.recursiveSearch(common_1.FilesEngine.rootPath + "/database/stage.v" + (common_2.getCurrentDBVersion() + 1) + "/", "relation.js", { runFiles: false });
+        for (let path of modelPaths) {
+            let tableName = path.split("/").splice(-1)[0].split(".")[0];
+            let modelFile = fs_1.default.readFileSync(path, 'utf8');
+            let tempReg = modelFile.match(/(    | )Database.defineModel\(([\s\S]*?)}\)/);
+            let modelFile_extract = tempReg ? tempReg[0] : null;
+            fs_1.default.writeFileSync(path, stage_model_1.default(modelFile_extract));
+        }
+        for (let path of relPaths) {
+            let tableName = path.split("/").splice(-1)[0].split(".")[0];
+            let modelFile = fs_1.default.readFileSync(path, 'utf8');
+            let tempReg = modelFile.match(/(    | )Relations.set\(([\s\S]*?)}\)/);
+            let modelFile_extract = tempReg ? tempReg[0] : null;
+            fs_1.default.writeFileSync(path, stage_relation_1.default(modelFile_extract));
         }
     }
 }

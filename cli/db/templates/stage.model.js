@@ -1,12 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-// depreciated
-function stageModelTemplate() {
-    return `const { type } = require("nodespull/core/type/db")
+function stageModelTemplate(text) {
+    let val = `const { type } = require("nodespull/core/type/db")
 const { Database } = require("nodespull")
-const { onUpload, onRevert } = Database
+const { onUpload, onRevert, rawQuery } = Database
 
-
+`;
+    if (!text)
+        val += `
 onUpload(() => {
 
 })
@@ -14,6 +15,19 @@ onUpload(() => {
 
 onRevert(() => {
 
-})`;
+})
+`;
+    else
+        val += `
+onUpload(() => {
+${text}
+})
+
+
+onRevert(() => {
+${text}
+})
+`;
+    return val;
 }
 exports.default = stageModelTemplate;
