@@ -1,6 +1,7 @@
 import { npServiceInterface, npModuleUserInterface, npRouteInterface, npModuleSelfObjectInterface } from "./models"
 import { http } from "../../server"
 import { Log } from "../../etc/log"
+import cloneObject from "../../etc/system-tools/clone-object"
 
 export class npModule {
     public _route: { [selector: string]: npRouteInterface } = {}
@@ -22,7 +23,8 @@ export class npModule {
      * forward http request to another route
      * @param {Request} req request object
      * @param {Response} res response object
-     * example: forward(req, res).to(http.GET, "/home")
+     * @return {npRouteForward} routing object
+     * example: ``` forward(req, res).to(http.GET, "/home")```
      */
     _forward(req: Request, res: Response):npRouteForward{
         return new npRouteForward(req, res, this)
@@ -99,13 +101,21 @@ export class npModule {
         return res
     }
 
+    get service(){
+        // add imported services to local array with low priority
+        for(let module of this._importedModules) for(let serviceName of Object.keys(module._service)){
+            if(!Object.keys(this._service).includes(serviceName)) this._service[serviceName] = module._service[serviceName]
+        }
+        return this._service
+    }
+
     // interface for user to access this module values
     getSelfObject():npModuleUserInterface{
         return {
             name: this._name,
             imports: this._importedModules,
             forward: this._forward,
-            service: this._service,
+            service: this.service,
             route: this._route
         }
     }
@@ -120,13 +130,26 @@ class npRouteForward {
     /**
      * @param {Function} method http method of endpoint - from Router object
      * @param {String} path path of endpoint
-     * example: forward(req, res).to(Router.GET, "/home")
+     * @param {Function} callback handles response from endpoint
+     * ```
+     * example: forward(req, res).to(Router.GET, "/home", (status, data)=> {
+     *      res.status(status).send(data)
+     * })
+     * ```
      */
-    to(method: Function, path: string): void {
+    to(method: Function, path: string, callback?:Function): void {
         let route = this.module.route[method.name + ":" + path]
         if(!route && this.module.imports.length > 0) 
-            for(let module of this.module.imports) module._forward(this.req,this.res).to(method,path)
+            for(let module of this.module.imports) module.getSelfObject().forward(this.req,this.res).to(method,path,callback)
         else if (!route) new Log(`route forwarding: "${method.name}:${path}" not found"`).throwError()
-        else route.handler(this.req, this.res);
+        else { // route found
+            if(callback){
+                let clonedRes:any = cloneObject(this.res) // json, send functions are modified to return to original endpoint
+                clonedRes['json'] = (data:any)=>{ callback(Number(clonedRes.status) || 200, data) }
+                clonedRes['send'] = (str:string)=>{ callback(Number(clonedRes.status) || 200, str) }
+                route.handler(this.req, clonedRes);
+            }
+            else route.handler(this.req, this.res);
+        }
     }
 }

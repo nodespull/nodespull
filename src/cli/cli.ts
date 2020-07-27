@@ -64,10 +64,26 @@ export async function getCmd(input:string, loop:boolean){
 function help(){
     console.log(`
 commands:
-    create table <name>         : generate files for a new database table <name> !no quotes!
-    create route <path/path>    : generate files for a new route at path <path/path> !no quotes!
-    q | quit | exit             : exit nodespull cli
-    h | help | info | ?         : view available commands`);
+    Create
+    Use the 'create' or 'c' command as follow:
+        create module  <name>       : generate module
+        create table   <name>       : generate database table/model
+        create service <name>       : generate service
+        create route   <path/path>  : generate route at path <path/path>
+
+    To target modules, add the module name before the name of the element as follow:
+    - i.e. create <entity> <moduleName>.module/<entityName>
+    - e.g. create service shared.module/myservice 
+
+    Service
+    The 'service' entity uses the flags:
+        --boot | -b     : generate self-booting service
+        --pipe | -p     : generate pipe-usable service
+    e.g. create service -b core.module/socket
+
+    
+    q | quit | exit        : exit nodespull cli
+    h | help | info | ?    : view available commands`);
     main();
 }
 

@@ -12,6 +12,7 @@ import dockerComposeDB from "./etc/developer-op-files/docker-compose-db";
 import nodespullReadme from "./etc/developer-op-files/nodespull-README";
 import waitForIt from "./etc/developer-op-files/wait-for-it";
 import { cmd } from "./cli/exe/exe.log";
+import getModuleTemplate from "./cli/module/templates/module.template";
 
 export const sys_dir:string = "nodespull";
 export let rootFile_name = "nodespullApp";
@@ -32,6 +33,16 @@ export async function install(rootFileName:string, serverPort:number, pull_all:b
 async function install_core(){
     await run("mkdir sys", "mkdir", ["-p",sys_dir],(ok:boolean,data?:any)=>{})
     await run("npm MySQL2", "sudo", ["npm", "i","mysql2"],(ok:boolean,data?:any)=>{})
+    //create app.module folder
+    await run("mkdir nodespull app", "mkdir", ["-p", appModule],(ok:boolean,data?:any)=>{})
+    await run("create np database", "mkdir", ["-p", appModule+"/database"],(ok:boolean,data?:any)=>{})
+    await run("create np server", "mkdir", ["-p", appModule+"/server"],(ok:boolean,data?:any)=>{})
+    await run("create np routes", "mkdir", ["-p", appModule+"/server/_routes"],(ok:boolean,data?:any)=>{})
+    await run("create np services app", "mkdir", ["-p", appModule+"/server/_services"],(ok:boolean,data?:any)=>{})
+    await run("create np default module", "touch", ["-p", appModule+"/server/server.module"],(ok:boolean,data?:any)=>{
+        fs.writeFile(appModule+"/server/server.module.js", getModuleTemplate("serverModule"),()=>{}) // populate module file with template
+    })
+
 }
 
 async function install_others(serverPort:number){

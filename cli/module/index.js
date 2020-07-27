@@ -20,7 +20,7 @@ const module_template_1 = __importDefault(require("./templates/module.template")
 const root = install_1.appModule;
 function newModule(moduleName) {
     return __awaiter(this, void 0, void 0, function* () {
-        let moduleVarName = moduleName;
+        let moduleVarName = moduleName.toLowerCase();
         if (moduleName.slice(-1 * "Module".length) != "Module")
             moduleVarName = moduleVarName.toLowerCase() + "Module";
         let moduleFileName = moduleVarName.substr(0, moduleVarName.length - 1 * "Module".length) + ".module.js";

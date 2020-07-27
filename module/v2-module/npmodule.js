@@ -1,8 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.npModule = void 0;
 const server_1 = require("../../server");
 const log_1 = require("../../etc/log");
+const clone_object_1 = __importDefault(require("../../etc/system-tools/clone-object"));
 class npModule {
     constructor(_name, _isModuleActive, _isModuleProtected, _importedModules) {
         this._name = _name;
@@ -21,7 +25,8 @@ class npModule {
      * forward http request to another route
      * @param {Request} req request object
      * @param {Response} res response object
-     * example: forward(req, res).to(http.GET, "/home")
+     * @return {npRouteForward} routing object
+     * example: ``` forward(req, res).to(http.GET, "/home")```
      */
     _forward(req, res) {
         return new npRouteForward(req, res, this);
@@ -100,13 +105,22 @@ class npModule {
         }
         return res;
     }
+    get service() {
+        // add imported services to local array with low priority
+        for (let module of this._importedModules)
+            for (let serviceName of Object.keys(module._service)) {
+                if (!Object.keys(this._service).includes(serviceName))
+                    this._service[serviceName] = module._service[serviceName];
+            }
+        return this._service;
+    }
     // interface for user to access this module values
     getSelfObject() {
         return {
             name: this._name,
             imports: this._importedModules,
             forward: this._forward,
-            service: this._service,
+            service: this.service,
             route: this._route
         };
     }
@@ -122,16 +136,29 @@ class npRouteForward {
     /**
      * @param {Function} method http method of endpoint - from Router object
      * @param {String} path path of endpoint
-     * example: forward(req, res).to(Router.GET, "/home")
+     * @param {Function} callback handles response from endpoint
+     * ```
+     * example: forward(req, res).to(Router.GET, "/home", (status, data)=> {
+     *      res.status(status).send(data)
+     * })
+     * ```
      */
-    to(method, path) {
+    to(method, path, callback) {
         let route = this.module.route[method.name + ":" + path];
         if (!route && this.module.imports.length > 0)
             for (let module of this.module.imports)
-                module._forward(this.req, this.res).to(method, path);
+                module.getSelfObject().forward(this.req, this.res).to(method, path, callback);
         else if (!route)
             new log_1.Log(`route forwarding: "${method.name}:${path}" not found"`).throwError();
-        else
-            route.handler(this.req, this.res);
+        else { // route found
+            if (callback) {
+                let clonedRes = clone_object_1.default(this.res); // json, send functions are modified to return to original endpoint
+                clonedRes['json'] = (data) => { callback(Number(clonedRes.status) || 200, data); };
+                clonedRes['send'] = (str) => { callback(Number(clonedRes.status) || 200, str); };
+                route.handler(this.req, clonedRes);
+            }
+            else
+                route.handler(this.req, this.res);
+        }
     }
 }

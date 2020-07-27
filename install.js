@@ -23,6 +23,7 @@ const docker_compose_all_1 = __importDefault(require("./etc/developer-op-files/d
 const docker_compose_db_1 = __importDefault(require("./etc/developer-op-files/docker-compose-db"));
 const nodespull_README_1 = __importDefault(require("./etc/developer-op-files/nodespull-README"));
 const wait_for_it_1 = __importDefault(require("./etc/developer-op-files/wait-for-it"));
+const module_template_1 = __importDefault(require("./cli/module/templates/module.template"));
 exports.sys_dir = "nodespull";
 exports.rootFile_name = "nodespullApp";
 exports.appModule = "app.module";
@@ -43,6 +44,15 @@ function install_core() {
     return __awaiter(this, void 0, void 0, function* () {
         yield run("mkdir sys", "mkdir", ["-p", exports.sys_dir], (ok, data) => { });
         yield run("npm MySQL2", "sudo", ["npm", "i", "mysql2"], (ok, data) => { });
+        //create app.module folder
+        yield run("mkdir nodespull app", "mkdir", ["-p", exports.appModule], (ok, data) => { });
+        yield run("create np database", "mkdir", ["-p", exports.appModule + "/database"], (ok, data) => { });
+        yield run("create np server", "mkdir", ["-p", exports.appModule + "/server"], (ok, data) => { });
+        yield run("create np routes", "mkdir", ["-p", exports.appModule + "/server/_routes"], (ok, data) => { });
+        yield run("create np services app", "mkdir", ["-p", exports.appModule + "/server/_services"], (ok, data) => { });
+        yield run("create np default module", "touch", ["-p", exports.appModule + "/server/server.module"], (ok, data) => {
+            fs.writeFile(exports.appModule + "/server/server.module.js", module_template_1.default("serverModule"), () => { }); // populate module file with template
+        });
     });
 }
 function install_others(serverPort) {
