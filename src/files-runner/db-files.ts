@@ -4,9 +4,9 @@ import DB_Controller from "../database/controller";
 import { Log } from "../etc/log";
 import { Database } from "../server"
 import { Relations } from "../database/tools"
-import { getCurrentDBVersion } from "../cli/db/common";
-import stageModelTemplate from "../cli/db/templates/stage.model";
-import stageRelationTemplate from "../cli/db/templates/stage.relation";
+import { getCurrentDBVersion } from "../cli/db/sql/common";
+import stageModelTemplate from "../cli/db/sql/templates/stage.model";
+import stageRelationTemplate from "../cli/db/sql/templates/stage.relation";
 
 export class DB_FilesRunner extends FilesEngine{
 
@@ -17,11 +17,11 @@ export class DB_FilesRunner extends FilesEngine{
         super()
         if(DB_Controller.migration.isRunning) {
             let targetFolderPath:string|undefined
-            if(DB_Controller.migration.isRevertMode) targetFolderPath = this.getFolderPath(FilesEngine.rootPath, "stage.v") // migration down scripts are in this folder
-            else targetFolderPath = this.getFolderPath(FilesEngine.rootPath, "at.v") // migration up are here
+            if(DB_Controller.migration.isRevertMode) targetFolderPath = this.getFolderPath(FilesEngine.dbRootPath, "stage.v") // migration down scripts are in this folder
+            else targetFolderPath = this.getFolderPath(FilesEngine.dbRootPath, "at.v") // migration up are here
 
             if(!targetFolderPath) 
-                new Log(`missing folder with prefix '${DB_Controller.migration.isRevertMode?"stage.v":"at.v"}' in '${FilesEngine.rootPath.split("/").slice(-2)[0]}' directory tree`).throwError()
+                new Log(`missing folder with prefix '${DB_Controller.migration.isRevertMode?"stage.v":"at.v"}' in '${FilesEngine.dbRootPath.split("/").slice(-2)[0]}' directory tree`).throwError()
             else{
                 super.recursiveSearch(targetFolderPath, "model.js", {runFiles:true});
                 super.recursiveSearch(targetFolderPath, "relation.js", {runFiles:true});
@@ -29,8 +29,8 @@ export class DB_FilesRunner extends FilesEngine{
         }
         if(DB_Controller.migration.isRunning && option && option.overwrite_newStageScripts) this.updateStageFiles()
         else{
-            super.recursiveSearch(FilesEngine.rootPath, "model.js", {runFiles:true});
-            super.recursiveSearch(FilesEngine.rootPath, "relation.js", {runFiles:true});
+            super.recursiveSearch(FilesEngine.dbRootPath, "model.js", {runFiles:true});
+            super.recursiveSearch(FilesEngine.dbRootPath, "relation.js", {runFiles:true});
         }
     }
 
@@ -57,8 +57,8 @@ export class DB_FilesRunner extends FilesEngine{
      * update stage files with scripts from 'at.vx'
     */
     updateStageFiles(){
-        let modelPaths = super.recursiveSearch(FilesEngine.rootPath+"/database/stage.v"+(getCurrentDBVersion()+1)+"/","model.js",{runFiles:false})
-        let relPaths = super.recursiveSearch(FilesEngine.rootPath+"/database/stage.v"+(getCurrentDBVersion()+1)+"/","relation.js",{runFiles:false})
+        let modelPaths = super.recursiveSearch(FilesEngine.dbRootPath+"/SQL/stage.v"+(getCurrentDBVersion()+1)+"/","model.js",{runFiles:false})
+        let relPaths = super.recursiveSearch(FilesEngine.dbRootPath+"/SQL/stage.v"+(getCurrentDBVersion()+1)+"/","relation.js",{runFiles:false})
         for(let path of modelPaths){
             let tableName = path.split("/").splice(-1)[0].split(".")[0]
             let modelFile = fs.readFileSync(path,'utf8')

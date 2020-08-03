@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.error = exports.getCmd = exports.start = void 0;
 const stdin_1 = __importDefault(require("../etc/system-tools/stdin"));
 const route_1 = require("./route");
-const db_1 = require("./db");
+const sql_1 = require("./db/sql");
 const module_1 = require("./module");
 const service_1 = require("./service");
 function start() {
@@ -68,7 +68,7 @@ function getCmd(input, loop) {
                     break;
                 case "table":
                     if (createCmd.includes(userCmd))
-                        yield db_1.newTable(name);
+                        yield sql_1.newTable(name);
                     else
                         throw exports.error.falseCmd;
                     console.log("\nTable \"" + name + "\" successfully created");

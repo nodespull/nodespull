@@ -9,24 +9,24 @@ const exe_log_1 = require("../../cli/exe/exe.log");
 const fs_1 = __importDefault(require("fs"));
 const install_1 = require("../../install");
 const swaggerUi = require('swagger-ui-express');
-const packageJson = json_1.parseJSON("./package.json");
+const packageJson = json_1.parseJSON("../package.json");
 let mainSwagger = {};
 function default_1(app) {
-    if (!fs_1.default.existsSync("./" + install_1.sys_dir + "/swagger.json")) {
-        exe_log_1.cmd("mkdir", ["-p", "./" + install_1.sys_dir]);
-        exe_log_1.cmd("touch", ["./" + install_1.sys_dir + "/swagger.json"]);
-        json_1.writeJSON("./" + install_1.sys_dir + "/swagger.json", default_content_1.default());
+    if (!fs_1.default.existsSync("./" + install_1.etc_var_dir + "/swagger.json")) {
+        exe_log_1.cmd("mkdir", ["-p", "./" + install_1.etc_var_dir]);
+        exe_log_1.cmd("touch", ["./" + install_1.etc_var_dir + "/swagger.json"]);
+        json_1.writeJSON("./" + install_1.etc_var_dir + "/swagger.json", default_content_1.default());
     }
     try {
         let docs;
-        docs = json_1.parseJSON("./" + install_1.sys_dir + "/swagger.json");
+        docs = json_1.parseJSON("./" + install_1.etc_var_dir + "/swagger.json");
         //build swager file
         recursiveBuild("./" + install_1.appModule);
         if (JSON.stringify(docs) != JSON.stringify(Object.assign(Object.assign({}, default_content_1.default()), mainSwagger))) {
-            json_1.writeJSON("./" + install_1.sys_dir + "/swagger.json", Object.assign(Object.assign({}, default_content_1.default()), mainSwagger));
+            json_1.writeJSON("./" + install_1.etc_var_dir + "/swagger.json", Object.assign(Object.assign({}, default_content_1.default()), mainSwagger));
         }
         //load swagger file
-        docs = json_1.parseJSON("./" + install_1.sys_dir + "/swagger.json");
+        docs = json_1.parseJSON("./" + install_1.etc_var_dir + "/swagger.json");
         app.use('/api-docs', function (req, res, next) {
             docs.host = req.get('host');
             req["swaggerDoc"] = docs;
@@ -34,7 +34,7 @@ function default_1(app) {
         }, swaggerUi.serve, swaggerUi.setup());
     }
     catch (_a) {
-        console.log(`swagger file has invalid format. Please delete file "${install_1.sys_dir}/swagger.json" and try again`);
+        console.log(`swagger file has invalid format. Please delete file "${install_1.etc_var_dir}/swagger.json" and try again`);
     }
 }
 exports.default = default_1;

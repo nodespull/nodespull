@@ -1,39 +1,24 @@
 
-export default function spec(path:string):string{
-    let routeName = path.split("/").pop()// remove slash, get last 
-    let fileName = path.split("/").join("."); // replace slashes with dots
-    fileName = fileName.substr(1, fileName.length); // remove initial dot
-    return `const $ = require("nodespull")
-const Res = require("nodespull/test/object").res;
-const runDELETE = require("./${fileName}.delete").ctr
-const assert = require("assert")
-$.server.ready({mode: "run", port:8887,
-database: "nodespull-test-database"});
-describe("DELETE: ${path}", ()=>{
-
-/** @type {Res} */ let res;
-/** @type {any} */ let req;
-
-beforeEach(function(){
-    res = new Res();
-    req = {
-        session: {},
-        params: {},
-        query: {}
-    };
-    runDELETE(req,res);
-})
+export default function spec(path:string, moduleVarName:string, locationDepth:number):string{
+    let moduleFileName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+".module"
+    return `const { http, Database } = require("nodespull")
+const { ${moduleVarName} } = require("${'../'.repeat(locationDepth)+moduleFileName}")
+const { assert } = require("assert")
 
 
-it("should return status 204", function(){
-    return res.toClient().then(_=>{
+describe("DELETE: ${path}", () => {
 
-        assert.equal(res.getStatusVal(),204);
+    it("should return status 200", function () {
 
-    })
-});
+        return ${moduleVarName}.testWith(tags = ["delete:${path}"])
+            .forward(req = {})
+            .to(http.DELETE, "${path}")
+            .then((status, data) => {
 
+                assert.equal(status, 200);
 
+            })
+    });
 
 
 })`

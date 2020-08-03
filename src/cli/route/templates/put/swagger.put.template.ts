@@ -1,7 +1,7 @@
 
 export default function put(path:string):string{
     return `{
-    "${path}/{id}":{
+    "${path}/{uuid}":{
         "put":{
             "summary": "no summary",
             "description":"no description",

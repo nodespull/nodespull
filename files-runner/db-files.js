@@ -8,9 +8,9 @@ const fs_1 = __importDefault(require("fs"));
 const common_1 = require("./common");
 const controller_1 = __importDefault(require("../database/controller"));
 const log_1 = require("../etc/log");
-const common_2 = require("../cli/db/common");
-const stage_model_1 = __importDefault(require("../cli/db/templates/stage.model"));
-const stage_relation_1 = __importDefault(require("../cli/db/templates/stage.relation"));
+const common_2 = require("../cli/db/sql/common");
+const stage_model_1 = __importDefault(require("../cli/db/sql/templates/stage.model"));
+const stage_relation_1 = __importDefault(require("../cli/db/sql/templates/stage.relation"));
 class DB_FilesRunner extends common_1.FilesEngine {
     constructor(option) {
         super();
@@ -19,11 +19,11 @@ class DB_FilesRunner extends common_1.FilesEngine {
         if (controller_1.default.migration.isRunning) {
             let targetFolderPath;
             if (controller_1.default.migration.isRevertMode)
-                targetFolderPath = this.getFolderPath(common_1.FilesEngine.rootPath, "stage.v"); // migration down scripts are in this folder
+                targetFolderPath = this.getFolderPath(common_1.FilesEngine.dbRootPath, "stage.v"); // migration down scripts are in this folder
             else
-                targetFolderPath = this.getFolderPath(common_1.FilesEngine.rootPath, "at.v"); // migration up are here
+                targetFolderPath = this.getFolderPath(common_1.FilesEngine.dbRootPath, "at.v"); // migration up are here
             if (!targetFolderPath)
-                new log_1.Log(`missing folder with prefix '${controller_1.default.migration.isRevertMode ? "stage.v" : "at.v"}' in '${common_1.FilesEngine.rootPath.split("/").slice(-2)[0]}' directory tree`).throwError();
+                new log_1.Log(`missing folder with prefix '${controller_1.default.migration.isRevertMode ? "stage.v" : "at.v"}' in '${common_1.FilesEngine.dbRootPath.split("/").slice(-2)[0]}' directory tree`).throwError();
             else {
                 super.recursiveSearch(targetFolderPath, "model.js", { runFiles: true });
                 super.recursiveSearch(targetFolderPath, "relation.js", { runFiles: true });
@@ -32,8 +32,8 @@ class DB_FilesRunner extends common_1.FilesEngine {
         if (controller_1.default.migration.isRunning && option && option.overwrite_newStageScripts)
             this.updateStageFiles();
         else {
-            super.recursiveSearch(common_1.FilesEngine.rootPath, "model.js", { runFiles: true });
-            super.recursiveSearch(common_1.FilesEngine.rootPath, "relation.js", { runFiles: true });
+            super.recursiveSearch(common_1.FilesEngine.dbRootPath, "model.js", { runFiles: true });
+            super.recursiveSearch(common_1.FilesEngine.dbRootPath, "relation.js", { runFiles: true });
         }
     }
     /**
@@ -60,8 +60,8 @@ class DB_FilesRunner extends common_1.FilesEngine {
      * update stage files with scripts from 'at.vx'
     */
     updateStageFiles() {
-        let modelPaths = super.recursiveSearch(common_1.FilesEngine.rootPath + "/database/stage.v" + (common_2.getCurrentDBVersion() + 1) + "/", "model.js", { runFiles: false });
-        let relPaths = super.recursiveSearch(common_1.FilesEngine.rootPath + "/database/stage.v" + (common_2.getCurrentDBVersion() + 1) + "/", "relation.js", { runFiles: false });
+        let modelPaths = super.recursiveSearch(common_1.FilesEngine.dbRootPath + "/SQL/stage.v" + (common_2.getCurrentDBVersion() + 1) + "/", "model.js", { runFiles: false });
+        let relPaths = super.recursiveSearch(common_1.FilesEngine.dbRootPath + "/SQL/stage.v" + (common_2.getCurrentDBVersion() + 1) + "/", "relation.js", { runFiles: false });
         for (let path of modelPaths) {
             let tableName = path.split("/").splice(-1)[0].split(".")[0];
             let modelFile = fs_1.default.readFileSync(path, 'utf8');

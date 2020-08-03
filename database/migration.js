@@ -7,12 +7,12 @@ exports.Migration = void 0;
 const log_1 = require("../etc/log");
 const controller_1 = __importDefault(require("./controller"));
 const db_files_1 = require("../files-runner/db-files");
-const common_1 = require("../cli/db/common");
+const common_1 = require("../cli/db/sql/common");
 const install_1 = require("../install");
 const exe_1 = __importDefault(require("../cli/exe/exe"));
 const common_2 = require("../files-runner/common");
 const server_1 = require("../server");
-const root = install_1.appModule;
+const dbRoot = install_1.appModule;
 class Migration extends common_2.FilesEngine {
     constructor(arg) {
         super();
@@ -78,19 +78,19 @@ class Migration extends common_2.FilesEngine {
     }
     update_FileStructure_onUp() {
         if (this.currDBVersion >= 2)
-            exe_1.default("mv", [root + "/database/archives/last.v" + (this.currDBVersion - 1), root + "/database/archives/v" + (this.currDBVersion - 1)], true); // mv last.vx to vx
+            exe_1.default("mv", [dbRoot + "/SQL/archives/last.v" + (this.currDBVersion - 1), dbRoot + "/SQL/archives/v" + (this.currDBVersion - 1)], true); // mv last.vx to vx
         if (this.currDBVersion >= 1)
-            exe_1.default("mv", [root + "/database/at.v" + (this.currDBVersion), root + "/database/archives/last.v" + (this.currDBVersion)], true); // mv at.vx to last.vx
-        exe_1.default("cp", ["-r", root + "/database/stage.v" + (this.currDBVersion + 1), root + "/database/at.v" + (this.currDBVersion + 1)], true); // cp stage.vx to at.vx
-        exe_1.default("mv", [root + "/database/stage.v" + (this.currDBVersion + 1), root + "/database/stage.v" + (this.currDBVersion + 2)], true); // mv stage.vx to stage.v(x+1)
+            exe_1.default("mv", [dbRoot + "/SQL/at.v" + (this.currDBVersion), dbRoot + "/SQL/archives/last.v" + (this.currDBVersion)], true); // mv at.vx to last.vx
+        exe_1.default("cp", ["-r", dbRoot + "/SQL/stage.v" + (this.currDBVersion + 1), dbRoot + "/SQL/at.v" + (this.currDBVersion + 1)], true); // cp stage.vx to at.vx
+        exe_1.default("mv", [dbRoot + "/SQL/stage.v" + (this.currDBVersion + 1), dbRoot + "/SQL/stage.v" + (this.currDBVersion + 2)], true); // mv stage.vx to stage.v(x+1)
         new db_files_1.DB_FilesRunner({ overwrite_newStageScripts: true });
     }
     update_FileStructure_onDown() {
-        exe_1.default("rm", ["-rf", root + "/database/stage.v" + (this.currDBVersion + 1)], true); // rm stage.vx
-        exe_1.default("mv", [root + "/database/at.v" + (this.currDBVersion), root + "/database/stage.v" + (this.currDBVersion)], true); // mv at.vx to stage.vx
-        exe_1.default("mv", [root + "/database/archives/last.v" + (this.currDBVersion - 1), root + "/database/at.v" + (this.currDBVersion - 1)], true); // mv last.vx to at.vx
+        exe_1.default("rm", ["-rf", dbRoot + "/SQL/stage.v" + (this.currDBVersion + 1)], true); // rm stage.vx
+        exe_1.default("mv", [dbRoot + "/SQL/at.v" + (this.currDBVersion), dbRoot + "/SQL/stage.v" + (this.currDBVersion)], true); // mv at.vx to stage.vx
+        exe_1.default("mv", [dbRoot + "/SQL/archives/last.v" + (this.currDBVersion - 1), dbRoot + "/SQL/at.v" + (this.currDBVersion - 1)], true); // mv last.vx to at.vx
         if (this.currDBVersion >= 3)
-            exe_1.default("mv", [root + "/database/archives/v" + (this.currDBVersion - 2), root + "/database/archives/last.v" + (this.currDBVersion - 2)], true); // mv vx to last.vx
+            exe_1.default("mv", [dbRoot + "/SQL/archives/v" + (this.currDBVersion - 2), dbRoot + "/SQL/archives/last.v" + (this.currDBVersion - 2)], true); // mv vx to last.vx
     }
 }
 exports.Migration = Migration;

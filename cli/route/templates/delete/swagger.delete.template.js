@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 function del(path) {
     return `{
-    "${path}/{id}":{
+    "${path}/{uuid}":{
         "delete":{
             "summary": "no summary",
             "description":"no description",

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 function put(path) {
     return `{
-    "${path}/{id}":{
+    "${path}/{uuid}":{
         "put":{
             "summary": "no summary",
             "description":"no description",

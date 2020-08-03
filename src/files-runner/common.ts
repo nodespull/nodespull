@@ -1,11 +1,12 @@
 import fs from "fs"
-import {appModule} from "../install"
+import {appModule, dbModule} from "../install"
 
 
 // runner template
 export abstract class FilesEngine {
 
-    static rootPath = __dirname+`/../../../${appModule}/`
+    static appRootPath = __dirname+`/../../../${appModule}/`
+    static dbRootPath = __dirname+`/../../../${dbModule}/`
 
     constructor(){}
 

@@ -1,7 +1,7 @@
 
 export default function del(path:string):string{
     return `{
-    "${path}/{id}":{
+    "${path}/{uuid}":{
         "delete":{
             "summary": "no summary",
             "description":"no description",

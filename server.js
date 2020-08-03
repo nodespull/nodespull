@@ -46,7 +46,7 @@ const npModuleController_1 = require("./module/v2-module/controllers/npModuleCon
 const npRouteController_1 = require("./module/v2-module/controllers/npRouteController");
 const npServiceController_1 = require("./module/v2-module/controllers/npServiceController");
 const migration_1 = require("./database/migration");
-const packageJson = json_1.parseJSON("./package.json");
+const packageJson = json_1.parseJSON("../package.json");
 exports.PORT = 8888;
 exports.DB_PORT_TEST = 3332;
 const app = express_1.default();
@@ -64,7 +64,7 @@ function startServer(port, after) {
     });
 }
 /* --------------- Developer Interface --------------- */
-let rootFile_name = process.argv[1].split("/").pop();
+// let rootFile_name:string = process.argv[1].split("/").pop()!;
 let flag = process.argv[2];
 let isModeInstall = (flag && flag == "init") ? true : false;
 /**
@@ -111,12 +111,12 @@ let Server = /** @class */ (() => {
                 if (!controller_2.Route._home_set)
                     app.use("/", express_1.default.static(__dirname + '/public'));
                 let flag = process.argv[2];
-                let prod = process.argv[3] && process.argv[3] == "-c";
+                let allImages = process.argv[3] && process.argv[3] == "-c";
                 let run_setup = (flag && flag == "init") ? true : false;
                 let run_dbImages_only = (flag && flag == "boot") ? true : false;
                 let stop_dbImages_only = (flag && flag == "stop") ? true : false;
-                let run_all_images = (flag && flag == "boot" && prod) ? true : false;
-                let stop_all_images = (flag && flag == "stop" && prod) ? true : false;
+                let run_all_images = (flag && flag == "boot" && allImages) ? true : false;
+                let stop_all_images = (flag && flag == "stop" && allImages) ? true : false;
                 let buildFlag = (flag && flag == "build") ? true : false;
                 let runFlag = (flag && flag == "run") ? true : false;
                 let runFlag_fromContainer = (flag && flag == "docker-run") ? true : false;
@@ -132,13 +132,18 @@ let Server = /** @class */ (() => {
                 }
                 controller_1.default.setup(isModeInstall, exports.db);
                 if (run_setup) {
-                    install_1.install(rootFile_name, exports.PORT, true, setup_db, tools_1.DatabaseTools, controller_1.default); // install sql db image, db adminer, and dockerfile, + criticals
+                    let projectName = process.argv[3] || null;
+                    if (!projectName) {
+                        new log_1.Log("Project name required for creation").FgRed().printValue();
+                        process.exit(1);
+                    }
+                    install_1.install(projectName, exports.PORT, true, setup_db, tools_1.DatabaseTools, controller_1.default); // install sql db image, db adminer, and dockerfile, + criticals
                     packageJson["scripts"] = {
-                        start: "node " + rootFile_name + " run",
-                        test: "mocha " + install_1.appModule + "/**/*.spec.js || true"
+                        start: "pull serve",
+                        test: "pull test",
+                        e2e: "pull e2e"
                     };
-                    packageJson["main"] = rootFile_name;
-                    json_1.writeJSON("./package.json", packageJson);
+                    json_1.writeJSON("../package.json", packageJson);
                 }
                 else if (cliFlag) {
                     cli.start();
@@ -150,25 +155,25 @@ let Server = /** @class */ (() => {
                     exe_log_1.cmd("npm", ["test"]);
                 }
                 else if (run_all_images) {
-                    exe_log_1.cmd('docker', ["stop", "nodespull_" + rootFile_name + "_1"], false);
-                    exe_log_1.cmd('docker', ["rm", "nodespull_" + rootFile_name + "_1"], false);
-                    exe_log_1.cmd('docker-compose', ["-f", install_1.sys_dir + "/docker-compose-all.yml", "up", "--build"], true);
+                    exe_log_1.cmd('docker', ["stop", "nodespull_server.js_1"], false);
+                    exe_log_1.cmd('docker', ["rm", "nodespull_server.js_1"], false);
+                    exe_log_1.cmd('docker-compose', ["-f", install_1.etc_os_dir + "/docker-compose-all.yml", "up", "--build"], true);
                 }
                 else if (stop_all_images) {
-                    exe_log_1.cmd('docker-compose', ["-f", install_1.sys_dir + "/docker-compose-all.yml", "down"], true);
+                    exe_log_1.cmd('docker-compose', ["-f", install_1.etc_os_dir + "/docker-compose-all.yml", "down"], true);
                 }
                 else if (buildFlag) {
-                    exe_log_1.cmd('docker-compose', ["-f", install_1.sys_dir + "/docker-compose-all.yml", "build"], false);
+                    exe_log_1.cmd('docker-compose', ["-f", install_1.etc_os_dir + "/docker-compose-all.yml", "build"], false);
                 }
                 else if (run_dbImages_only) {
                     console.log("\n\n Wait until no new event, then open a new terminal to run your app.\n\n\n");
-                    exe_log_1.cmd('docker-compose', ["-f", install_1.sys_dir + "/docker-compose-db.yml", "up",], true);
+                    exe_log_1.cmd('docker-compose', ["-f", install_1.etc_os_dir + "/docker-compose-db.yml", "up",], true);
                 }
                 else if (stop_dbImages_only) {
-                    exe_log_1.cmd('docker-compose', ["-f", install_1.sys_dir + "/docker-compose-db.yml", "down"], true);
+                    exe_log_1.cmd('docker-compose', ["-f", install_1.etc_os_dir + "/docker-compose-db.yml", "down"], true);
                 }
                 else if (status) {
-                    exe_log_1.cmd('docker-compose', ["-f", install_1.sys_dir + "/docker-compose-all.yml", "ps"], true);
+                    exe_log_1.cmd('docker-compose', ["-f", install_1.etc_os_dir + "/docker-compose-all.yml", "ps"], true);
                 }
                 else if (runFlag || runFlag_fromContainer) {
                     Server.isRunning = true;
@@ -188,7 +193,7 @@ let Server = /** @class */ (() => {
             \n  init        initialize nodespull app\
             \n  cli         open nodespull cli\
             \n  boot        start nodespull servers: database, db_portal\
-            \n  run         run " + rootFile_name + " with nodespull\
+            \n  run         run main.js with nodespull\
             \n  stop        stop nodespull servers: database, db_portal\
             \n  boot -c     start nodespull servers and run app in container: app, database, db_portal\
             \n  stop -c     stop all nodespull servers: app, database, db_portal\

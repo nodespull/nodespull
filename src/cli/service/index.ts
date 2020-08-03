@@ -1,15 +1,15 @@
 import {cmd} from "../exe/exe.log"
 import fs from "fs"
-import {appModule} from "../../install"
+import { appModule } from "../../install"
 import {error} from "../cli"
 
 import getDefaultTemplate from "./templates/service.template"
 import getBootTemplate from "./templates/service.boot.template"
 import getPipeTemplate from "./templates/service.pipe.template"
-
+import getSocketTemplate from "./templates/service.socket.template"
 
 const root = appModule;
-const validOptions:string[] = ["--boot","-b", "--pipe","-p", "--default"]
+const validOptions:string[] = ["--boot","-b", "--pipe","-p", "--socket","-s", "--default"]
 
 export async function newService(args:string[]){
     //parse 'option $name'
@@ -29,21 +29,23 @@ export async function newService(args:string[]){
         serviceVarName = serviceParts[0]
         moduleVarName = null
     }
-    if(moduleVarName == "server.module" || !moduleVarName) moduleVarName = "serverModule"
+    if(moduleVarName == "main.module" || !moduleVarName) moduleVarName = "mainModule"
     if(moduleVarName.toLowerCase().includes(".module")) moduleVarName = moduleVarName.toLowerCase().split(".")[0]+"Module"
-    else if (moduleVarName != "serverModule") throw error.wrongUsage
+    else if (moduleVarName != "mainModule") throw error.wrongUsage
 
     // create service file
     serviceVarName = serviceVarName.toLowerCase()// lint: lowercase service name
-    let servicePath = root+"/server/_services/"+serviceVarName+".service.js"
-    if(moduleVarName != "serverModule") servicePath = root+"/server/"+moduleVarName+"/_services/"+serviceVarName+".service.js"
+    // let servicePath = root+"/main-module/services"
+    // if(moduleVarName != "mainModule") servicePath = root+"/"+moduleVarName+"/services"
+    let servicePath = root+"/"+moduleVarName+"/services"
     cmd("touch",[servicePath])
 
     // populate service file with appropriate template
-    if(option == "--boot" || option=="-b") fs.writeFile(servicePath, getBootTemplate(serviceVarName, moduleVarName), ()=>{})
-    if(option == "--pipe" || option=="-p") fs.writeFile(servicePath, getPipeTemplate(serviceVarName, moduleVarName), ()=>{})
-    if(option == "--default") fs.writeFile(servicePath, getDefaultTemplate(serviceVarName, moduleVarName), ()=>{})
+    if(option == "--boot" || option=="-b") fs.writeFile(servicePath+"/self-boot/"+serviceVarName+".service.js", getBootTemplate(serviceVarName, moduleVarName), ()=>{})
+    if(option == "--pipe" || option=="-p") fs.writeFile(servicePath+"/pipe-usable/"+serviceVarName+".service.js", getPipeTemplate(serviceVarName, moduleVarName), ()=>{})
+    if(option == "--socket" || option=="-s") fs.writeFile(servicePath+"/socket/"+serviceVarName+".service.js", getSocketTemplate(serviceVarName, moduleVarName), ()=>{})
+    if(option == "--default") fs.writeFile(servicePath+"/generic/"+serviceVarName+".service.js", getDefaultTemplate(serviceVarName, moduleVarName), ()=>{})
 
-    if(moduleVarName == "serverModule") cmd("mkdir", ["-p", root+"/server/_services"]);
+    if(moduleVarName == "mainModule") cmd("mkdir", ["-p", root+"/main-module/services"]);
 
 }

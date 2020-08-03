@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.install = exports.appModule = exports.rootFile_name = exports.sys_dir = void 0;
+exports.install = exports.appEnvModule = exports.dbModule = exports.appModule = exports.etc_var_dir = exports.etc_os_dir = exports.project_name = exports.rootFile_name = void 0;
 const execa = require('execa');
 const fs = require("fs");
 const stdin_1 = __importDefault(require("./etc/system-tools/stdin"));
@@ -24,34 +24,51 @@ const docker_compose_db_1 = __importDefault(require("./etc/developer-op-files/do
 const nodespull_README_1 = __importDefault(require("./etc/developer-op-files/nodespull-README"));
 const wait_for_it_1 = __importDefault(require("./etc/developer-op-files/wait-for-it"));
 const module_template_1 = __importDefault(require("./cli/module/templates/module.template"));
-exports.sys_dir = "nodespull";
-exports.rootFile_name = "nodespullApp";
-exports.appModule = "app.module";
-function install(rootFileName, serverPort, pull_all, setupDb, dbTools, dbConstroller) {
+const app_env_1 = __importDefault(require("./templates/app-env"));
+exports.rootFile_name = "server.js";
+exports.project_name = "";
+exports.etc_os_dir = ".etc/os";
+exports.etc_var_dir = ".etc/os";
+exports.appModule = "app";
+exports.dbModule = "database";
+exports.appEnvModule = "environment";
+function install(projectName, serverPort, pull_all, setupDb, dbTools, dbConstroller) {
     return __awaiter(this, void 0, void 0, function* () {
-        exports.rootFile_name = rootFileName;
+        exports.project_name = projectName;
         console.log("\n** nodespull setup **\n");
         yield install_core();
         if (pull_all)
             yield install_others(serverPort);
         console.log("\n.. 100% - complete.\n");
-        yield run("readme", "open", ["-a", "TextEdit", "nodespull-README.md"], (ok, data) => { });
+        // await run("readme", "open", ["-a", "TextEdit", "nodespull-README.md"],(ok:boolean,data?:any)=>{})
         setupDb(dbConstroller);
     });
 }
 exports.install = install;
 function install_core() {
     return __awaiter(this, void 0, void 0, function* () {
-        yield run("mkdir sys", "mkdir", ["-p", exports.sys_dir], (ok, data) => { });
+        // installs for os (docker files) and np's npm dependencies
+        yield run("mkdir sys", "mkdir", ["-p", exports.etc_os_dir], (ok, data) => { });
         yield run("npm MySQL2", "sudo", ["npm", "i", "mysql2"], (ok, data) => { });
-        //create app.module folder
+        //database
+        yield run("create np database", "mkdir", ["-p", exports.dbModule + "/SQL"], (ok, data) => { });
+        yield run("", "mkdir", ["-p", exports.dbModule + "/noSQL"], (ok, data) => { });
+        //app env
+        yield run("create np appEnvir", "mkdir", ["-p", exports.appEnvModule], (ok, data) => { });
+        yield run("", "touch", ["-p", exports.appEnvModule + "/app.local.env.js"], (ok, data) => {
+            fs.writeFile(exports.appEnvModule + "/app.local.env.js", app_env_1.default("local"), () => { });
+        });
+        yield run("", "touch", ["-p", exports.appEnvModule + "/app.prod.env.js"], (ok, data) => {
+            fs.writeFile(exports.appEnvModule + "/app.prod.env.js", app_env_1.default("prod"), () => { });
+        });
+        // main module
         yield run("mkdir nodespull app", "mkdir", ["-p", exports.appModule], (ok, data) => { });
-        yield run("create np database", "mkdir", ["-p", exports.appModule + "/database"], (ok, data) => { });
-        yield run("create np server", "mkdir", ["-p", exports.appModule + "/server"], (ok, data) => { });
-        yield run("create np routes", "mkdir", ["-p", exports.appModule + "/server/_routes"], (ok, data) => { });
-        yield run("create np services app", "mkdir", ["-p", exports.appModule + "/server/_services"], (ok, data) => { });
-        yield run("create np default module", "touch", ["-p", exports.appModule + "/server/server.module"], (ok, data) => {
-            fs.writeFile(exports.appModule + "/server/server.module.js", module_template_1.default("serverModule"), () => { }); // populate module file with template
+        yield run("", "mkdir", ["-p", exports.appModule + "/main-module"], (ok, data) => { });
+        yield run("", "mkdir", ["-p", exports.appModule + "/main-module/graphql"], (ok, data) => { });
+        yield run("", "mkdir", ["-p", exports.appModule + "/main-module/rest"], (ok, data) => { });
+        yield run("", "mkdir", ["-p", exports.appModule + "/main-module/services"], (ok, data) => { });
+        yield run("", "touch", ["-p", exports.appModule + "/main-module/main.module"], (ok, data) => {
+            fs.writeFile(exports.appModule + "/main-module/main.module.js", module_template_1.default("mainModule"), () => { }); // populate module file with template
         });
     });
 }
@@ -64,36 +81,36 @@ function install_others(serverPort) {
         // serverPort = parseInt(await stdin(". Specify Local Port from which to launch node.js (Enter to skip): > ")) || serverPort;
         dbConsoleport = parseInt(yield stdin_1.default(". Port for nodespull local Database Portal (Enter to skip): > ")) || dbConsoleport;
         //dbPort = parseInt(await stdin(". Port for the nodespull local SQL Database  (Enter to skip): > ")) || dbPort;
-        yield run("nodespull-README", "touch", ['nodespull-README.md'], (ok, data) => {
+        yield run("README.md", "touch", ['../README.md'], (ok, data) => {
             if (ok)
-                fs.writeFile("nodespull-README.md", nodespull_README_1.default(data), (err) => { });
+                fs.writeFile("README.md", nodespull_README_1.default(data), (err) => { });
             else
-                console.log("Error: nodespull-README");
+                console.log("Error: README.md");
         }, { serverPort, dbConsoleport, rootFile_name: exports.rootFile_name });
-        yield run("Dockerfile", "touch", [exports.sys_dir + '/Dockerfile'], (ok, data) => {
+        yield run("Dockerfile", "touch", ["../" + exports.etc_os_dir + '/Dockerfile'], (ok, data) => {
             if (ok)
-                fs.writeFile(exports.sys_dir + "/Dockerfile", dockerfile_1.default(data), (err) => { });
+                fs.writeFile("../" + exports.etc_os_dir + "/Dockerfile", dockerfile_1.default(data), (err) => { });
             else
                 console.log("Error: Dockerfile");
         }, { serverPort, rootFile_name: exports.rootFile_name });
-        yield run("docker-compose-all", "touch", [exports.sys_dir + '/docker-compose-all.yml'], (ok, data) => {
+        yield run("docker-compose-all", "touch", ["../" + exports.etc_os_dir + '/docker-compose-all.yml'], (ok, data) => {
             if (ok)
-                fs.writeFile(exports.sys_dir + "/docker-compose-all.yml", docker_compose_all_1.default(data), (err) => { });
+                fs.writeFile("../" + exports.etc_os_dir + "/docker-compose-all.yml", docker_compose_all_1.default(data), (err) => { });
             else
                 console.log("Error: docker-compose-all.yml");
-        }, { serverPort, dbPort, dbConsoleport, rootFile_name: exports.rootFile_name, serverWaitTime_forDB, sys_dir: exports.sys_dir, dbPortTest });
-        yield run("docker-compose-db", "touch", [exports.sys_dir + '/docker-compose-db.yml'], (ok, data) => {
+        }, { serverPort, dbPort, dbConsoleport, rootFile_name: exports.rootFile_name, serverWaitTime_forDB, etc_os_dir: exports.etc_os_dir, dbPortTest });
+        yield run("docker-compose-db", "touch", ["../" + exports.etc_os_dir + '/docker-compose-db.yml'], (ok, data) => {
             if (ok)
-                fs.writeFile(exports.sys_dir + "/docker-compose-db.yml", docker_compose_db_1.default(data), (err) => { });
+                fs.writeFile("../" + exports.etc_os_dir + "/docker-compose-db.yml", docker_compose_db_1.default(data), (err) => { });
             else
                 console.log("Error: docker-compose-db.yml");
-        }, { serverPort, dbPort, dbConsoleport, rootFile_name: exports.rootFile_name, serverWaitTime_forDB, sys_dir: exports.sys_dir, dbPortTest });
-        yield run("wait-for-it", "touch", [exports.sys_dir + "/wait-for-it.sh"], (ok, data) => {
+        }, { serverPort, dbPort, dbConsoleport, rootFile_name: exports.rootFile_name, serverWaitTime_forDB, etc_os_dir: exports.etc_os_dir, dbPortTest });
+        yield run("wait-for-it", "touch", ["../" + exports.etc_os_dir + "/wait-for-it.sh"], (ok, data) => {
             if (ok) {
-                fs.writeFile(exports.sys_dir + "/wait-for-it.sh", wait_for_it_1.default(), (err) => { });
+                fs.writeFile("../" + exports.etc_os_dir + "/wait-for-it.sh", wait_for_it_1.default(), (err) => { });
             }
         });
-        yield run("wait-for-it chmod write", "sudo", ["chmod", "+x", "./" + exports.sys_dir + "/wait-for-it.sh"], (ok, data) => { });
+        yield run("wait-for-it chmod write", "sudo", ["chmod", "+x", "../" + exports.etc_os_dir + "/wait-for-it.sh"], (ok, data) => { });
         yield run("npm", "install", ["-g", "nodemon"], (ok, data) => { });
         yield run("npm", "install", ["-g", "heroku"], (ok, data) => { });
         // await run("npm","install",["-g","sequelize-cli"], (ok:boolean, data?:any)=>{});

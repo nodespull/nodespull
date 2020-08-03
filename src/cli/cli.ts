@@ -1,6 +1,6 @@
 import stdin from "../etc/system-tools/stdin"
 import {newRoute} from "./route"
-import {newTable} from "./db"
+import {newTable} from "./db/sql"
 import { newModule } from "./module";
 import { newService } from "./service";
 

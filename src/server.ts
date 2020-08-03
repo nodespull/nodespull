@@ -1,4 +1,4 @@
-import {install, sys_dir, appModule} from "./install"
+import {install, etc_os_dir, appModule} from "./install"
 import * as cli from "./cli/cli"
 import express from "express";
 import DB_Controller from "./database/controller";
@@ -16,7 +16,7 @@ import { npServiceController } from "./module/v2-module/controllers/npServiceCon
 
 import { Migration } from "./database/migration"
 
-const packageJson = parseJSON("./package.json");
+const packageJson = parseJSON("../package.json");
 
 
 export let PORT = 8888;
@@ -43,7 +43,7 @@ function startServer(port:number, after?:Function){
 /* --------------- Developer Interface --------------- */
 
 
-let rootFile_name:string = process.argv[1].split("/").pop()!;
+// let rootFile_name:string = process.argv[1].split("/").pop()!;
 
 let flag = process.argv[2];
 let isModeInstall = (flag && flag == "init")?true:false;
@@ -83,12 +83,12 @@ class Server {
 
         if(!Route._home_set)app.use("/",express.static(__dirname + '/public'))
         let flag = process.argv[2];
-        let prod = process.argv[3] && process.argv[3] == "-c";
+        let allImages = process.argv[3] && process.argv[3] == "-c";
         let run_setup = (flag && flag == "init")?true:false;
         let run_dbImages_only = (flag && flag=="boot")?true:false;
         let stop_dbImages_only = (flag && flag=="stop")?true:false;
-        let run_all_images = (flag && flag=="boot" && prod)?true:false;
-        let stop_all_images = (flag && flag=="stop" && prod)?true:false;
+        let run_all_images = (flag && flag=="boot" && allImages)?true:false;
+        let stop_all_images = (flag && flag=="stop" && allImages)?true:false;
         let buildFlag = (flag && flag=="build")?true:false;
         let runFlag = (flag && flag=="run")?true:false;
         let runFlag_fromContainer = (flag && flag=="docker-run")?true:false;
@@ -106,13 +106,18 @@ class Server {
         DB_Controller.setup(isModeInstall, db);
 
         if (run_setup){
-            install(rootFile_name,PORT, true, setup_db, DatabaseTools, DB_Controller); // install sql db image, db adminer, and dockerfile, + criticals
-            packageJson["scripts"] = {
-                start: "node "+rootFile_name+" run",
-                test: "mocha "+appModule+"/**/*.spec.js || true"
+            let projectName:string|null = process.argv[3] || null
+            if(!projectName){
+                new Log("Project name required for creation").FgRed().printValue()
+                process.exit(1)
             }
-            packageJson["main"] = rootFile_name;
-            writeJSON("./package.json",packageJson);
+            install(projectName,PORT, true, setup_db, DatabaseTools, DB_Controller); // install sql db image, db adminer, and dockerfile, + criticals
+            packageJson["scripts"] = {
+                start: "pull serve",//"node "+rootFile_name+" run",
+                test: "pull test",//"mocha "+appModule+"/**/*.spec.js || true"
+                e2e: "pull e2e"
+            }
+            writeJSON("../package.json",packageJson);
         }else if (cliFlag){
             cli.start();
         }else if (doFlag){
@@ -120,20 +125,20 @@ class Server {
         }else if (testFlag){
             cmd("npm",["test"]);
         }else if (run_all_images){
-            cmd('docker', [ "stop","nodespull_"+rootFile_name+"_1"], false);
-            cmd('docker', ["rm","nodespull_"+rootFile_name+"_1"], false);
-            cmd('docker-compose', ["-f",sys_dir+"/docker-compose-all.yml","up","--build"],true);
+            cmd('docker', [ "stop","nodespull_server.js_1"], false);
+            cmd('docker', ["rm","nodespull_server.js_1"], false);
+            cmd('docker-compose', ["-f",etc_os_dir+"/docker-compose-all.yml","up","--build"],true);
         }else if (stop_all_images){
-            cmd('docker-compose', ["-f",sys_dir+"/docker-compose-all.yml","down"],true);
+            cmd('docker-compose', ["-f",etc_os_dir+"/docker-compose-all.yml","down"],true);
         }else if(buildFlag){
-            cmd('docker-compose', ["-f", sys_dir + "/docker-compose-all.yml", "build"], false)
+            cmd('docker-compose', ["-f", etc_os_dir + "/docker-compose-all.yml", "build"], false)
         }else if(run_dbImages_only){
             console.log("\n\n Wait until no new event, then open a new terminal to run your app.\n\n\n")
-            cmd('docker-compose', ["-f",sys_dir+"/docker-compose-db.yml","up",], true);
+            cmd('docker-compose', ["-f",etc_os_dir+"/docker-compose-db.yml","up",], true);
         }else if(stop_dbImages_only){
-            cmd('docker-compose', ["-f",sys_dir+"/docker-compose-db.yml","down"], true);
+            cmd('docker-compose', ["-f",etc_os_dir+"/docker-compose-db.yml","down"], true);
         }else if (status){
-            cmd('docker-compose', ["-f",sys_dir+"/docker-compose-all.yml","ps"], true);
+            cmd('docker-compose', ["-f",etc_os_dir+"/docker-compose-all.yml","ps"], true);
         }else if(runFlag || runFlag_fromContainer){
             Server.isRunning = true;
             require("./files-runner"); // now that sequelize obj is initialized, load routes, tables, and relations
@@ -148,7 +153,7 @@ class Server {
             \n  init        initialize nodespull app\
             \n  cli         open nodespull cli\
             \n  boot        start nodespull servers: database, db_portal\
-            \n  run         run "+rootFile_name+" with nodespull\
+            \n  run         run main.js with nodespull\
             \n  stop        stop nodespull servers: database, db_portal\
             \n  boot -c     start nodespull servers and run app in container: app, database, db_portal\
             \n  stop -c     stop all nodespull servers: app, database, db_portal\

@@ -33,7 +33,7 @@ const templateList:  {[_:string]:{[_:string]:any}} = {
 
 function getTemplate(moduleName:string, routeName:string,template:Function, filePath:string, extCount:number):string{
     let parts =  routeName.split("/")
-    if(moduleName == "serverModule") routeName = "/"+parts.slice(2,parts.length-2).join("/"); // remove 'server/_routes'
+    if(moduleName == "mainModule") routeName = "/"+parts.slice(2,parts.length-2).join("/"); // remove 'server/_routes'
     else routeName = "/"+parts.slice(3,parts.length-2).join("/"); // remove 'server/$moduleName/_routes'
     routeName = routeName.replace("//","/")
 
@@ -60,15 +60,15 @@ function getTemplate(moduleName:string, routeName:string,template:Function, file
 
 export async function newRoute(name:string){
     let args = name.split("/");
-    let moduleVarName:string = "serverModule"
+    let moduleVarName:string = "mainModule"
     if(args[0].toLowerCase().includes(".module")){
         moduleVarName = args[0].toLowerCase().split(".")[0]+"Module"
         args = args.slice(1)
     }
     let fileName = "";
     let fileName_withUnderscore = "";
-    let routeDirPath = "server/_routes";
-    if(moduleVarName != "serverModule") routeDirPath = "server/"+moduleVarName+"/_routes"
+    let routeDirPath = "main-module/rest";
+    if(moduleVarName != "mainModule") routeDirPath = "main-module/"+moduleVarName+"/rest"
     while(args.length > 0){
         let e = args.shift();
         fileName = fileName!=""?(fileName+"."+e):e!;

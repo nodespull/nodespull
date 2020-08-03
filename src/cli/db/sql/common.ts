@@ -1,12 +1,12 @@
 import fs from "fs"
-import cmd from "../exe/exe"
-import {appModule} from "../../install"
-const root = appModule;
+import cmd from "../../exe/exe"
+import {dbModule} from "../../../install"
+const root = dbModule;
 
 
 export function getCurrentDBVersion():number{
-    if(!fs.existsSync(root+"/database")) return 0
-    const dbDirents = fs.readdirSync(root+"/database", { withFileTypes: true });
+    if(!fs.existsSync(root+"/SQL")) return 0
+    const dbDirents = fs.readdirSync(root+"/SQL", { withFileTypes: true });
     for(let dirName of getDirNames(dbDirents)) if(dirName.slice(0,4) == "at.v") return Number(dirName.slice(4))
     return 0
 }

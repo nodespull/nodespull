@@ -24,11 +24,16 @@ function newModule(moduleName) {
         if (moduleName.slice(-1 * "Module".length) != "Module")
             moduleVarName = moduleVarName.toLowerCase() + "Module";
         let moduleFileName = moduleVarName.substr(0, moduleVarName.length - 1 * "Module".length) + ".module.js";
-        exe_log_1.cmd("mkdir", ["-p", root + "/server/" + moduleVarName]);
-        exe_log_1.cmd("mkdir", ["-p", root + "/server/" + moduleVarName + "/_services"]);
-        exe_log_1.cmd("mkdir", ["-p", root + "/server/" + moduleVarName + "/_routes"]);
-        exe_log_1.cmd("touch", [root + "/server/" + moduleVarName + "/" + moduleFileName]); // create module file
-        fs_1.default.writeFile(root + "/server/" + moduleVarName + "/" + moduleFileName, module_template_1.default(moduleVarName), () => { }); // populate module file with template
+        exe_log_1.cmd("mkdir", ["-p", root + "/main-module/" + moduleVarName]);
+        exe_log_1.cmd("mkdir", ["-p", root + "/main-module/" + moduleVarName + "/services"]);
+        exe_log_1.cmd("mkdir", ["-p", root + "/main-module/" + moduleVarName + "/services/self-boot"]);
+        exe_log_1.cmd("mkdir", ["-p", root + "/main-module/" + moduleVarName + "/services/socket"]);
+        exe_log_1.cmd("mkdir", ["-p", root + "/main-module/" + moduleVarName + "/services/pipe-usable"]);
+        exe_log_1.cmd("mkdir", ["-p", root + "/main-module/" + moduleVarName + "/services/generic"]);
+        exe_log_1.cmd("mkdir", ["-p", root + "/main-module/" + moduleVarName + "/rest"]);
+        exe_log_1.cmd("mkdir", ["-p", root + "/main-module/" + moduleVarName + "/graphql"]);
+        exe_log_1.cmd("touch", [root + "/main-module/" + moduleVarName + "/" + moduleFileName]); // create module file
+        fs_1.default.writeFile(root + "/main-module/" + moduleVarName + "/" + moduleFileName, module_template_1.default(moduleVarName), () => { }); // populate module file with template
     });
 }
 exports.newModule = newModule;

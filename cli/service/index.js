@@ -20,8 +20,9 @@ const cli_1 = require("../cli");
 const service_template_1 = __importDefault(require("./templates/service.template"));
 const service_boot_template_1 = __importDefault(require("./templates/service.boot.template"));
 const service_pipe_template_1 = __importDefault(require("./templates/service.pipe.template"));
+const service_socket_template_1 = __importDefault(require("./templates/service.socket.template"));
 const root = install_1.appModule;
-const validOptions = ["--boot", "-b", "--pipe", "-p", "--default"];
+const validOptions = ["--boot", "-b", "--pipe", "-p", "--socket", "-s", "--default"];
 function newService(args) {
     return __awaiter(this, void 0, void 0, function* () {
         //parse 'option $name'
@@ -41,27 +42,29 @@ function newService(args) {
             serviceVarName = serviceParts[0];
             moduleVarName = null;
         }
-        if (moduleVarName == "server.module" || !moduleVarName)
-            moduleVarName = "serverModule";
+        if (moduleVarName == "main.module" || !moduleVarName)
+            moduleVarName = "mainModule";
         if (moduleVarName.toLowerCase().includes(".module"))
             moduleVarName = moduleVarName.toLowerCase().split(".")[0] + "Module";
-        else if (moduleVarName != "serverModule")
+        else if (moduleVarName != "mainModule")
             throw cli_1.error.wrongUsage;
         // create service file
         serviceVarName = serviceVarName.toLowerCase(); // lint: lowercase service name
-        let servicePath = root + "/server/_services/" + serviceVarName + ".service.js";
-        if (moduleVarName != "serverModule")
-            servicePath = root + "/server/" + moduleVarName + "/_services/" + serviceVarName + ".service.js";
+        // let servicePath = root+"/main-module/services"
+        // if(moduleVarName != "mainModule") servicePath = root+"/"+moduleVarName+"/services"
+        let servicePath = root + "/" + moduleVarName + "/services";
         exe_log_1.cmd("touch", [servicePath]);
         // populate service file with appropriate template
         if (option == "--boot" || option == "-b")
-            fs_1.default.writeFile(servicePath, service_boot_template_1.default(serviceVarName, moduleVarName), () => { });
+            fs_1.default.writeFile(servicePath + "/self-boot/" + serviceVarName + ".service.js", service_boot_template_1.default(serviceVarName, moduleVarName), () => { });
         if (option == "--pipe" || option == "-p")
-            fs_1.default.writeFile(servicePath, service_pipe_template_1.default(serviceVarName, moduleVarName), () => { });
+            fs_1.default.writeFile(servicePath + "/pipe-usable/" + serviceVarName + ".service.js", service_pipe_template_1.default(serviceVarName, moduleVarName), () => { });
+        if (option == "--socket" || option == "-s")
+            fs_1.default.writeFile(servicePath + "/socket/" + serviceVarName + ".service.js", service_socket_template_1.default(serviceVarName, moduleVarName), () => { });
         if (option == "--default")
-            fs_1.default.writeFile(servicePath, service_template_1.default(serviceVarName, moduleVarName), () => { });
-        if (moduleVarName == "serverModule")
-            exe_log_1.cmd("mkdir", ["-p", root + "/server/_services"]);
+            fs_1.default.writeFile(servicePath + "/generic/" + serviceVarName + ".service.js", service_template_1.default(serviceVarName, moduleVarName), () => { });
+        if (moduleVarName == "mainModule")
+            exe_log_1.cmd("mkdir", ["-p", root + "/main-module/services"]);
     });
 }
 exports.newService = newService;

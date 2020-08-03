@@ -13,34 +13,53 @@ import nodespullReadme from "./etc/developer-op-files/nodespull-README";
 import waitForIt from "./etc/developer-op-files/wait-for-it";
 import { cmd } from "./cli/exe/exe.log";
 import getModuleTemplate from "./cli/module/templates/module.template";
+import getAppEnvTemplate from "./templates/app-env"
 
-export const sys_dir:string = "nodespull";
-export let rootFile_name = "nodespullApp";
-export let appModule  = "app.module";
+export const rootFile_name:string = "server.js"
+export let project_name:string = ""
 
-export async function install(rootFileName:string, serverPort:number, pull_all:boolean, setupDb:Function, dbTools:any, dbConstroller:any){
-    rootFile_name = rootFileName;
+export let etc_os_dir:string = ".etc/os";
+export let etc_var_dir:string = ".etc/os";
+
+export let appModule  = "app"
+export let dbModule = "database"
+export let appEnvModule = "environment"
+
+export async function install(projectName:string, serverPort:number, pull_all:boolean, setupDb:Function, dbTools:any, dbConstroller:any){
+    project_name = projectName
     console.log("\n** nodespull setup **\n");
     await install_core();
     if(pull_all) await install_others(serverPort);
     console.log("\n.. 100% - complete.\n")
-    await run("readme", "open", ["-a", "TextEdit", "nodespull-README.md"],(ok:boolean,data?:any)=>{})
+    // await run("readme", "open", ["-a", "TextEdit", "nodespull-README.md"],(ok:boolean,data?:any)=>{})
 
     setupDb(dbConstroller);
 }
 
 
 async function install_core(){
-    await run("mkdir sys", "mkdir", ["-p",sys_dir],(ok:boolean,data?:any)=>{})
+    // installs for os (docker files) and np's npm dependencies
+    await run("mkdir sys", "mkdir", ["-p",etc_os_dir],(ok:boolean,data?:any)=>{})
     await run("npm MySQL2", "sudo", ["npm", "i","mysql2"],(ok:boolean,data?:any)=>{})
-    //create app.module folder
+    //database
+    await run("create np database", "mkdir", ["-p", dbModule+"/SQL"],(ok:boolean,data?:any)=>{})
+    await run("", "mkdir", ["-p", dbModule+"/noSQL"],(ok:boolean,data?:any)=>{})
+    //app env
+    await run("create np appEnvir", "mkdir", ["-p", appEnvModule],(ok:boolean,data?:any)=>{})
+    await run("", "touch", ["-p", appEnvModule+"/app.local.env.js"],(ok:boolean,data?:any)=>{
+        fs.writeFile(appEnvModule+"/app.local.env.js", getAppEnvTemplate("local"),()=>{})
+    })
+    await run("", "touch", ["-p", appEnvModule+"/app.prod.env.js"],(ok:boolean,data?:any)=>{
+        fs.writeFile(appEnvModule+"/app.prod.env.js", getAppEnvTemplate("prod"),()=>{})
+    })
+    // main module
     await run("mkdir nodespull app", "mkdir", ["-p", appModule],(ok:boolean,data?:any)=>{})
-    await run("create np database", "mkdir", ["-p", appModule+"/database"],(ok:boolean,data?:any)=>{})
-    await run("create np server", "mkdir", ["-p", appModule+"/server"],(ok:boolean,data?:any)=>{})
-    await run("create np routes", "mkdir", ["-p", appModule+"/server/_routes"],(ok:boolean,data?:any)=>{})
-    await run("create np services app", "mkdir", ["-p", appModule+"/server/_services"],(ok:boolean,data?:any)=>{})
-    await run("create np default module", "touch", ["-p", appModule+"/server/server.module"],(ok:boolean,data?:any)=>{
-        fs.writeFile(appModule+"/server/server.module.js", getModuleTemplate("serverModule"),()=>{}) // populate module file with template
+    await run("", "mkdir", ["-p", appModule+"/main-module"],(ok:boolean,data?:any)=>{})
+    await run("", "mkdir", ["-p", appModule+"/main-module/graphql"],(ok:boolean,data?:any)=>{})
+    await run("", "mkdir", ["-p", appModule+"/main-module/rest"],(ok:boolean,data?:any)=>{})
+    await run("", "mkdir", ["-p", appModule+"/main-module/services"],(ok:boolean,data?:any)=>{})
+    await run("", "touch", ["-p", appModule+"/main-module/main.module"],(ok:boolean,data?:any)=>{
+        fs.writeFile(appModule+"/main-module/main.module.js", getModuleTemplate("mainModule"),()=>{}) // populate module file with template
     })
 
 }
@@ -55,37 +74,37 @@ async function install_others(serverPort:number){
     // serverPort = parseInt(await stdin(". Specify Local Port from which to launch node.js (Enter to skip): > ")) || serverPort;
     dbConsoleport = parseInt(await stdin(". Port for nodespull local Database Portal (Enter to skip): > ")) || dbConsoleport;
     //dbPort = parseInt(await stdin(". Port for the nodespull local SQL Database  (Enter to skip): > ")) || dbPort;
-    await run("nodespull-README", "touch", ['nodespull-README.md'], (ok:boolean, data?:any)=>{
-        if(ok) fs.writeFile("nodespull-README.md",nodespullReadme(data)
+    await run("README.md", "touch", ['../README.md'], (ok:boolean, data?:any)=>{
+        if(ok) fs.writeFile("README.md",nodespullReadme(data)
         ,(err:any)=>{});
-        else console.log("Error: nodespull-README");
+        else console.log("Error: README.md");
     }, {serverPort,dbConsoleport,rootFile_name});
 
-    await run("Dockerfile", "touch", [sys_dir+'/Dockerfile'], (ok:boolean, data?:any)=>{
-        if(ok) fs.writeFile(sys_dir+"/Dockerfile",dockerfile(data)
+    await run("Dockerfile", "touch", ["../"+etc_os_dir+'/Dockerfile'], (ok:boolean, data?:any)=>{
+        if(ok) fs.writeFile("../"+etc_os_dir+"/Dockerfile",dockerfile(data)
         ,(err:any)=>{});
         else console.log("Error: Dockerfile");
     }, {serverPort,rootFile_name});
 
-    await run("docker-compose-all", "touch", [sys_dir+'/docker-compose-all.yml'], (ok:boolean, data?:any)=>{
-        if(ok) fs.writeFile(sys_dir+"/docker-compose-all.yml",dockerComposeAll(data)
+    await run("docker-compose-all", "touch", ["../"+etc_os_dir+'/docker-compose-all.yml'], (ok:boolean, data?:any)=>{
+        if(ok) fs.writeFile("../"+etc_os_dir+"/docker-compose-all.yml",dockerComposeAll(data)
         ,(err:any)=>{});
         else console.log("Error: docker-compose-all.yml");
-    }, {serverPort, dbPort, dbConsoleport, rootFile_name, serverWaitTime_forDB, sys_dir, dbPortTest});
+    }, {serverPort, dbPort, dbConsoleport, rootFile_name, serverWaitTime_forDB, etc_os_dir, dbPortTest});
 
-    await run("docker-compose-db", "touch", [sys_dir+'/docker-compose-db.yml'], (ok:boolean, data?:any)=>{
-        if(ok) fs.writeFile(sys_dir+"/docker-compose-db.yml",dockerComposeDB(data)
+    await run("docker-compose-db", "touch", ["../"+etc_os_dir+'/docker-compose-db.yml'], (ok:boolean, data?:any)=>{
+        if(ok) fs.writeFile("../"+etc_os_dir+"/docker-compose-db.yml",dockerComposeDB(data)
         ,(err:any)=>{});
         else console.log("Error: docker-compose-db.yml");
-    }, {serverPort, dbPort, dbConsoleport, rootFile_name, serverWaitTime_forDB, sys_dir, dbPortTest});
+    }, {serverPort, dbPort, dbConsoleport, rootFile_name, serverWaitTime_forDB, etc_os_dir, dbPortTest});
 
-    await run("wait-for-it", "touch", [sys_dir+"/wait-for-it.sh"], (ok:boolean, data?:any)=>{
+    await run("wait-for-it", "touch", ["../"+etc_os_dir+"/wait-for-it.sh"], (ok:boolean, data?:any)=>{
         if(ok){
-            fs.writeFile(sys_dir+"/wait-for-it.sh", waitForIt(),(err:any)=>{})
+            fs.writeFile("../"+etc_os_dir+"/wait-for-it.sh", waitForIt(),(err:any)=>{})
         }
     })
 
-    await run("wait-for-it chmod write", "sudo", ["chmod", "+x","./"+sys_dir+"/wait-for-it.sh"],(ok:boolean,data?:any)=>{})
+    await run("wait-for-it chmod write", "sudo", ["chmod", "+x","../"+etc_os_dir+"/wait-for-it.sh"],(ok:boolean,data?:any)=>{})
     await run("npm","install",["-g","nodemon"], (ok:boolean, data?:any)=>{});
     await run("npm","install",["-g","heroku"], (ok:boolean, data?:any)=>{});
    // await run("npm","install",["-g","sequelize-cli"], (ok:boolean, data?:any)=>{});

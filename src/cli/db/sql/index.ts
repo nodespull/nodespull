@@ -1,6 +1,6 @@
-import cmd from "../exe/exe"
+import cmd from "../../exe/exe"
 import fs from "fs"
-import {appModule} from "../../install"
+import {dbModule} from "../../../install"
 
 import model from "./templates/model"
 import relation from "./templates/relation"
@@ -8,7 +8,7 @@ import { getCurrentDBVersion } from "./common"
 
 const templates: {[_:string]:any} = { model, relation};
 
-const root = appModule;
+const root = dbModule;
 
 function getTemplate(template:string, tableName:string):string{
     return templates[template](tableName);
@@ -18,11 +18,11 @@ function getTemplate(template:string, tableName:string):string{
 export async function newTable(tableName:string){
     let currVersion = getCurrentDBVersion()
     
-    await cmd("mkdir", ["-p", root+`/database/stage.v${currVersion+1}/`+tableName], false);
-    await cmd("mkdir", ["-p", root+`/database/archives`], false);
+    await cmd("mkdir", ["-p", root+`/SQL/stage.v${currVersion+1}/`+tableName], false);
+    await cmd("mkdir", ["-p", root+`/SQL/archives`], false);
 
     for(let template of Object.keys(templates)){
-        let path = root+`/database/stage.v${currVersion+1}/`+tableName+ "/"+tableName+"."+template+".js";
+        let path = root+`/SQL/stage.v${currVersion+1}/`+tableName+ "/"+tableName+"."+template+".js";
         await cmd("touch",[path]), false;
         await fs.writeFile(path,getTemplate(template, tableName),()=>{})
     }
