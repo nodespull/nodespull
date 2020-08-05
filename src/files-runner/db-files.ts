@@ -5,8 +5,8 @@ import { Log } from "../etc/log";
 import { Database } from "../server"
 import { Relations } from "../database/tools"
 import { getCurrentDBVersion } from "../cli/db/sql/common";
-import stageModelTemplate from "../cli/db/sql/templates/stage.model";
-import stageRelationTemplate from "../cli/db/sql/templates/stage.relation";
+import stageModelTemplate from "../cli/db/sql/templates/x_stage.model";
+import stageRelationTemplate from "../cli/db/sql/templates/x_stage.relation";
 
 export class DB_FilesRunner extends FilesEngine{
 

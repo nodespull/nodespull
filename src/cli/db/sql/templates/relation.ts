@@ -1,7 +1,7 @@
 
 export default function relation(tableName:string):string{
-return `const { Relations } = require("nodespull/database/tools")
-const { Database } = require("nodespull")
+return `const { Relations } = require("@nodespull/core/database/tools")
+const { Database } = require("@nodespull/core")
 const { onUpload, onRevert, rawQuery } = Database
 
 

@@ -37,7 +37,7 @@ class Log {
     BgMagenta() { this.applyBgFormat("\x1b[45m"); return this; }
     BgCyan() { this.applyBgFormat("\x1b[46m"); return this; }
     BgWhite() { this.applyBgFormat("\x1b[47m"); return this; }
-    applyFgFormat(format) { return format + this.message + "\x1b[37m"; }
-    applyBgFormat(format) { return format + this.message + "\x1b[40m"; }
+    applyFgFormat(format) { this.message = format + this.message + "\x1b[37m"; }
+    applyBgFormat(format) { this.message = format + this.message + "\x1b[40m"; }
 }
 exports.Log = Log;

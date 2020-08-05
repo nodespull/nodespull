@@ -1,7 +1,7 @@
 
 export default function model(tableName:string, pk?:any):string{
-return `const { type } = require("nodespull/core/type/db")
-const { Database } = require("nodespull")
+return `const { type } = require("@nodespull/core/utils/db")
+const { Database } = require("@nodespull/core")
 const { onUpload, onRevert, rawQuery } = Database
 
 

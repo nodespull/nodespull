@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.config = exports.server = exports.http = exports.Router = exports.route = exports.appServer = exports.Pipe = exports.npService = exports.npRoute = exports.npModule = exports.Database = exports.db = exports.DB_PORT_TEST = exports.PORT = void 0;
+exports.confOptions = exports.setAdapter_API_KEY = exports.config = exports.server = exports.http = exports.Router = exports.route = exports.appServer = exports.Pipe = exports.npService = exports.npRoute = exports.npModule = exports.Database = exports.db = exports.DB_PORT_TEST = exports.PORT = void 0;
 const install_1 = require("./install");
 const cli = __importStar(require("./cli/cli"));
 const express_1 = __importDefault(require("express"));
@@ -45,8 +45,16 @@ const deploy_1 = require("./cli/deploy/deploy");
 const npModuleController_1 = require("./module/v2-module/controllers/npModuleController");
 const npRouteController_1 = require("./module/v2-module/controllers/npRouteController");
 const npServiceController_1 = require("./module/v2-module/controllers/npServiceController");
+const paths_1 = require("./etc/other/paths");
 const migration_1 = require("./database/migration");
-const packageJson = json_1.parseJSON("../package.json");
+// /** set process context to the server.js file */
+// try {
+//     if(process.cwd().split("/").pop() != "server.js") process.chdir(process.cwd()+'/src/server.js');
+// }
+// catch (err) {
+//     console.log("context change to 'server.js': " + err);
+// }
+const packageJson = json_1.parseJSON(paths_1.PathVar.packageJson);
 exports.PORT = 8888;
 exports.DB_PORT_TEST = 3332;
 const app = express_1.default();
@@ -58,7 +66,7 @@ function startServer(port, after) {
     \t$.config.cors([  {domain: "*", methods: "POST, GET, DELETE, PUT, HEAD, OPTIONS"}  ])\n\n').throwWarn();
     port = parseInt(process.env.PORT, 10) || port;
     app.listen(port, () => {
-        new log_1.Log("\n\nApp Server Started at http://localhost:" + port + "\n Open \"nodespull_README.md\" for details.").FgGreen().printValue();
+        console.log("\n-" + new log_1.Log(` server '${packageJson.name}' started at http://localhost:` + port).FgGreen().getValue());
         if (after)
             after(port);
     });
@@ -143,7 +151,7 @@ let Server = /** @class */ (() => {
                         test: "pull test",
                         e2e: "pull e2e"
                     };
-                    json_1.writeJSON("../package.json", packageJson);
+                    json_1.writeJSON(paths_1.PathVar.packageJson, packageJson);
                 }
                 else if (cliFlag) {
                     cli.start();
@@ -226,7 +234,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // api documentation
 const loader_1 = __importDefault(require("./templates/swagger/loader"));
 const log_1 = require("./etc/log");
-const pipe_1 = require("./core/pipe");
+const pipe_1 = require("./utils/pipe");
 loader_1.default(app);
 /**
  * Module controller
@@ -283,7 +291,10 @@ exports.config = {
      * })
      * ```
      */
-    database: (settings) => exports.db.config = settings,
+    database: (settings) => {
+        //db.config = settings
+        // PENDING
+    },
     /**
      * cross-site configuration
      * @param {{[domain:string]:string, [methods:string]:string[]}[]} args domains and http methods allowed.
@@ -311,6 +322,26 @@ exports.config = {
             }
             next();
         });
+    },
+    /**
+     * authentication description
+     */
+    authentication: (args) => {
+        // PENDING
+    },
+    /**
+     * appModule description
+     */
+    appModules: (args) => {
+        // PENDING
     }
 };
 let isCorsSet = false;
+function setAdapter_API_KEY(secret) {
+    // PENDING
+}
+exports.setAdapter_API_KEY = setAdapter_API_KEY;
+exports.confOptions = {
+    auth: {},
+    dbSys: {}
+};

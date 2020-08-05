@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function model(tableName, pk) {
-    return `const { type } = require("nodespull/core/type/db")
-const { Database } = require("nodespull")
+    return `const { type } = require("@nodespull/core/utils/db")
+const { Database } = require("@nodespull/core")
 const { onUpload, onRevert, rawQuery } = Database
 
 

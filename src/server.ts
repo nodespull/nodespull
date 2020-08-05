@@ -12,11 +12,20 @@ import {deploy} from "./cli/deploy/deploy"
 import { npModuleController } from "./module/v2-module/controllers/npModuleController"
 import { npRouteController } from "./module/v2-module/controllers/npRouteController"
 import { npServiceController } from "./module/v2-module/controllers/npServiceController"
-
-
+import { PathVar } from "./etc/other/paths"
 import { Migration } from "./database/migration"
 
-const packageJson = parseJSON("../package.json");
+
+// /** set process context to the server.js file */
+// try {
+//     if(process.cwd().split("/").pop() != "server.js") process.chdir(process.cwd()+'/src/server.js');
+// }
+// catch (err) {
+//     console.log("context change to 'server.js': " + err);
+// }
+
+
+const packageJson =  parseJSON(PathVar.packageJson)
 
 
 export let PORT = 8888;
@@ -33,7 +42,7 @@ function startServer(port:number, after?:Function){
     \t$.config.cors([  {domain: "*", methods: "POST, GET, DELETE, PUT, HEAD, OPTIONS"}  ])\n\n').throwWarn()
     port = parseInt(process.env.PORT!, 10) || port;
     app.listen(port, ()=>{
-        new Log("\n\nApp Server Started at http://localhost:"+port+"\n Open \"nodespull_README.md\" for details.").FgGreen().printValue()
+        console.log("\n-"+new Log(` server '${packageJson.name}' started at http://localhost:`+port).FgGreen().getValue())
         if(after) after(port);
     });
 }
@@ -117,7 +126,7 @@ class Server {
                 test: "pull test",//"mocha "+appModule+"/**/*.spec.js || true"
                 e2e: "pull e2e"
             }
-            writeJSON("../package.json",packageJson);
+            writeJSON(PathVar.packageJson,packageJson);
         }else if (cliFlag){
             cli.start();
         }else if (doFlag){
@@ -186,7 +195,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // api documentation
 import swaggerLoader from "./templates/swagger/loader"
 import { Log } from "./etc/log";
-import { npPipe } from "./core/pipe";
+import { npPipe } from "./utils/pipe";
 swaggerLoader(app);
 
 
@@ -256,7 +265,10 @@ export const config = {
      * })
      * ```
      */
-    database: (settings:any)=>db.config = settings,
+    database: (settings:any)=>{
+        //db.config = settings
+        // PENDING
+    },
     /**
      * cross-site configuration
      * @param {{[domain:string]:string, [methods:string]:string[]}[]} args domains and http methods allowed. 
@@ -283,9 +295,32 @@ export const config = {
             }
             next()
         })
+    },
+    /**
+     * authentication description
+     */
+    authentication:(args:any)=>{
+        // PENDING
+    },
+
+    /**
+     * appModule description
+     */
+    appModules:(args:any)=>{
+        // PENDING
     }
+    
 }
 let isCorsSet = false;
 
 
 
+export function setAdapter_API_KEY(secret:string){
+    // PENDING
+}
+
+
+export const confOptions = {
+    auth: {},
+    dbSys: {}
+}

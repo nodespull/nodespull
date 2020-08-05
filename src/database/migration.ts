@@ -6,8 +6,8 @@ import {appModule, dbModule} from "../install"
 import cmd from "../cli/exe/exe"
 import { FilesEngine } from "../files-runner/common"
 import { Database } from "../server"
-import stageModelTemplate from "../cli/db/sql/templates/stage.model"
-import stageRelationTemplate from "../cli/db/sql/templates/stage.relation"
+import stageModelTemplate from "../cli/db/sql/templates/x_stage.model"
+import stageRelationTemplate from "../cli/db/sql/templates/x_stage.relation"
 
 const dbRoot = appModule;
 

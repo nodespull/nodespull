@@ -8,8 +8,9 @@ const json_1 = require("../../etc/system-tools/json");
 const exe_log_1 = require("../../cli/exe/exe.log");
 const fs_1 = __importDefault(require("fs"));
 const install_1 = require("../../install");
+const paths_1 = require("../../etc/other/paths");
 const swaggerUi = require('swagger-ui-express');
-const packageJson = json_1.parseJSON("../package.json");
+const packageJson = json_1.parseJSON(paths_1.PathVar.packageJson);
 let mainSwagger = {};
 function default_1(app) {
     if (!fs_1.default.existsSync("./" + install_1.etc_var_dir + "/swagger.json")) {

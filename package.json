@@ -1,7 +1,7 @@
 {
-  "name": "nodespull",
+  "name": "@nodespull/core",
   "version": "0.3.14",
-  "description": "Get started with a stable, scalable Node.js server",
+  "description": "Node.js server framework from Sodium Servers",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

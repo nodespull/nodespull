@@ -4,8 +4,10 @@ import {writeJSON, parseJSON} from "../../etc/system-tools/json"
 import {cmd} from "../../cli/exe/exe.log"
 import fs from "fs"
 import {etc_var_dir, appModule} from "../../install"
+import {PathVar} from "../../etc/other/paths"
+
 const swaggerUi = require('swagger-ui-express');
-const packageJson = parseJSON("../package.json");
+const packageJson = parseJSON(PathVar.packageJson);
 
 
 let mainSwagger:any = {};

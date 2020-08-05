@@ -4,10 +4,10 @@ import fs from "fs"
 import {appDockerfile,heroku_db_dockerfile} from "../deploy/templates/dockerfile"
 import {writeJSON, parseJSON} from "../../etc/system-tools/json"
 import stdin from "../../etc/system-tools/stdin";
+import {PathVar} from "../../etc/other/paths"
 
-
-let packageJson = parseJSON("./package.json");
-const rootFile = fs.readFileSync("./"+packageJson.main,"utf8");
+let packageJson = parseJSON(PathVar.packageJson);
+const rootFile = process.argv[1] //fs.readFileSync("./"+packageJson.main,"utf8");
 
 //log into heroku
 export async function herokuLogin(){

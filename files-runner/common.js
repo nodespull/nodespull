@@ -40,8 +40,8 @@ let FilesEngine = /** @class */ (() => {
             }
         }
     }
-    FilesEngine.appRootPath = __dirname + `/../../../${install_1.appModule}/`;
-    FilesEngine.dbRootPath = __dirname + `/../../../${install_1.dbModule}/`;
+    FilesEngine.appRootPath = `${process.argv[1].split("/").slice(0, -1).join("/")}/../${install_1.appModule}`;
+    FilesEngine.dbRootPath = `${process.argv[1].split("/").slice(0, -1).join("/")}/../${install_1.dbModule}`;
     return FilesEngine;
 })();
 exports.FilesEngine = FilesEngine;

@@ -5,8 +5,8 @@ import {appModule, dbModule} from "../install"
 // runner template
 export abstract class FilesEngine {
 
-    static appRootPath = __dirname+`/../../../${appModule}/`
-    static dbRootPath = __dirname+`/../../../${dbModule}/`
+    static appRootPath = `${process.argv[1].split("/").slice(0,-1).join("/")}/../${appModule}`
+    static dbRootPath = `${process.argv[1].split("/").slice(0,-1).join("/")}/../${dbModule}`
 
     constructor(){}
 

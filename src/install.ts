@@ -19,11 +19,11 @@ export const rootFile_name:string = "server.js"
 export let project_name:string = ""
 
 export let etc_os_dir:string = ".etc/os";
-export let etc_var_dir:string = ".etc/os";
+export let etc_var_dir:string = ".etc/var";
 
-export let appModule  = "app"
-export let dbModule = "database"
-export let appEnvModule = "environment"
+export let appModule  = "src/app"
+export let dbModule = "src/database"
+export let appEnvModule = "src/environment"
 
 export async function install(projectName:string, serverPort:number, pull_all:boolean, setupDb:Function, dbTools:any, dbConstroller:any){
     project_name = projectName
@@ -43,24 +43,27 @@ async function install_core(){
     await run("npm MySQL2", "sudo", ["npm", "i","mysql2"],(ok:boolean,data?:any)=>{})
     //database
     await run("create np database", "mkdir", ["-p", dbModule+"/SQL"],(ok:boolean,data?:any)=>{})
-    await run("", "mkdir", ["-p", dbModule+"/noSQL"],(ok:boolean,data?:any)=>{})
+    await run("database", "mkdir", ["-p", dbModule+"/noSQL"],(ok:boolean,data?:any)=>{})
     //app env
-    await run("create np appEnvir", "mkdir", ["-p", appEnvModule],(ok:boolean,data?:any)=>{})
-    await run("", "touch", ["-p", appEnvModule+"/app.local.env.js"],(ok:boolean,data?:any)=>{
-        fs.writeFile(appEnvModule+"/app.local.env.js", getAppEnvTemplate("local"),()=>{})
+    await run("create np appEnvir", "mkdir", ["-p", appEnvModule],(ok:boolean,data?:any)=>{
+        run("app local env", "touch", [appEnvModule+"/app.local.env.js"],(ok:boolean,data?:any)=>{
+            if(ok)fs.writeFile(appEnvModule+"/app.local.env.js", getAppEnvTemplate("local"),()=>{})
+        })
+        run("app prod env", "touch", [appEnvModule+"/app.prod.env.js"],(ok:boolean,data?:any)=>{
+            if(ok)fs.writeFile(appEnvModule+"/app.prod.env.js", getAppEnvTemplate("prod"),()=>{})
+        })
     })
-    await run("", "touch", ["-p", appEnvModule+"/app.prod.env.js"],(ok:boolean,data?:any)=>{
-        fs.writeFile(appEnvModule+"/app.prod.env.js", getAppEnvTemplate("prod"),()=>{})
-    })
+
     // main module
     await run("mkdir nodespull app", "mkdir", ["-p", appModule],(ok:boolean,data?:any)=>{})
-    await run("", "mkdir", ["-p", appModule+"/main-module"],(ok:boolean,data?:any)=>{})
-    await run("", "mkdir", ["-p", appModule+"/main-module/graphql"],(ok:boolean,data?:any)=>{})
-    await run("", "mkdir", ["-p", appModule+"/main-module/rest"],(ok:boolean,data?:any)=>{})
-    await run("", "mkdir", ["-p", appModule+"/main-module/services"],(ok:boolean,data?:any)=>{})
-    await run("", "touch", ["-p", appModule+"/main-module/main.module"],(ok:boolean,data?:any)=>{
-        fs.writeFile(appModule+"/main-module/main.module.js", getModuleTemplate("mainModule"),()=>{}) // populate module file with template
+    await run("main module", "mkdir", ["-p", appModule+"/main-module"],(ok:boolean,data?:any)=>{
+        run("main module configs", "touch", [appModule+"/main-module/main.module.js"],(ok:boolean,data?:any)=>{
+            if(ok)fs.writeFile(appModule+"/main-module/main.module.js", getModuleTemplate("mainModule"),()=>{}) // populate module file with template
+        })
     })
+    await run("graphql", "mkdir", ["-p", appModule+"/main-module/graphql"],(ok:boolean,data?:any)=>{})
+    await run("rest", "mkdir", ["-p", appModule+"/main-module/rest"],(ok:boolean,data?:any)=>{})
+    await run("services", "mkdir", ["-p", appModule+"/main-module/services"],(ok:boolean,data?:any)=>{})
 
 }
 
@@ -72,53 +75,53 @@ async function install_others(serverPort:number){
     let serverWaitTime_forDB = 300; //sec
 
     // serverPort = parseInt(await stdin(". Specify Local Port from which to launch node.js (Enter to skip): > ")) || serverPort;
-    dbConsoleport = parseInt(await stdin(". Port for nodespull local Database Portal (Enter to skip): > ")) || dbConsoleport;
+    // dbConsoleport = parseInt(await stdin(". Port for nodespull local Database Portal (Enter to skip): > ")) || dbConsoleport;
     //dbPort = parseInt(await stdin(". Port for the nodespull local SQL Database  (Enter to skip): > ")) || dbPort;
-    await run("README.md", "touch", ['../README.md'], (ok:boolean, data?:any)=>{
+    await run("README.md", "touch", ['./README.md'], (ok:boolean, data?:any)=>{
         if(ok) fs.writeFile("README.md",nodespullReadme(data)
         ,(err:any)=>{});
         else console.log("Error: README.md");
     }, {serverPort,dbConsoleport,rootFile_name});
 
-    await run("Dockerfile", "touch", ["../"+etc_os_dir+'/Dockerfile'], (ok:boolean, data?:any)=>{
-        if(ok) fs.writeFile("../"+etc_os_dir+"/Dockerfile",dockerfile(data)
+    await run("Dockerfile", "touch", ["./"+etc_os_dir+'/Dockerfile'], (ok:boolean, data?:any)=>{
+        if(ok) fs.writeFile("./"+etc_os_dir+"/Dockerfile",dockerfile(data)
         ,(err:any)=>{});
         else console.log("Error: Dockerfile");
     }, {serverPort,rootFile_name});
 
-    await run("docker-compose-all", "touch", ["../"+etc_os_dir+'/docker-compose-all.yml'], (ok:boolean, data?:any)=>{
-        if(ok) fs.writeFile("../"+etc_os_dir+"/docker-compose-all.yml",dockerComposeAll(data)
+    await run("docker-compose-all", "touch", ["./"+etc_os_dir+'/docker-compose-all.yml'], (ok:boolean, data?:any)=>{
+        if(ok) fs.writeFile("./"+etc_os_dir+"/docker-compose-all.yml",dockerComposeAll(data)
         ,(err:any)=>{});
         else console.log("Error: docker-compose-all.yml");
     }, {serverPort, dbPort, dbConsoleport, rootFile_name, serverWaitTime_forDB, etc_os_dir, dbPortTest});
 
-    await run("docker-compose-db", "touch", ["../"+etc_os_dir+'/docker-compose-db.yml'], (ok:boolean, data?:any)=>{
-        if(ok) fs.writeFile("../"+etc_os_dir+"/docker-compose-db.yml",dockerComposeDB(data)
+    await run("docker-compose-db", "touch", ["./"+etc_os_dir+'/docker-compose-db.yml'], (ok:boolean, data?:any)=>{
+        if(ok) fs.writeFile("./"+etc_os_dir+"/docker-compose-db.yml",dockerComposeDB(data)
         ,(err:any)=>{});
         else console.log("Error: docker-compose-db.yml");
     }, {serverPort, dbPort, dbConsoleport, rootFile_name, serverWaitTime_forDB, etc_os_dir, dbPortTest});
 
-    await run("wait-for-it", "touch", ["../"+etc_os_dir+"/wait-for-it.sh"], (ok:boolean, data?:any)=>{
+    await run("wait-for-it", "touch", ["./"+etc_os_dir+"/wait-for-it.sh"], (ok:boolean, data?:any)=>{
         if(ok){
-            fs.writeFile("../"+etc_os_dir+"/wait-for-it.sh", waitForIt(),(err:any)=>{})
+            fs.writeFile("./"+etc_os_dir+"/wait-for-it.sh", waitForIt(),(err:any)=>{})
         }
     })
 
-    await run("wait-for-it chmod write", "sudo", ["chmod", "+x","../"+etc_os_dir+"/wait-for-it.sh"],(ok:boolean,data?:any)=>{})
-    await run("npm","install",["-g","nodemon"], (ok:boolean, data?:any)=>{});
-    await run("npm","install",["-g","heroku"], (ok:boolean, data?:any)=>{});
+    await run("wait-for-it chmod write", "sudo", ["chmod", "+x","./"+etc_os_dir+"/wait-for-it.sh"],(ok:boolean,data?:any)=>{})
+    // await run("npm","install",["-g","nodemon"], (ok:boolean, data?:any)=>{});
+    // await run("npm","install",["-g","heroku"], (ok:boolean, data?:any)=>{});
    // await run("npm","install",["-g","sequelize-cli"], (ok:boolean, data?:any)=>{});
 }
 
 
 async function run(name:string, cmd:string, options:string[], callback?:Function, data?:any){
     //if(cmd=="touch" && fs.existsSync("./"+options[0])) return callback?callback(true,data):null;
-    if(cmd=="sudo") console.log("\n. \""+name+"\" requires admin level permission")
+    if(cmd=="sudo") console.log("\n. \""+name+"\" uses admin level permission")
     await (async () => {
         try {
             const {stdout} = await execa(cmd, options);
-            console.log(stdout);
-            console.log("- configured \""+name+"\"");
+            //console.log(stdout);
+            //console.log(". "+name);
             if(callback) callback(true, data);
         } catch (error) {
             console.log("- failed to configure "+name+" with exitCode: "+error.exitCode);

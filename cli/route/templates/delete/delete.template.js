@@ -7,8 +7,8 @@ function del(path, moduleVarName, locationDepth) {
     if (js_reserved_words_1.JSReservedWords.getList().includes(name))
         name = "_" + name; // put underscore in front of js reserved words
     let moduleFileName = moduleVarName.substr(0, moduleVarName.length - 1 * "Module".length) + ".module";
-    return `const { http, Database, npRoute, Pipe } = require("nodespull")
-const { Hash, Session } = require("nodespull/core/tools")
+    return `const { http, Database, npRoute, Pipe } = require("@nodespull/core")
+const { Hash, Session } = require("@nodespull/core/utils")
 const { ${moduleVarName} } = require("${'../'.repeat(locationDepth) + moduleFileName}")
 
 

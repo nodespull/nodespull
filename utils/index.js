@@ -1,12 +1,11 @@
-
-import {Hash_Sha} from "../etc/system-tools/hash"
-import {JWT} from "../route/auth/jwt"
-import {json} from "./type/sys"
-
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Hash = exports.Session = void 0;
+const hash_1 = require("../etc/system-tools/hash");
+const jwt_1 = require("../route/auth/jwt");
 /**
  * Create a client session that stores data
- * @param data any information you'd like to save 
+ * @param data any information you'd like to save
  * @param duration optional session duration, default: "24h". Example:
  * ```
  *      let session = new Session({
@@ -17,30 +16,27 @@ import {json} from "./type/sys"
  *      let dur = session.getDuration();
  * ```
  */
-export class Session{
-    jwt:string;
-    duration:string;
+class Session {
     /**
-     * 
-     * @param data 
-     * @param duration 
+     *
+     * @param data
+     * @param duration
      */
-    constructor(data:json, duration:string){
-        let res = JWT.sign(data, duration);
+    constructor(data, duration) {
+        let res = jwt_1.JWT.sign(data, duration);
         this.jwt = res.token;
-        this.duration = res.duration
+        this.duration = res.duration;
     }
     /**
      * @returns {string} JWT that carries session data
      */
-    getJWToken():string{return this.jwt;}
+    getJWToken() { return this.jwt; }
     /**
      * @returns {string} duration of the session
      */
-    getDuration():string{return this.duration;}
+    getDuration() { return this.duration; }
 }
-
-
+exports.Session = Session;
 /**
  * Create a session that stores data
  * @param str string to hash
@@ -49,13 +45,13 @@ export class Session{
  *      let hash = new Hash("my_password").getValue();
  * ```
  */
-export class Hash{
-    value:string;
-    constructor(string:string){
-        this.value = Hash_Sha.sha256(string);
+class Hash {
+    constructor(string) {
+        this.value = hash_1.Hash_Sha.sha256(string);
     }
     /**
      * @returns {string} hash value
      */
-    getValue():string{return this.value;}
+    getValue() { return this.value; }
 }
+exports.Hash = Hash;

@@ -9,8 +9,8 @@ const common_1 = require("./common");
 const controller_1 = __importDefault(require("../database/controller"));
 const log_1 = require("../etc/log");
 const common_2 = require("../cli/db/sql/common");
-const stage_model_1 = __importDefault(require("../cli/db/sql/templates/stage.model"));
-const stage_relation_1 = __importDefault(require("../cli/db/sql/templates/stage.relation"));
+const x_stage_model_1 = __importDefault(require("../cli/db/sql/templates/x_stage.model"));
+const x_stage_relation_1 = __importDefault(require("../cli/db/sql/templates/x_stage.relation"));
 class DB_FilesRunner extends common_1.FilesEngine {
     constructor(option) {
         super();
@@ -67,14 +67,14 @@ class DB_FilesRunner extends common_1.FilesEngine {
             let modelFile = fs_1.default.readFileSync(path, 'utf8');
             let tempReg = modelFile.match(/(    | )Database.defineModel\(([\s\S]*?)}\)/);
             let modelFile_extract = tempReg ? tempReg[0] : null;
-            fs_1.default.writeFileSync(path, stage_model_1.default(modelFile_extract));
+            fs_1.default.writeFileSync(path, x_stage_model_1.default(modelFile_extract));
         }
         for (let path of relPaths) {
             let tableName = path.split("/").splice(-1)[0].split(".")[0];
             let modelFile = fs_1.default.readFileSync(path, 'utf8');
             let tempReg = modelFile.match(/(    | )Relations.set\(([\s\S]*?)}\)/);
             let modelFile_extract = tempReg ? tempReg[0] : null;
-            fs_1.default.writeFileSync(path, stage_relation_1.default(modelFile_extract));
+            fs_1.default.writeFileSync(path, x_stage_relation_1.default(modelFile_extract));
         }
     }
 }

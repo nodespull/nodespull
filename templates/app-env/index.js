@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 function getAppEnvTemplate(env) {
     return `const { npAppEnv } = require("nodespull")
 
-const $ = npAppEnv({
+npAppEnv({
     production: ${env === "prod"}
 })
 `;

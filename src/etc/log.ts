@@ -44,8 +44,8 @@ export class Log {
     BgCyan():Log{ this.applyBgFormat("\x1b[46m"); return this}
     BgWhite():Log{ this.applyBgFormat("\x1b[47m"); return this}
 
-    private applyFgFormat(format:string):string{ return format+this.message+"\x1b[37m"; }
-    private applyBgFormat(format:string):string{ return format+this.message+"\x1b[40m"; }
+    private applyFgFormat(format:string){ this.message = format+this.message+"\x1b[37m"; }
+    private applyBgFormat(format:string){ this.message = format+this.message+"\x1b[40m"; }
 }
 
 
