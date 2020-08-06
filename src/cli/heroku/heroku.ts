@@ -3,7 +3,7 @@ import {cmd} from "../exe/exe.log"
 import fs from "fs"
 import {appDockerfile,heroku_db_dockerfile} from "../deploy/templates/dockerfile"
 import {writeJSON, parseJSON} from "../../etc/system-tools/json"
-import stdin from "../../etc/system-tools/stdin";
+import {userInput} from "../../etc/system-tools/stdin";
 import {PathVar} from "../../etc/other/paths"
 
 let packageJson = parseJSON(PathVar.packageJson);
@@ -28,7 +28,7 @@ export function herokuCreateApp(){
 export async function herokuPush(){
     let appName = "";
     cmd("heroku",["apps"]);
-    stdin("Enter app name (press `enter` for new app): ").then((name:string)=>{
+    userInput("Enter app name (press `enter` for new app): ").getPromise().then((name:string)=>{
         if(name && name != "") appName = name;
         else {// also upload mysql image to new app
             appName = herokuCreateApp()

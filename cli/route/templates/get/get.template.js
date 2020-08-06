@@ -1,11 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const js_reserved_words_1 = require("../../../../etc/js-reserved-words");
 function get(path, moduleVarName, locationDepth) {
     let name = path.split("/").pop(); // remove slash, get last
     name = name.split("-").join("_"); // remove dashes
-    if (js_reserved_words_1.JSReservedWords.getList().includes(name))
-        name = "_" + name; // put underscore in front of js reserved words
+    // if(JSReservedWords.getList().includes(name)) name = "_"+name // put underscore in front of js reserved words
     let moduleFileName = moduleVarName.substr(0, moduleVarName.length - 1 * "Module".length) + ".module";
     return `const { http, Database, npRoute, Pipe } = require("@nodespull/core")
 const { Hash, Session } = require("@nodespull/core/utils")

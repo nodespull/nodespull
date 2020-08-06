@@ -6,13 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Migration = void 0;
 const log_1 = require("../etc/log");
 const controller_1 = __importDefault(require("./controller"));
-const db_files_1 = require("../files-runner/db-files");
+const db_sql_files_1 = require("../files-runner/db-sql-files");
 const common_1 = require("../cli/db/sql/common");
-const install_1 = require("../install");
 const exe_1 = __importDefault(require("../cli/exe/exe"));
 const common_2 = require("../files-runner/common");
 const server_1 = require("../server");
-const dbRoot = install_1.appModule;
+const paths_1 = require("../etc/other/paths");
 class Migration extends common_2.FilesEngine {
     constructor(arg) {
         super();
@@ -29,7 +28,7 @@ class Migration extends common_2.FilesEngine {
     inplace() {
         console.log(`start database update using schema 'at.v${this.currDBVersion + 1}' ..`);
         controller_1.default.migration.isRunning = true; // pseudo migration
-        new db_files_1.DB_FilesRunner();
+        new db_sql_files_1.DB_SQL_FilesRunner();
         controller_1.default.ORM.interface.sync({ alter: true }).then((res, err) => {
             if (err)
                 return console.log(err);
@@ -43,7 +42,7 @@ class Migration extends common_2.FilesEngine {
         console.log(`start database migration toward schema 'stage.v${this.currDBVersion + 1}' ..`);
         controller_1.default.migration.isRunning = true;
         this.update_FileStructure_onUp();
-        new db_files_1.DB_FilesRunner();
+        new db_sql_files_1.DB_SQL_FilesRunner();
         controller_1.default.ORM.interface.sync({ alter: true }).then((res, err) => {
             if (err)
                 return console.log(err);
@@ -66,7 +65,7 @@ class Migration extends common_2.FilesEngine {
         controller_1.default.migration.isRunning = true;
         controller_1.default.migration.isRevertMode = true;
         this.update_FileStructure_onDown();
-        new db_files_1.DB_FilesRunner();
+        new db_sql_files_1.DB_SQL_FilesRunner();
         controller_1.default.ORM.interface.sync({ alter: true }).then((res, err) => {
             if (err)
                 return console.log(err);
@@ -78,19 +77,19 @@ class Migration extends common_2.FilesEngine {
     }
     update_FileStructure_onUp() {
         if (this.currDBVersion >= 2)
-            exe_1.default("mv", [dbRoot + "/SQL/archives/last.v" + (this.currDBVersion - 1), dbRoot + "/SQL/archives/v" + (this.currDBVersion - 1)], true); // mv last.vx to vx
+            exe_1.default("mv", [paths_1.PathVar.dbModule + "/SQL/archives/last.v" + (this.currDBVersion - 1), paths_1.PathVar.dbModule + "/SQL/archives/v" + (this.currDBVersion - 1)], true); // mv last.vx to vx
         if (this.currDBVersion >= 1)
-            exe_1.default("mv", [dbRoot + "/SQL/at.v" + (this.currDBVersion), dbRoot + "/SQL/archives/last.v" + (this.currDBVersion)], true); // mv at.vx to last.vx
-        exe_1.default("cp", ["-r", dbRoot + "/SQL/stage.v" + (this.currDBVersion + 1), dbRoot + "/SQL/at.v" + (this.currDBVersion + 1)], true); // cp stage.vx to at.vx
-        exe_1.default("mv", [dbRoot + "/SQL/stage.v" + (this.currDBVersion + 1), dbRoot + "/SQL/stage.v" + (this.currDBVersion + 2)], true); // mv stage.vx to stage.v(x+1)
-        new db_files_1.DB_FilesRunner({ overwrite_newStageScripts: true });
+            exe_1.default("mv", [paths_1.PathVar.dbModule + "/SQL/at.v" + (this.currDBVersion), paths_1.PathVar.dbModule + "/SQL/archives/last.v" + (this.currDBVersion)], true); // mv at.vx to last.vx
+        exe_1.default("cp", ["-r", paths_1.PathVar.dbModule + "/SQL/stage.v" + (this.currDBVersion + 1), paths_1.PathVar.dbModule + "/SQL/at.v" + (this.currDBVersion + 1)], true); // cp stage.vx to at.vx
+        exe_1.default("mv", [paths_1.PathVar.dbModule + "/SQL/stage.v" + (this.currDBVersion + 1), paths_1.PathVar.dbModule + "/SQL/stage.v" + (this.currDBVersion + 2)], true); // mv stage.vx to stage.v(x+1)
+        new db_sql_files_1.DB_SQL_FilesRunner({ overwrite_newStageScripts: true });
     }
     update_FileStructure_onDown() {
-        exe_1.default("rm", ["-rf", dbRoot + "/SQL/stage.v" + (this.currDBVersion + 1)], true); // rm stage.vx
-        exe_1.default("mv", [dbRoot + "/SQL/at.v" + (this.currDBVersion), dbRoot + "/SQL/stage.v" + (this.currDBVersion)], true); // mv at.vx to stage.vx
-        exe_1.default("mv", [dbRoot + "/SQL/archives/last.v" + (this.currDBVersion - 1), dbRoot + "/SQL/at.v" + (this.currDBVersion - 1)], true); // mv last.vx to at.vx
+        exe_1.default("rm", ["-rf", paths_1.PathVar.dbModule + "/SQL/stage.v" + (this.currDBVersion + 1)], true); // rm stage.vx
+        exe_1.default("mv", [paths_1.PathVar.dbModule + "/SQL/at.v" + (this.currDBVersion), paths_1.PathVar.dbModule + "/SQL/stage.v" + (this.currDBVersion)], true); // mv at.vx to stage.vx
+        exe_1.default("mv", [paths_1.PathVar.dbModule + "/SQL/archives/last.v" + (this.currDBVersion - 1), paths_1.PathVar.dbModule + "/SQL/at.v" + (this.currDBVersion - 1)], true); // mv last.vx to at.vx
         if (this.currDBVersion >= 3)
-            exe_1.default("mv", [dbRoot + "/SQL/archives/v" + (this.currDBVersion - 2), dbRoot + "/SQL/archives/last.v" + (this.currDBVersion - 2)], true); // mv vx to last.vx
+            exe_1.default("mv", [paths_1.PathVar.dbModule + "/SQL/archives/v" + (this.currDBVersion - 2), paths_1.PathVar.dbModule + "/SQL/archives/last.v" + (this.currDBVersion - 2)], true); // mv vx to last.vx
     }
 }
 exports.Migration = Migration;

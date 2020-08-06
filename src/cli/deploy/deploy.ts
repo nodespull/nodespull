@@ -1,6 +1,5 @@
 
 import fs from "fs"
-import { etc_os_dir } from "../../install";
 import {herokuCreateApp, herokuLogin, herokuPush} from "../heroku/heroku"
 import {rootFile_name} from "../../install"
 import strGen from "../../etc/system-tools/string-gen"

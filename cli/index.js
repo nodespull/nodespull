@@ -8,29 +8,37 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.error = exports.getCmd = exports.start = void 0;
-const stdin_1 = __importDefault(require("../etc/system-tools/stdin"));
+const stdin_1 = require("../etc/system-tools/stdin");
 const route_1 = require("./route");
 const sql_1 = require("./db/sql");
 const module_1 = require("./module");
 const service_1 = require("./service");
+const log_1 = require("../etc/log");
+let stdinInterface;
 function start() {
-    console.log("\n*** Nodespull CLI ***  \n(`help` for info)");
+    new log_1.Log(`\n*** Nodespull Interactive Mode ***  \n(enter 'help' for info)`).printValue();
     main();
 }
 exports.start = start;
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
-        let input = yield stdin_1.default("\n>> ");
+        stdinInterface = stdin_1.userInput("\n>> ");
+        let input = yield stdinInterface.getPromise();
         getCmd(input, true);
     });
 }
 function getCmd(input, loop) {
     return __awaiter(this, void 0, void 0, function* () {
+        if (input == "clear") {
+            stdinInterface.interface.removeAllListeners();
+            stdinInterface.interface.close();
+            process.stdout.write('\x1b[2J');
+            process.stdout.moveCursor(0, -1 * process.stdout.rows);
+            new log_1.Log(`\n*** Nodespull Interactive ***  \n(enter 'help' for info)`).printValue();
+            return main();
+        }
         let createCmd = ["create", "c"];
         try {
             let args = input.split(" ");
@@ -50,28 +58,28 @@ function getCmd(input, loop) {
                         yield module_1.newModule(name);
                     else
                         throw exports.error.falseCmd;
-                    console.log("\nModule \"" + name + "\" successfully created");
+                    new log_1.Log("\nModudle \"" + name + "\" successfully created").FgGreen().printValue();
                     break;
                 case "route":
                     if (createCmd.includes(userCmd))
                         yield route_1.newRoute(name);
                     else
                         throw exports.error.falseCmd;
-                    console.log("\nRoute \"" + name + "\" successfully created");
+                    new log_1.Log("\nRoute \"" + name + "\" successfully created").FgGreen().printValue();
                     break;
                 case "service":
                     if (createCmd.includes(userCmd))
                         yield service_1.newService(args.slice(2));
                     else
                         throw exports.error.falseCmd;
-                    console.log("\nService \"" + name + "\" successfully created");
+                    new log_1.Log("\nService \"" + name + "\" successfully created").FgGreen().printValue();
                     break;
                 case "table":
                     if (createCmd.includes(userCmd))
                         yield sql_1.newTable(name);
                     else
                         throw exports.error.falseCmd;
-                    console.log("\nTable \"" + name + "\" successfully created");
+                    new log_1.Log("\nTable \"" + name + "\" successfully created").FgGreen().printValue();
                     break;
                 default:
                     throw exports.error.falseCmd;
@@ -113,7 +121,7 @@ commands:
     main();
 }
 function exit() {
-    console.log("Exiting CLI...");
+    new log_1.Log("Exiting Interactive mode...").FgBlue().printValue();
 }
 exports.error = {
     falseCmd: "ERR: Command not recognized. Enter `help` for info.",

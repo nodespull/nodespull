@@ -2,10 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Service_FilesRunner = void 0;
 const common_1 = require("./common");
+const paths_1 = require("../etc/other/paths");
 class Service_FilesRunner extends common_1.FilesEngine {
     constructor() {
         super();
-        super.recursiveSearch(common_1.FilesEngine.appRootPath, "service.js", { runFiles: true });
+        super.recursiveSearch(paths_1.PathVar.appModule, "service.js", { runFiles: true });
     }
 }
 exports.Service_FilesRunner = Service_FilesRunner;

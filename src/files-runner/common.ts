@@ -1,12 +1,11 @@
 import fs from "fs"
-import {appModule, dbModule} from "../install"
-
+import { PathVar } from "../etc/other/paths"
 
 // runner template
 export abstract class FilesEngine {
 
-    static appRootPath = `${process.argv[1].split("/").slice(0,-1).join("/")}/../${appModule}`
-    static dbRootPath = `${process.argv[1].split("/").slice(0,-1).join("/")}/../${dbModule}`
+    // static appRootPath = PathVar.appModule //`${process.argv[1].split("/").slice(0,-1).join("/")}/../${appModule}`
+    // static dbRootPath = PathVar.dbModule //`${process.argv[1].split("/").slice(0,-1).join("/")}/../${dbModule}`
 
     constructor(){}
 

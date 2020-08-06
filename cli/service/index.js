@@ -15,13 +15,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.newService = void 0;
 const exe_log_1 = require("../exe/exe.log");
 const fs_1 = __importDefault(require("fs"));
-const install_1 = require("../../install");
-const cli_1 = require("../cli");
+const __1 = require("..");
+const paths_1 = require("../../etc/other/paths");
 const service_template_1 = __importDefault(require("./templates/service.template"));
 const service_boot_template_1 = __importDefault(require("./templates/service.boot.template"));
 const service_pipe_template_1 = __importDefault(require("./templates/service.pipe.template"));
 const service_socket_template_1 = __importDefault(require("./templates/service.socket.template"));
-const root = install_1.appModule;
 const validOptions = ["--boot", "-b", "--pipe", "-p", "--socket", "-s", "--default"];
 function newService(args) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -33,7 +32,7 @@ function newService(args) {
             option = "--default";
         }
         if (validOptions.includes(option) && !serviceName)
-            throw cli_1.error.wrongUsage;
+            throw __1.error.wrongUsage;
         //parse 'name.module/serviceName'
         let serviceParts = serviceName.split("/");
         let moduleVarName = serviceParts[0];
@@ -47,24 +46,46 @@ function newService(args) {
         if (moduleVarName.toLowerCase().includes(".module"))
             moduleVarName = moduleVarName.toLowerCase().split(".")[0] + "Module";
         else if (moduleVarName != "mainModule")
-            throw cli_1.error.wrongUsage;
+            throw __1.error.wrongUsage;
         // create service file
         serviceVarName = serviceVarName.toLowerCase(); // lint: lowercase service name
+        let moduleDirName = moduleVarName.substr(0, moduleVarName.length - 1 * "Module".length) + "-module";
         // let servicePath = root+"/main-module/services"
         // if(moduleVarName != "mainModule") servicePath = root+"/"+moduleVarName+"/services"
-        let servicePath = root + "/" + moduleVarName + "/services";
-        exe_log_1.cmd("touch", [servicePath]);
+        let servicePath = paths_1.PathVar.appModule + "/" + moduleDirName + "/services";
         // populate service file with appropriate template
-        if (option == "--boot" || option == "-b")
-            fs_1.default.writeFile(servicePath + "/self-boot/" + serviceVarName + ".service.js", service_boot_template_1.default(serviceVarName, moduleVarName), () => { });
-        if (option == "--pipe" || option == "-p")
-            fs_1.default.writeFile(servicePath + "/pipe-usable/" + serviceVarName + ".service.js", service_pipe_template_1.default(serviceVarName, moduleVarName), () => { });
-        if (option == "--socket" || option == "-s")
-            fs_1.default.writeFile(servicePath + "/socket/" + serviceVarName + ".service.js", service_socket_template_1.default(serviceVarName, moduleVarName), () => { });
-        if (option == "--default")
-            fs_1.default.writeFile(servicePath + "/generic/" + serviceVarName + ".service.js", service_template_1.default(serviceVarName, moduleVarName), () => { });
+        let serviceFileRef = "";
+        switch (option) {
+            case "--boot":
+            case "-b": {
+                serviceFileRef = servicePath + "/self-boot/" + serviceVarName + ".service.js";
+                exe_log_1.cmd("touch", [serviceFileRef]);
+                fs_1.default.writeFile(serviceFileRef, service_boot_template_1.default(serviceVarName, moduleVarName), () => { });
+                break;
+            }
+            case "--pipe":
+            case "-p": {
+                serviceFileRef = servicePath + "/pipe-usable/" + serviceVarName + ".service.js";
+                exe_log_1.cmd("touch", [serviceFileRef]);
+                fs_1.default.writeFile(serviceFileRef, service_pipe_template_1.default(serviceVarName, moduleVarName), () => { });
+                break;
+            }
+            case "--socket":
+            case "-s": {
+                serviceFileRef = servicePath + "/socket/" + serviceVarName + ".service.js";
+                exe_log_1.cmd("touch", [serviceFileRef]);
+                fs_1.default.writeFile(serviceFileRef, service_socket_template_1.default(serviceVarName, moduleVarName), () => { });
+                break;
+            }
+            default: {
+                serviceFileRef = servicePath + "/generic/" + serviceVarName + ".service.js";
+                exe_log_1.cmd("touch", [serviceFileRef]);
+                fs_1.default.writeFile(serviceFileRef, service_template_1.default(serviceVarName, moduleVarName), () => { });
+                break;
+            }
+        }
         if (moduleVarName == "mainModule")
-            exe_log_1.cmd("mkdir", ["-p", root + "/main-module/services"]);
+            exe_log_1.cmd("mkdir", ["-p", paths_1.PathVar.appModule + "/main-module/services"]);
     });
 }
 exports.newService = newService;

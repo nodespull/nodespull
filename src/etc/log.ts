@@ -25,8 +25,8 @@ export class Log {
     getValue():string{ return this.message }
     printValue():void { console.log(this.message)}
     
-    throwError():void{ console.error("\x1b[31m",new Error(this.message), "\x1b[37m") }
-    throwWarn():void{ console.warn("\x1b[33m", "\nWarn: "+this.message, "\x1b[37m") }
+    throwError():void{ console.error("\x1b[31m",new Error(this.message), "\x1b[0m") }
+    throwWarn():void{ console.warn("\x1b[33m", "\nWarn: "+this.message, "\x1b[0m") }
 
     FgRed():Log{ this.applyFgFormat("\x1b[31m"); return this }
     FgGreen():Log{ this.applyFgFormat("\x1b[32m"); return this}
@@ -44,8 +44,8 @@ export class Log {
     BgCyan():Log{ this.applyBgFormat("\x1b[46m"); return this}
     BgWhite():Log{ this.applyBgFormat("\x1b[47m"); return this}
 
-    private applyFgFormat(format:string){ this.message = format+this.message+"\x1b[37m"; }
-    private applyBgFormat(format:string){ this.message = format+this.message+"\x1b[40m"; }
+    private applyFgFormat(format:string){ this.message = format+this.message+"\x1b[0m"; }
+    private applyBgFormat(format:string){ this.message = format+this.message+"\x1b[0m"; }
 }
 
 

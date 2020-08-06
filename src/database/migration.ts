@@ -1,16 +1,13 @@
 import { Log } from "../etc/log"
 import DB_Controller from "./controller"
-import {DB_FilesRunner} from "../files-runner/db-files"
+import {DB_SQL_FilesRunner} from "../files-runner/db-sql-files"
 import { getCurrentDBVersion } from "../cli/db/sql/common"
-import {appModule, dbModule} from "../install"
 import cmd from "../cli/exe/exe"
 import { FilesEngine } from "../files-runner/common"
 import { Database } from "../server"
 import stageModelTemplate from "../cli/db/sql/templates/x_stage.model"
 import stageRelationTemplate from "../cli/db/sql/templates/x_stage.relation"
-
-const dbRoot = appModule;
-
+import { PathVar } from "../etc/other/paths"
 
 export class Migration extends FilesEngine{
 
@@ -28,7 +25,7 @@ export class Migration extends FilesEngine{
     inplace(){
         console.log(`start database update using schema 'at.v${this.currDBVersion+1}' ..`)
         DB_Controller.migration.isRunning = true // pseudo migration
-        new DB_FilesRunner()
+        new DB_SQL_FilesRunner()
         DB_Controller.ORM.interface.sync({alter:true}).then((res:any, err:any)=>{
             if(err) return console.log(err)
             for(let query of DB_Controller.migration.rawQueries) Database.runRawQuery(query)
@@ -41,7 +38,7 @@ export class Migration extends FilesEngine{
         console.log(`start database migration toward schema 'stage.v${this.currDBVersion+1}' ..`)
         DB_Controller.migration.isRunning = true
         this.update_FileStructure_onUp()
-        new DB_FilesRunner()
+        new DB_SQL_FilesRunner()
         DB_Controller.ORM.interface.sync({alter:true}).then((res:any, err:any)=>{
             if(err) return console.log(err)
             for(let query of DB_Controller.migration.rawQueries) Database.runRawQuery(query)
@@ -63,7 +60,7 @@ export class Migration extends FilesEngine{
         DB_Controller.migration.isRunning = true
         DB_Controller.migration.isRevertMode = true
         this.update_FileStructure_onDown()
-        new DB_FilesRunner()
+        new DB_SQL_FilesRunner()
         DB_Controller.ORM.interface.sync({alter:true}).then((res:any, err:any)=>{
             if(err) return console.log(err)
             for(let query of DB_Controller.migration.rawQueries) Database.runRawQuery(query)
@@ -74,20 +71,20 @@ export class Migration extends FilesEngine{
 
     private update_FileStructure_onUp(){
         if(this.currDBVersion >= 2) 
-            cmd("mv", [dbRoot+"/SQL/archives/last.v"+(this.currDBVersion-1), dbRoot+"/SQL/archives/v"+(this.currDBVersion-1)], true); // mv last.vx to vx
+            cmd("mv", [PathVar.dbModule+"/SQL/archives/last.v"+(this.currDBVersion-1), PathVar.dbModule+"/SQL/archives/v"+(this.currDBVersion-1)], true); // mv last.vx to vx
         if (this.currDBVersion >= 1)
-            cmd("mv", [dbRoot+"/SQL/at.v"+(this.currDBVersion), dbRoot+"/SQL/archives/last.v"+(this.currDBVersion)], true); // mv at.vx to last.vx
-        cmd("cp",["-r" ,dbRoot+"/SQL/stage.v"+(this.currDBVersion+1), dbRoot+"/SQL/at.v"+(this.currDBVersion+1)], true); // cp stage.vx to at.vx
-        cmd("mv", [dbRoot+"/SQL/stage.v"+(this.currDBVersion+1), dbRoot+"/SQL/stage.v"+(this.currDBVersion+2)], true); // mv stage.vx to stage.v(x+1)
-        new DB_FilesRunner({overwrite_newStageScripts:true})
+            cmd("mv", [PathVar.dbModule+"/SQL/at.v"+(this.currDBVersion), PathVar.dbModule+"/SQL/archives/last.v"+(this.currDBVersion)], true); // mv at.vx to last.vx
+        cmd("cp",["-r" ,PathVar.dbModule+"/SQL/stage.v"+(this.currDBVersion+1), PathVar.dbModule+"/SQL/at.v"+(this.currDBVersion+1)], true); // cp stage.vx to at.vx
+        cmd("mv", [PathVar.dbModule+"/SQL/stage.v"+(this.currDBVersion+1), PathVar.dbModule+"/SQL/stage.v"+(this.currDBVersion+2)], true); // mv stage.vx to stage.v(x+1)
+        new DB_SQL_FilesRunner({overwrite_newStageScripts:true})
     }
 
     private update_FileStructure_onDown(){
-        cmd("rm", ["-rf", dbRoot+"/SQL/stage.v"+(this.currDBVersion+1)], true); // rm stage.vx
-        cmd("mv", [dbRoot+"/SQL/at.v"+(this.currDBVersion), dbRoot+"/SQL/stage.v"+(this.currDBVersion)], true); // mv at.vx to stage.vx
-        cmd("mv", [dbRoot+"/SQL/archives/last.v"+(this.currDBVersion-1), dbRoot+"/SQL/at.v"+(this.currDBVersion-1)], true); // mv last.vx to at.vx
+        cmd("rm", ["-rf", PathVar.dbModule+"/SQL/stage.v"+(this.currDBVersion+1)], true); // rm stage.vx
+        cmd("mv", [PathVar.dbModule+"/SQL/at.v"+(this.currDBVersion), PathVar.dbModule+"/SQL/stage.v"+(this.currDBVersion)], true); // mv at.vx to stage.vx
+        cmd("mv", [PathVar.dbModule+"/SQL/archives/last.v"+(this.currDBVersion-1), PathVar.dbModule+"/SQL/at.v"+(this.currDBVersion-1)], true); // mv last.vx to at.vx
         if(this.currDBVersion >= 3)
-            cmd("mv", [dbRoot+"/SQL/archives/v"+(this.currDBVersion-2), dbRoot+"/SQL/archives/last.v"+(this.currDBVersion-2)], true); // mv vx to last.vx
+            cmd("mv", [PathVar.dbModule+"/SQL/archives/v"+(this.currDBVersion-2), PathVar.dbModule+"/SQL/archives/last.v"+(this.currDBVersion-2)], true); // mv vx to last.vx
     }
 
 

@@ -1,14 +1,13 @@
 import {cmd} from "../exe/exe.log"
 import fs from "fs"
-import { appModule } from "../../install"
-import {error} from "../cli"
+import {error} from ".."
+import {PathVar} from "../../etc/other/paths"
 
 import getDefaultTemplate from "./templates/service.template"
 import getBootTemplate from "./templates/service.boot.template"
 import getPipeTemplate from "./templates/service.pipe.template"
 import getSocketTemplate from "./templates/service.socket.template"
 
-const root = appModule;
 const validOptions:string[] = ["--boot","-b", "--pipe","-p", "--socket","-s", "--default"]
 
 export async function newService(args:string[]){
@@ -35,17 +34,44 @@ export async function newService(args:string[]){
 
     // create service file
     serviceVarName = serviceVarName.toLowerCase()// lint: lowercase service name
+    let moduleDirName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+"-module"
+
     // let servicePath = root+"/main-module/services"
     // if(moduleVarName != "mainModule") servicePath = root+"/"+moduleVarName+"/services"
-    let servicePath = root+"/"+moduleVarName+"/services"
-    cmd("touch",[servicePath])
+    let servicePath = PathVar.appModule+"/"+moduleDirName+"/services"
 
     // populate service file with appropriate template
-    if(option == "--boot" || option=="-b") fs.writeFile(servicePath+"/self-boot/"+serviceVarName+".service.js", getBootTemplate(serviceVarName, moduleVarName), ()=>{})
-    if(option == "--pipe" || option=="-p") fs.writeFile(servicePath+"/pipe-usable/"+serviceVarName+".service.js", getPipeTemplate(serviceVarName, moduleVarName), ()=>{})
-    if(option == "--socket" || option=="-s") fs.writeFile(servicePath+"/socket/"+serviceVarName+".service.js", getSocketTemplate(serviceVarName, moduleVarName), ()=>{})
-    if(option == "--default") fs.writeFile(servicePath+"/generic/"+serviceVarName+".service.js", getDefaultTemplate(serviceVarName, moduleVarName), ()=>{})
+    let serviceFileRef = ""
+    switch(option) {
+        case "--boot":
+        case "-b": {
+            serviceFileRef = servicePath+"/self-boot/"+serviceVarName+".service.js"
+            cmd("touch",[serviceFileRef])
+            fs.writeFile(serviceFileRef, getBootTemplate(serviceVarName, moduleVarName), ()=>{})
+            break
+        }
+        case "--pipe":
+        case "-p": {
+            serviceFileRef = servicePath+"/pipe-usable/"+serviceVarName+".service.js"
+            cmd("touch",[serviceFileRef])
+            fs.writeFile(serviceFileRef, getPipeTemplate(serviceVarName, moduleVarName), ()=>{})
+            break
+        }
+        case "--socket":
+        case "-s": {
+            serviceFileRef = servicePath+"/socket/"+serviceVarName+".service.js"
+            cmd("touch",[serviceFileRef])
+            fs.writeFile(serviceFileRef, getSocketTemplate(serviceVarName, moduleVarName), ()=>{})
+            break
+        }
+        default:{
+            serviceFileRef = servicePath+"/generic/"+serviceVarName+".service.js"
+            cmd("touch",[serviceFileRef])
+            fs.writeFile(serviceFileRef, getDefaultTemplate(serviceVarName, moduleVarName), ()=>{})
+            break
+        }
+    }
 
-    if(moduleVarName == "mainModule") cmd("mkdir", ["-p", root+"/main-module/services"]);
+    if(moduleVarName == "mainModule") cmd("mkdir", ["-p", PathVar.appModule+"/main-module/services"]);
 
 }

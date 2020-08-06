@@ -1,21 +1,33 @@
-import stdin from "../etc/system-tools/stdin"
+import {customStdinResponse, userInput} from "../etc/system-tools/stdin"
 import {newRoute} from "./route"
 import {newTable} from "./db/sql"
 import { newModule } from "./module";
 import { newService } from "./service";
+import { Log } from "../etc/log";
+
+let stdinInterface:customStdinResponse
 
 export function start(){
-    console.log("\n*** Nodespull CLI ***  \n(`help` for info)");
+    new Log(`\n*** Nodespull Interactive Mode ***  \n(enter 'help' for info)`).printValue()
     main();
 }
 
 async function main(){
-    let input = await stdin("\n>> ");
+    stdinInterface = userInput("\n>> ");
+    let input = await stdinInterface.getPromise()
     getCmd(input, true);
 }
 
 
 export async function getCmd(input:string, loop:boolean){
+    if(input == "clear"){
+        stdinInterface.interface.removeAllListeners()
+        stdinInterface.interface.close()
+        process.stdout.write('\x1b[2J');
+        process.stdout.moveCursor(0, -1*process.stdout.rows);
+        new Log(`\n*** Nodespull Interactive ***  \n(enter 'help' for info)`).printValue()
+        return main()
+    }
     let createCmd = ["create", "c"];
     try{
         let args = input.split(" ");
@@ -32,22 +44,22 @@ export async function getCmd(input:string, loop:boolean){
             case "module": 
                 if(createCmd.includes(userCmd)) await newModule(name);
                 else throw error.falseCmd;
-                console.log("\nModule \""+ name+"\" successfully created")
+                new Log("\nModudle \""+ name+"\" successfully created").FgGreen().printValue()
                 break;
             case "route": 
                 if(createCmd.includes(userCmd)) await newRoute(name);
                 else throw error.falseCmd;
-                console.log("\nRoute \""+ name+"\" successfully created")
+                new Log("\nRoute \""+ name+"\" successfully created").FgGreen().printValue()
                 break;
             case "service": 
                 if(createCmd.includes(userCmd)) await newService(args.slice(2));
                 else throw error.falseCmd;
-                console.log("\nService \""+ name+"\" successfully created")
+                new Log("\nService \""+ name+"\" successfully created").FgGreen().printValue()
                 break;
             case "table": 
                 if(createCmd.includes(userCmd)) await newTable(name);
                 else throw error.falseCmd;
-                console.log("\nTable \""+ name+"\" successfully created")
+                new Log("\nTable \""+ name+"\" successfully created").FgGreen().printValue()
                 break;
             default:
                 throw error.falseCmd;
@@ -90,7 +102,7 @@ commands:
 
 
 function exit(){
-    console.log("Exiting CLI...");
+    new Log("Exiting Interactive mode...").FgBlue().printValue()
 }
 
 

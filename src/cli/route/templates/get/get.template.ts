@@ -4,7 +4,7 @@ import { Log } from "../../../../etc/log";
 export default function get(path:string, moduleVarName:string, locationDepth:number):string{
     let name = path.split("/").pop()// remove slash, get last
     name  = name!.split("-").join("_"); // remove dashes
-    if(JSReservedWords.getList().includes(name)) name = "_"+name // put underscore in front of js reserved words
+    // if(JSReservedWords.getList().includes(name)) name = "_"+name // put underscore in front of js reserved words
     let moduleFileName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+".module"
 
     return `const { http, Database, npRoute, Pipe } = require("@nodespull/core")

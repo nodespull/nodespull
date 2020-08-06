@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.newRoute = void 0;
 const exe_log_1 = require("../exe/exe.log");
 const fs_1 = __importDefault(require("fs"));
-const install_1 = require("../../install");
+const paths_1 = require("../../etc/other/paths");
 const delete_template_1 = __importDefault(require("./templates/delete/delete.template"));
 const get_template_1 = __importDefault(require("./templates/get/get.template"));
 const post_template_1 = __importDefault(require("./templates/post/post.template"));
@@ -31,7 +31,6 @@ const swagger_get_template_1 = __importDefault(require("./templates/get/swagger.
 const swagger_post_template_1 = __importDefault(require("./templates/post/swagger.post.template"));
 const swagger_put_template_1 = __importDefault(require("./templates/put/swagger.put.template"));
 const swagger_head_template_1 = __importDefault(require("./templates/head/swagger.head.template"));
-const root = install_1.appModule;
 const templateList = {
     delete: { delete: delete_template_1.default, spec_del: spec_delete_template_1.default, swag_del: swagger_delete_template_1.default },
     get: { get: get_template_1.default, spec_get: spec_get_template_1.default, swag_get: swagger_get_template_1.default },
@@ -41,10 +40,7 @@ const templateList = {
 };
 function getTemplate(moduleName, routeName, template, filePath, extCount) {
     let parts = routeName.split("/");
-    if (moduleName == "mainModule")
-        routeName = "/" + parts.slice(2, parts.length - 2).join("/"); // remove 'server/_routes'
-    else
-        routeName = "/" + parts.slice(3, parts.length - 2).join("/"); // remove 'server/$moduleName/_routes'
+    routeName = "/" + parts.slice(2, parts.length - 2).join("/"); // remove '$moduleName/rest'
     routeName = routeName.replace("//", "/");
     //remove dot in last part of deep paths
     parts = routeName.split("/");
@@ -57,7 +53,7 @@ function getTemplate(moduleName, routeName, template, filePath, extCount) {
         }
         routeName = deepName;
     }
-    routeName = "/" + routeName.substring(2, routeName.length); // remove underscore, e.g. /_name/path
+    routeName = "/" + routeName.substring(2, routeName.length); // remove dir_underscore, e.g. /_name/path
     return template(routeName, moduleName, depthCountFromModule); // load template with routePath
 }
 function newRoute(name) {
@@ -71,19 +67,21 @@ function newRoute(name) {
         let fileName = "";
         let fileName_withUnderscore = "";
         let routeDirPath = "main-module/rest";
-        if (moduleVarName != "mainModule")
-            routeDirPath = "main-module/" + moduleVarName + "/rest";
+        if (moduleVarName != "mainModule") {
+            let moduleDirName = moduleVarName.substr(0, moduleVarName.length - 1 * "Module".length) + "-module";
+            routeDirPath = moduleDirName + "/rest";
+        }
         while (args.length > 0) {
             let e = args.shift();
             fileName = fileName != "" ? (fileName + "." + e) : e;
             fileName_withUnderscore = fileName_withUnderscore != "" ? (fileName_withUnderscore + "." + e) : "_" + e;
             routeDirPath = routeDirPath + "/" + fileName_withUnderscore;
-            yield exe_log_1.cmd("mkdir", ["-p", root + "/" + routeDirPath], false);
+            yield exe_log_1.cmd("mkdir", ["-p", paths_1.PathVar.appModule + "/" + routeDirPath], false);
         }
         setTimeout(() => {
             for (let templGroupKey of Object.keys(templateList)) {
                 let templDirPath = routeDirPath + "/" + fileName + "." + templGroupKey;
-                exe_log_1.cmd("mkdir", ["-p", root + "/" + templDirPath]);
+                exe_log_1.cmd("mkdir", ["-p", paths_1.PathVar.appModule + "/" + templDirPath]);
                 for (let templateKey of Object.keys(templateList[templGroupKey])) {
                     let templFilePath = templDirPath + "/" + (fileName + "." + templGroupKey);
                     let extCount = 2;
@@ -97,8 +95,8 @@ function newRoute(name) {
                     }
                     else
                         templFilePath += ".js";
-                    exe_log_1.cmd("touch", [root + "/" + templFilePath]);
-                    fs_1.default.writeFile(root + "/" + templFilePath, getTemplate(moduleVarName, templDirPath + "/" + fileName, //remove initial underscore
+                    exe_log_1.cmd("touch", [paths_1.PathVar.appModule + "/" + templFilePath]);
+                    fs_1.default.writeFile(paths_1.PathVar.appModule + "/" + templFilePath, getTemplate(moduleVarName, templDirPath + "/" + fileName, //remove initial underscore
                     templateList[templGroupKey][templateKey], templFilePath, extCount), () => { });
                 }
             }

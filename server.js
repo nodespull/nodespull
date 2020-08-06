@@ -33,7 +33,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.confOptions = exports.setAdapter_API_KEY = exports.config = exports.server = exports.http = exports.Router = exports.route = exports.appServer = exports.Pipe = exports.npService = exports.npRoute = exports.npModule = exports.Database = exports.db = exports.DB_PORT_TEST = exports.PORT = void 0;
 const install_1 = require("./install");
-const cli = __importStar(require("./cli/cli"));
+const cli = __importStar(require("./cli"));
 const express_1 = __importDefault(require("express"));
 const controller_1 = __importDefault(require("./database/controller"));
 const tools_1 = require("./database/tools");
@@ -47,13 +47,6 @@ const npRouteController_1 = require("./module/v2-module/controllers/npRouteContr
 const npServiceController_1 = require("./module/v2-module/controllers/npServiceController");
 const paths_1 = require("./etc/other/paths");
 const migration_1 = require("./database/migration");
-// /** set process context to the server.js file */
-// try {
-//     if(process.cwd().split("/").pop() != "server.js") process.chdir(process.cwd()+'/src/server.js');
-// }
-// catch (err) {
-//     console.log("context change to 'server.js': " + err);
-// }
 const packageJson = json_1.parseJSON(paths_1.PathVar.packageJson);
 exports.PORT = 8888;
 exports.DB_PORT_TEST = 3332;
@@ -165,23 +158,23 @@ let Server = /** @class */ (() => {
                 else if (run_all_images) {
                     exe_log_1.cmd('docker', ["stop", "nodespull_server.js_1"], false);
                     exe_log_1.cmd('docker', ["rm", "nodespull_server.js_1"], false);
-                    exe_log_1.cmd('docker-compose', ["-f", install_1.etc_os_dir + "/docker-compose-all.yml", "up", "--build"], true);
+                    exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-all.yml", "up", "--build"], true);
                 }
                 else if (stop_all_images) {
-                    exe_log_1.cmd('docker-compose', ["-f", install_1.etc_os_dir + "/docker-compose-all.yml", "down"], true);
+                    exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-all.yml", "down"], true);
                 }
                 else if (buildFlag) {
-                    exe_log_1.cmd('docker-compose', ["-f", install_1.etc_os_dir + "/docker-compose-all.yml", "build"], false);
+                    exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-all.yml", "build"], false);
                 }
                 else if (run_dbImages_only) {
                     console.log("\n\n Wait until no new event, then open a new terminal to run your app.\n\n\n");
-                    exe_log_1.cmd('docker-compose', ["-f", install_1.etc_os_dir + "/docker-compose-db.yml", "up",], true);
+                    exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-db.yml", "up",], true);
                 }
                 else if (stop_dbImages_only) {
-                    exe_log_1.cmd('docker-compose', ["-f", install_1.etc_os_dir + "/docker-compose-db.yml", "down"], true);
+                    exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-db.yml", "down"], true);
                 }
                 else if (status) {
-                    exe_log_1.cmd('docker-compose', ["-f", install_1.etc_os_dir + "/docker-compose-all.yml", "ps"], true);
+                    exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-all.yml", "ps"], true);
                 }
                 else if (runFlag || runFlag_fromContainer) {
                     Server.isRunning = true;

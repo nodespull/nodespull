@@ -1,5 +1,5 @@
-import {install, etc_os_dir, appModule} from "./install"
-import * as cli from "./cli/cli"
+import {install} from "./install"
+import * as cli from "./cli"
 import express from "express";
 import DB_Controller from "./database/controller";
 import { DatabaseTools, DatabaseToolsFactory } from "./database/tools";
@@ -15,14 +15,6 @@ import { npServiceController } from "./module/v2-module/controllers/npServiceCon
 import { PathVar } from "./etc/other/paths"
 import { Migration } from "./database/migration"
 
-
-// /** set process context to the server.js file */
-// try {
-//     if(process.cwd().split("/").pop() != "server.js") process.chdir(process.cwd()+'/src/server.js');
-// }
-// catch (err) {
-//     console.log("context change to 'server.js': " + err);
-// }
 
 
 const packageJson =  parseJSON(PathVar.packageJson)
@@ -136,18 +128,18 @@ class Server {
         }else if (run_all_images){
             cmd('docker', [ "stop","nodespull_server.js_1"], false);
             cmd('docker', ["rm","nodespull_server.js_1"], false);
-            cmd('docker-compose', ["-f",etc_os_dir+"/docker-compose-all.yml","up","--build"],true);
+            cmd('docker-compose', ["-f",PathVar.etc_os_dir+"/docker-compose-all.yml","up","--build"],true);
         }else if (stop_all_images){
-            cmd('docker-compose', ["-f",etc_os_dir+"/docker-compose-all.yml","down"],true);
+            cmd('docker-compose', ["-f",PathVar.etc_os_dir+"/docker-compose-all.yml","down"],true);
         }else if(buildFlag){
-            cmd('docker-compose', ["-f", etc_os_dir + "/docker-compose-all.yml", "build"], false)
+            cmd('docker-compose', ["-f", PathVar.etc_os_dir + "/docker-compose-all.yml", "build"], false)
         }else if(run_dbImages_only){
             console.log("\n\n Wait until no new event, then open a new terminal to run your app.\n\n\n")
-            cmd('docker-compose', ["-f",etc_os_dir+"/docker-compose-db.yml","up",], true);
+            cmd('docker-compose', ["-f",PathVar.etc_os_dir+"/docker-compose-db.yml","up",], true);
         }else if(stop_dbImages_only){
-            cmd('docker-compose', ["-f",etc_os_dir+"/docker-compose-db.yml","down"], true);
+            cmd('docker-compose', ["-f",PathVar.etc_os_dir+"/docker-compose-db.yml","down"], true);
         }else if (status){
-            cmd('docker-compose', ["-f",etc_os_dir+"/docker-compose-all.yml","ps"], true);
+            cmd('docker-compose', ["-f",PathVar.etc_os_dir+"/docker-compose-all.yml","ps"], true);
         }else if(runFlag || runFlag_fromContainer){
             Server.isRunning = true;
             require("./files-runner"); // now that sequelize obj is initialized, load routes, tables, and relations
