@@ -9,7 +9,7 @@ const exe_log_1 = require("../../cli/exe/exe.log");
 const fs_1 = __importDefault(require("fs"));
 const paths_1 = require("../../etc/other/paths");
 const swaggerUi = require('swagger-ui-express');
-const packageJson = json_1.parseJSON(paths_1.PathVar.packageJson);
+const docsURL = "/swagger";
 let mainSwagger = {};
 function default_1(app) {
     if (!fs_1.default.existsSync(paths_1.PathVar.etc_var_dir + "/swagger.json")) {
@@ -27,7 +27,7 @@ function default_1(app) {
         }
         //load swagger file
         docs = json_1.parseJSON(paths_1.PathVar.etc_var_dir + "/swagger.json");
-        app.use('/api-docs', function (req, res, next) {
+        app.use(docsURL, function (req, res, next) {
             docs.host = req.get('host');
             req["swaggerDoc"] = docs;
             next();

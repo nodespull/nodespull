@@ -4,14 +4,13 @@ import express from "express";
 import DB_Controller from "./database/controller";
 import { DatabaseTools, DatabaseToolsFactory } from "./database/tools";
 import { Route } from "./route/controller"
-import {JWT} from "./route/auth/jwt";
 import {parseJSON, writeJSON} from "./etc/system-tools/json"
 import fs from "fs"
 import {cmd} from "./cli/exe/exe.log"
 import {deploy} from "./cli/deploy/deploy"
-import { npModuleController } from "./module/v2-module/controllers/npModuleController"
-import { npRouteController } from "./module/v2-module/controllers/npRouteController"
-import { npServiceController } from "./module/v2-module/controllers/npServiceController"
+import { npModuleController } from "./module/controllers/npModuleController"
+import { npRouteController } from "./module/controllers/npRouteController"
+import { npServiceController } from "./module/controllers/npServiceController"
 import { PathVar } from "./etc/other/paths"
 import { Migration } from "./database/migration"
 
@@ -82,7 +81,9 @@ class Server {
         }
         if(args && args.use_database === false) noDatabase = true;
 
-        if(!Route._home_set)app.use("/",express.static(__dirname + '/public'))
+        if(!Route.is_homePath_fromUser)app.use("/",express.static(__dirname + '/public'))
+        if(GraphQL.isActive) GraphQL.setup(app)
+
         let flag = process.argv[2];
         let allImages = process.argv[3] && process.argv[3] == "-c";
         let run_setup = (flag && flag == "init")?true:false;
@@ -188,6 +189,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 import swaggerLoader from "./templates/swagger/loader"
 import { Log } from "./etc/log";
 import { npPipe } from "./utils/pipe";
+import { AuthController } from "./auth";
+import { GraphQL } from "./graphql";
 swaggerLoader(app);
 
 
@@ -241,10 +244,7 @@ export const server = new Server();
  * Choose object to configure with custom values
  */
 export const config = {
-    /**
-     * Set JWT secret key - used for encryption
-     */
-    secretKey: (val:string)=>JWT.secret = val,
+
     /**
      * Database configuration object as specified by (npm) Sequelize.
      * ```
@@ -312,7 +312,13 @@ export function setAdapter_API_KEY(secret:string){
 }
 
 
-export const confOptions = {
-    auth: {},
-    dbSys: {}
+export const npAuthProfile = {
+    /**
+     * create a jwt auth profile
+     */
+    jwt: AuthController.jwt,
+    /**
+     * create a oauth2 profile
+     */
+    oauth2: AuthController.oauth2
 }

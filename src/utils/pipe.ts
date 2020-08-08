@@ -1,4 +1,4 @@
-import { npServiceInterface, npServicePipeFunction } from "../module/v2-module/models";
+import { npServiceInterface, npServicePipeFunction } from "../module/models";
 import { Log } from "../etc/log";
 
 

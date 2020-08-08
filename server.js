@@ -31,20 +31,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.confOptions = exports.setAdapter_API_KEY = exports.config = exports.server = exports.http = exports.Router = exports.route = exports.appServer = exports.Pipe = exports.npService = exports.npRoute = exports.npModule = exports.Database = exports.db = exports.DB_PORT_TEST = exports.PORT = void 0;
+exports.npAuthProfile = exports.setAdapter_API_KEY = exports.config = exports.server = exports.http = exports.Router = exports.route = exports.appServer = exports.Pipe = exports.npService = exports.npRoute = exports.npModule = exports.Database = exports.db = exports.DB_PORT_TEST = exports.PORT = void 0;
 const install_1 = require("./install");
 const cli = __importStar(require("./cli"));
 const express_1 = __importDefault(require("express"));
 const controller_1 = __importDefault(require("./database/controller"));
 const tools_1 = require("./database/tools");
 const controller_2 = require("./route/controller");
-const jwt_1 = require("./route/auth/jwt");
 const json_1 = require("./etc/system-tools/json");
 const exe_log_1 = require("./cli/exe/exe.log");
 const deploy_1 = require("./cli/deploy/deploy");
-const npModuleController_1 = require("./module/v2-module/controllers/npModuleController");
-const npRouteController_1 = require("./module/v2-module/controllers/npRouteController");
-const npServiceController_1 = require("./module/v2-module/controllers/npServiceController");
+const npModuleController_1 = require("./module/controllers/npModuleController");
+const npRouteController_1 = require("./module/controllers/npRouteController");
+const npServiceController_1 = require("./module/controllers/npServiceController");
 const paths_1 = require("./etc/other/paths");
 const migration_1 = require("./database/migration");
 const packageJson = json_1.parseJSON(paths_1.PathVar.packageJson);
@@ -109,7 +108,7 @@ let Server = /** @class */ (() => {
                 }
                 if (args && args.use_database === false)
                     noDatabase = true;
-                if (!controller_2.Route._home_set)
+                if (!controller_2.Route.is_homePath_fromUser)
                     app.use("/", express_1.default.static(__dirname + '/public'));
                 let flag = process.argv[2];
                 let allImages = process.argv[3] && process.argv[3] == "-c";
@@ -228,6 +227,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const loader_1 = __importDefault(require("./templates/swagger/loader"));
 const log_1 = require("./etc/log");
 const pipe_1 = require("./utils/pipe");
+const auth_1 = require("./auth");
 loader_1.default(app);
 /**
  * Module controller
@@ -268,10 +268,6 @@ exports.server = new Server();
  * Choose object to configure with custom values
  */
 exports.config = {
-    /**
-     * Set JWT secret key - used for encryption
-     */
-    secretKey: (val) => jwt_1.JWT.secret = val,
     /**
      * Database configuration object as specified by (npm) Sequelize.
      * ```
@@ -334,7 +330,13 @@ function setAdapter_API_KEY(secret) {
     // PENDING
 }
 exports.setAdapter_API_KEY = setAdapter_API_KEY;
-exports.confOptions = {
-    auth: {},
-    dbSys: {}
+exports.npAuthProfile = {
+    /**
+     * create a jwt auth profile
+     */
+    jwt: auth_1.AuthController.jwt,
+    /**
+     * create a oauth2 profile
+     */
+    oauth2: auth_1.AuthController.oauth2
 };

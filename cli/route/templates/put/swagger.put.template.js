@@ -16,7 +16,7 @@ function put(path) {
                     "type":"string"
                 },
                 {
-                    "name":"id",
+                    "name":"uuid",
                     "in":"path",
                     "required":true,
                     "description":"no description",

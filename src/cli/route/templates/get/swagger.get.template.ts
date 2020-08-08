@@ -15,7 +15,7 @@ export default function get(path:string):string{
                     "type":"string"
                 },
                 {
-                    "name":"id",
+                    "name":"uuid",
                     "in":"path",
                     "required":true,
                     "description":"no description",

@@ -1,7 +1,9 @@
 import { npServiceInterface, npModuleUserInterface, npRouteInterface, npModuleSelfObjectInterface } from "./models"
-import { http } from "../../server"
-import { Log } from "../../etc/log"
-import cloneObject from "../../etc/system-tools/clone-object"
+import { http } from "../server"
+import { Log } from "../etc/log"
+import cloneObject from "../etc/system-tools/clone-object"
+import { npJWT } from "../auth/models/jwt"
+import { routeHandlerArg_interface } from "../route/model"
 
 export class npModule {
     public _route: { [selector: string]: npRouteInterface } = {}
@@ -10,7 +12,7 @@ export class npModule {
     constructor(
         public _name: string,
         public _isModuleActive: boolean | undefined,
-        public _isModuleProtected: boolean | undefined,
+        public _jwtProfile: npJWT | null,
         public _importedModules: npModule[]) {
             // propagate importedModules' services to this module
             for(let module of Object.values(_importedModules)) 
@@ -37,13 +39,18 @@ export class npModule {
         this._route[route.method.name + ":" + route.path] = route
         // load route into nodespull router
         route.isRouteActive = route.isRouteActive!=undefined?route.isRouteActive:(this._isModuleActive!=undefined?this._isModuleActive:false)
-        route.isRouteProtected = route.isRouteProtected!=undefined?route.isRouteProtected:(this._isModuleProtected!=undefined?this._isModuleProtected:true)
-        
-        if (route.method.name == "HEAD") http.HEAD(route.handler, route.isRouteActive, route.isRouteProtected, route.urlParams, route.path)
-        if (route.method.name == "GET") http.GET(route.handler, route.isRouteActive, route.isRouteProtected, route.urlParams, route.path)
-        if (route.method.name == "DELETE") http.DELETE(route.handler, route.isRouteActive, route.isRouteProtected, route.urlParams, route.path)
-        if (route.method.name == "POST") http.POST(route.handler, route.isRouteActive, route.isRouteProtected, route.urlParams, route.path)
-        if (route.method.name == "PUT") http.PUT(route.handler, route.isRouteActive, route.isRouteProtected, route.urlParams, route.path)
+        let routeArgs: routeHandlerArg_interface = {
+            handler: route.handler, 
+            isRouteActive: route.isRouteActive, 
+            urlParams: route.urlParams, 
+            path: route.path, 
+            jwtProfile: route.jwtProfile || this._jwtProfile
+        }
+        if (route.method.name == "HEAD") http.HEAD(routeArgs)
+        if (route.method.name == "GET") http.GET(routeArgs)
+        if (route.method.name == "DELETE") http.DELETE(routeArgs)
+        if (route.method.name == "POST") http.POST(routeArgs)
+        if (route.method.name == "PUT") http.PUT(routeArgs)
     }
 
     //add a service to module

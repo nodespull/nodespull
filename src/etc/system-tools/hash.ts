@@ -1,6 +1,6 @@
 import hash from "hash.js";
 
-export class Hash_Sha{
+export class Hash_Algorithm{
 
     //cb with hashed equivalent
     static sha256(text:string){

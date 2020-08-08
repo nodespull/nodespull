@@ -6,8 +6,7 @@ import fs from "fs"
 import {PathVar} from "../../etc/other/paths"
 
 const swaggerUi = require('swagger-ui-express');
-const packageJson = parseJSON(PathVar.packageJson);
-
+const docsURL = "/swagger"
 
 let mainSwagger:any = {};
 
@@ -27,7 +26,7 @@ export default function(app:any){
         }
         //load swagger file
         docs = parseJSON(PathVar.etc_var_dir+"/swagger.json");
-        app.use('/api-docs', function(req:any, res:any, next:any){
+        app.use(docsURL, function(req:any, res:any, next:any){
             docs.host = req.get('host');
             req["swaggerDoc"] = docs;
             next();
