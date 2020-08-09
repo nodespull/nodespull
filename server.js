@@ -31,12 +31,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.npAuthProfile = exports.setAdapter_API_KEY = exports.config = exports.server = exports.http = exports.Router = exports.route = exports.appServer = exports.Pipe = exports.npService = exports.npRoute = exports.npModule = exports.Database = exports.db = exports.DB_PORT_TEST = exports.PORT = void 0;
+exports.appEnv = exports.processEnv = exports.npAuthProfile = exports.setAdapter_API_KEY = exports.Database = exports.config = exports.server = exports.http = exports.Router = exports.route = exports.appServer = exports.Pipe = exports.npService = exports.npRoute = exports.npModule = exports.DB_PORT_TEST = exports.PORT = void 0;
 const install_1 = require("./install");
 const cli = __importStar(require("./cli"));
 const express_1 = __importDefault(require("express"));
 const controller_1 = __importDefault(require("./database/controller"));
-const tools_1 = require("./database/tools");
+const user_interface_1 = require("./database/user-interface");
 const controller_2 = require("./route/controller");
 const json_1 = require("./etc/system-tools/json");
 const exe_log_1 = require("./cli/exe/exe.log");
@@ -46,6 +46,12 @@ const npRouteController_1 = require("./module/controllers/npRouteController");
 const npServiceController_1 = require("./module/controllers/npServiceController");
 const paths_1 = require("./etc/other/paths");
 const migration_1 = require("./database/migration");
+const environment_1 = require("./environment");
+const loader_1 = __importDefault(require("./templates/swagger/loader"));
+const log_1 = require("./etc/log");
+const pipe_1 = require("./utils/pipe");
+const auth_1 = require("./auth");
+const graphql_1 = require("./graphql");
 const packageJson = json_1.parseJSON(paths_1.PathVar.packageJson);
 exports.PORT = 8888;
 exports.DB_PORT_TEST = 3332;
@@ -66,16 +72,16 @@ function startServer(port, after) {
 /* --------------- Developer Interface --------------- */
 // let rootFile_name:string = process.argv[1].split("/").pop()!;
 let flag = process.argv[2];
-let isModeInstall = (flag && flag == "init") ? true : false;
+// let isModeInstall = (flag && flag == "init")?true:false;
 /**
  * Main database module that trades with MySQL server using (npm) Sequelize
  */
-exports.db = new tools_1.DatabaseTools(isModeInstall); //allows for intellisense, updated in setup_db
-exports.Database = exports.db;
-function setup_db(dbConstroller) {
-    exports.db = tools_1.DatabaseToolsFactory(isModeInstall);
-    dbConstroller.setup(isModeInstall, exports.db);
-}
+// export let db:DatabaseUserInterface = new DatabaseUserInterface(isModeInstall); //allows for intellisense, updated in setup_db
+// export let Database = db;
+// function setup_db(dbConstroller:any){
+//     db = DatabaseToolsFactory(isModeInstall);
+//     dbConstroller.setup(isModeInstall,db);
+// }
 let Server = /** @class */ (() => {
     class Server {
         constructor() {
@@ -84,7 +90,9 @@ let Server = /** @class */ (() => {
                 _afterStart: new Function(),
                 _start(after) {
                     if (!noDatabase)
-                        controller_1.default.connect();
+                        for (let connName of Object.keys(controller_1.default.connections))
+                            if (controller_1.default.connections[connName].conf.isActive)
+                                controller_1.default.connections[connName].start();
                     startServer(exports.PORT, after);
                 }
             };
@@ -101,15 +109,16 @@ let Server = /** @class */ (() => {
                     exports.PORT = args.port;
                 if (args && args.mode)
                     process.argv[2] = args.mode;
-                if (args && args.database) {
-                    exports.db.config.database = args.database;
-                    if (args.database == "nodespull-test-database")
-                        exports.db.config.port = exports.DB_PORT_TEST;
-                }
+                // if(args && args.database){
+                //     db.config.database = args.database;
+                //     if(args.database == "nodespull-test-database") db.config.port = DB_PORT_TEST;
+                // }
                 if (args && args.use_database === false)
                     noDatabase = true;
                 if (!controller_2.Route.is_homePath_fromUser)
                     app.use("/", express_1.default.static(__dirname + '/public'));
+                if (graphql_1.GraphQL.isActive)
+                    graphql_1.GraphQL.setup(app);
                 let flag = process.argv[2];
                 let allImages = process.argv[3] && process.argv[3] == "-c";
                 let run_setup = (flag && flag == "init") ? true : false;
@@ -126,18 +135,18 @@ let Server = /** @class */ (() => {
                 let testFlag = (flag && flag == "test") ? true : false;
                 let deployFlag = (flag && flag == "deploy") ? true : false;
                 let migrateFlag = (flag && flag == "migrate") ? true : false;
-                if (runFlag_fromContainer) {
-                    exports.db.config.host = "nodespull-db-server";
-                    exports.db.config.port = "3306";
-                }
-                controller_1.default.setup(isModeInstall, exports.db);
+                // if(runFlag_fromContainer){
+                //     db.config.host = "nodespull-db-server";
+                //     db.config.port = "3306"
+                // }
+                //DB_Controller.setup(isModeInstall, db);
                 if (run_setup) {
                     let projectName = process.argv[3] || null;
                     if (!projectName) {
                         new log_1.Log("Project name required for creation").FgRed().printValue();
                         process.exit(1);
                     }
-                    install_1.install(projectName, exports.PORT, true, setup_db, tools_1.DatabaseTools, controller_1.default); // install sql db image, db adminer, and dockerfile, + criticals
+                    install_1.install(projectName, exports.PORT, true, /*setup_db,*/ user_interface_1.DatabaseUserInterfaceController, controller_1.default); // install sql db image, db adminer, and dockerfile, + criticals
                     packageJson["scripts"] = {
                         start: "pull serve",
                         test: "pull test",
@@ -224,10 +233,6 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 // api documentation
-const loader_1 = __importDefault(require("./templates/swagger/loader"));
-const log_1 = require("./etc/log");
-const pipe_1 = require("./utils/pipe");
-const auth_1 = require("./auth");
 loader_1.default(app);
 /**
  * Module controller
@@ -280,9 +285,9 @@ exports.config = {
      * })
      * ```
      */
-    database: (settings) => {
-        //db.config = settings
-        // PENDING
+    setDatabase: (args) => {
+        if (args.system == "mySQL")
+            controller_1.default.openMySQLConnection(args);
     },
     /**
      * cross-site configuration
@@ -303,11 +308,11 @@ exports.config = {
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
             if (origins.includes("*")) {
                 res.setHeader("Access-Control-Allow-Origin", "*");
-                res.setHeader("Access-Control-Allow-Methods", args[origins.indexOf("*")]["methods"]);
+                res.setHeader("Access-Control-Allow-Methods", args[origins.indexOf("*")]["methods"].join(" "));
             }
             else if (origins.includes(req.headers.origin)) {
                 res.setHeader("Access-Control-Allow-Origin", req.headers.origin);
-                res.setHeader("Access-Control-Allow-Methods", args[origins.indexOf(req.headers.origin)]["methods"]);
+                res.setHeader("Access-Control-Allow-Methods", args[origins.indexOf(req.headers.origin)]["methods"].join(" "));
             }
             next();
         });
@@ -326,6 +331,10 @@ exports.config = {
     }
 };
 let isCorsSet = false;
+/**
+ * database user interface
+ */
+exports.Database = new user_interface_1.DatabaseUserInterfaceController();
 function setAdapter_API_KEY(secret) {
     // PENDING
 }
@@ -340,3 +349,8 @@ exports.npAuthProfile = {
      */
     oauth2: auth_1.AuthController.oauth2
 };
+/**
+ * environment variables
+ */
+exports.processEnv = new environment_1.ProcessEnv();
+exports.appEnv = new environment_1.AppEnv();

@@ -27,7 +27,7 @@ const app_env_1 = __importDefault(require("./templates/app-env"));
 const paths_1 = require("./etc/other/paths");
 exports.rootFile_name = "server.js";
 exports.project_name = "";
-function install(projectName, serverPort, pull_all, setupDb, dbTools, dbConstroller) {
+function install(projectName, serverPort, pull_all, /*setupDb:Function,*/ dbTools, dbConstroller) {
     return __awaiter(this, void 0, void 0, function* () {
         exports.project_name = projectName;
         console.log("\n** nodespull setup **\n");
@@ -36,7 +36,7 @@ function install(projectName, serverPort, pull_all, setupDb, dbTools, dbConstrol
             yield install_others(serverPort);
         console.log("\n.. 100% - complete.\n");
         // await run("readme", "open", ["-a", "TextEdit", "nodespull-README.md"],(ok:boolean,data?:any)=>{})
-        setupDb(dbConstroller);
+        //setupDb(dbConstroller);
     });
 }
 exports.install = install;

@@ -2,10 +2,9 @@ import {install} from "./install"
 import * as cli from "./cli"
 import express from "express";
 import DB_Controller from "./database/controller";
-import { DatabaseTools, DatabaseToolsFactory } from "./database/tools";
+import { DatabaseUserInterfaceController } from "./database/user-interface";
 import { Route } from "./route/controller"
 import {parseJSON, writeJSON} from "./etc/system-tools/json"
-import fs from "fs"
 import {cmd} from "./cli/exe/exe.log"
 import {deploy} from "./cli/deploy/deploy"
 import { npModuleController } from "./module/controllers/npModuleController"
@@ -13,7 +12,13 @@ import { npRouteController } from "./module/controllers/npRouteController"
 import { npServiceController } from "./module/controllers/npServiceController"
 import { PathVar } from "./etc/other/paths"
 import { Migration } from "./database/migration"
-
+import { ProcessEnv, AppEnv } from "./environment";
+import swaggerLoader from "./templates/swagger/loader"
+import { Log } from "./etc/log";
+import { npPipe } from "./utils/pipe";
+import { AuthController } from "./auth";
+import { GraphQL } from "./graphql";
+import { DbConnectionArg } from "./database/models/connectionArg";
 
 
 const packageJson =  parseJSON(PathVar.packageJson)
@@ -46,16 +51,16 @@ function startServer(port:number, after?:Function){
 // let rootFile_name:string = process.argv[1].split("/").pop()!;
 
 let flag = process.argv[2];
-let isModeInstall = (flag && flag == "init")?true:false;
+// let isModeInstall = (flag && flag == "init")?true:false;
 /**
  * Main database module that trades with MySQL server using (npm) Sequelize
  */
-export let db:DatabaseTools = new DatabaseTools(isModeInstall); //allows for intellisense, updated in setup_db
-export let Database = db;
-function setup_db(dbConstroller:any){
-    db = DatabaseToolsFactory(isModeInstall);
-    dbConstroller.setup(isModeInstall,db);
-}
+// export let db:DatabaseUserInterface = new DatabaseUserInterface(isModeInstall); //allows for intellisense, updated in setup_db
+// export let Database = db;
+// function setup_db(dbConstroller:any){
+//     db = DatabaseToolsFactory(isModeInstall);
+//     dbConstroller.setup(isModeInstall,db);
+// }
 
 class Server {
     static isRunning = false;
@@ -63,7 +68,8 @@ class Server {
         _beforeStart:new Function(),
         _afterStart:new Function(),
         _start( after?:Function):void{
-            if(!noDatabase) DB_Controller.connect();
+            if(!noDatabase) for(let connName of Object.keys(DB_Controller.connections))
+                if(DB_Controller.connections[connName].conf.isActive) DB_Controller.connections[connName].start()
             startServer(PORT, after);
         }
     };
@@ -75,10 +81,10 @@ class Server {
         if(Server.isRunning) return;
         if(args && args.port) PORT = args.port;
         if(args && args.mode) process.argv[2] = args.mode;
-        if(args && args.database){
-            db.config.database = args.database;
-            if(args.database == "nodespull-test-database") db.config.port = DB_PORT_TEST;
-        }
+        // if(args && args.database){
+        //     db.config.database = args.database;
+        //     if(args.database == "nodespull-test-database") db.config.port = DB_PORT_TEST;
+        // }
         if(args && args.use_database === false) noDatabase = true;
 
         if(!Route.is_homePath_fromUser)app.use("/",express.static(__dirname + '/public'))
@@ -101,11 +107,11 @@ class Server {
         let deployFlag = (flag && flag == "deploy")?true:false;
         let migrateFlag = (flag && flag == "migrate")?true:false;
 
-        if(runFlag_fromContainer){
-            db.config.host = "nodespull-db-server";
-            db.config.port = "3306"
-        }
-        DB_Controller.setup(isModeInstall, db);
+        // if(runFlag_fromContainer){
+        //     db.config.host = "nodespull-db-server";
+        //     db.config.port = "3306"
+        // }
+        //DB_Controller.setup(isModeInstall, db);
 
         if (run_setup){
             let projectName:string|null = process.argv[3] || null
@@ -113,7 +119,7 @@ class Server {
                 new Log("Project name required for creation").FgRed().printValue()
                 process.exit(1)
             }
-            install(projectName,PORT, true, setup_db, DatabaseTools, DB_Controller); // install sql db image, db adminer, and dockerfile, + criticals
+            install(projectName,PORT, true, /*setup_db,*/ DatabaseUserInterfaceController, DB_Controller); // install sql db image, db adminer, and dockerfile, + criticals
             packageJson["scripts"] = {
                 start: "pull serve",//"node "+rootFile_name+" run",
                 test: "pull test",//"mocha "+appModule+"/**/*.spec.js || true"
@@ -186,11 +192,6 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 // api documentation
-import swaggerLoader from "./templates/swagger/loader"
-import { Log } from "./etc/log";
-import { npPipe } from "./utils/pipe";
-import { AuthController } from "./auth";
-import { GraphQL } from "./graphql";
 swaggerLoader(app);
 
 
@@ -257,9 +258,8 @@ export const config = {
      * })
      * ```
      */
-    database: (settings:any)=>{
-        //db.config = settings
-        // PENDING
+    setDatabase: (args:DbConnectionArg)=>{
+        if(args.system == "mySQL") DB_Controller.openMySQLConnection(args)
     },
     /**
      * cross-site configuration
@@ -279,11 +279,11 @@ export const config = {
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
             if(origins.includes("*")){
                 res.setHeader("Access-Control-Allow-Origin", "*");
-                res.setHeader("Access-Control-Allow-Methods", args[origins.indexOf("*")]["methods"]);
+                res.setHeader("Access-Control-Allow-Methods", args[origins.indexOf("*")]["methods"].join(" "));
             }
             else if(origins.includes(req.headers.origin as string)){
                 res.setHeader("Access-Control-Allow-Origin", req.headers.origin as string);
-                res.setHeader("Access-Control-Allow-Methods", args[origins.indexOf(req.headers.origin as string)]["methods"]);
+                res.setHeader("Access-Control-Allow-Methods", args[origins.indexOf(req.headers.origin as string)]["methods"].join(" "));
             }
             next()
         })
@@ -306,6 +306,11 @@ export const config = {
 let isCorsSet = false;
 
 
+/**
+ * database user interface
+ */
+export let Database = new DatabaseUserInterfaceController()
+
 
 export function setAdapter_API_KEY(secret:string){
     // PENDING
@@ -322,3 +327,10 @@ export const npAuthProfile = {
      */
     oauth2: AuthController.oauth2
 }
+
+
+/**
+ * environment variables
+ */
+export const processEnv = new ProcessEnv()
+export const appEnv = new AppEnv()

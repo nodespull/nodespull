@@ -57,13 +57,13 @@ export async function newService(args:string[]){
             fs.writeFile(serviceFileRef, getPipeTemplate(serviceVarName, moduleVarName), ()=>{})
             break
         }
-        case "--socket":
-        case "-s": {
-            serviceFileRef = servicePath+"/socket/"+serviceVarName+".service.js"
-            cmd("touch",[serviceFileRef])
-            fs.writeFile(serviceFileRef, getSocketTemplate(serviceVarName, moduleVarName), ()=>{})
-            break
-        }
+        // case "--socket":
+        // case "-s": {
+        //     serviceFileRef = servicePath+"/socket/"+serviceVarName+".service.js"
+        //     cmd("touch",[serviceFileRef])
+        //     fs.writeFile(serviceFileRef, getSocketTemplate(serviceVarName, moduleVarName), ()=>{})
+        //     break
+        // }
         default:{
             serviceFileRef = servicePath+"/generic/"+serviceVarName+".service.js"
             cmd("touch",[serviceFileRef])

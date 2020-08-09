@@ -15,11 +15,11 @@ export async function newModule(moduleName:string){
     cmd("mkdir", ["-p", root+"/"+moduleDirName]);
     cmd("mkdir", ["-p", root+"/"+moduleDirName+"/services"]);
     cmd("mkdir", ["-p", root+"/"+moduleDirName+"/services/self-boot"]);
-    cmd("mkdir", ["-p", root+"/"+moduleDirName+"/services/socket"]);
+    // cmd("mkdir", ["-p", root+"/"+moduleDirName+"/services/socket"]);
     cmd("mkdir", ["-p", root+"/"+moduleDirName+"/services/pipe-usable"]);
     cmd("mkdir", ["-p", root+"/"+moduleDirName+"/services/generic"]);
     cmd("mkdir", ["-p", root+"/"+moduleDirName+"/rest"]);
-    cmd("mkdir", ["-p", root+"/"+moduleDirName+"/graphql"]);
+    // cmd("mkdir", ["-p", root+"/"+moduleDirName+"/graphql"]);
     cmd("touch",[root+"/"+moduleDirName+"/"+moduleFileName]); // create module file
     fs.writeFile(root+"/"+moduleDirName+"/"+moduleFileName, getModuleTemplate(moduleVarName),()=>{}) // populate module file with template
 }
