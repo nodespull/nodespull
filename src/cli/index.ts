@@ -4,6 +4,7 @@ import {newTable} from "./db/sql"
 import { newModule } from "./module";
 import { newService } from "./service";
 import { Log } from "../etc/log";
+import { cliStack } from "../etc/system-tools/stdin";
 
 let stdinInterface:customStdinResponse
 
@@ -20,6 +21,7 @@ async function main(){
 
 
 export async function getCmd(input:string, loop:boolean){
+    if(input != cliStack[cliStack.length-1] && input.length > 0) cliStack.push(input)
     if(input == "clear"){
         stdinInterface.interface.removeAllListeners()
         stdinInterface.interface.close()
