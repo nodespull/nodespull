@@ -12,7 +12,7 @@ import { npRouteController } from "./module/controllers/npRouteController"
 import { npServiceController } from "./module/controllers/npServiceController"
 import { PathVar } from "./etc/other/paths"
 import { Migration } from "./database/migration"
-import { ProcessEnv, AppEnv } from "./environment";
+import { EnvCollector, AppEnv, EnvType } from "./environment";
 import swaggerLoader from "./templates/swagger/loader"
 import { Log } from "./etc/log";
 import { npPipe } from "./utils/pipe";
@@ -27,9 +27,11 @@ import { Env_FilesLoader } from "./files-runner/env-files";
 /**
  * environment variables
  */
-export const processEnv = new ProcessEnv()
-export const appEnv = new AppEnv()
+export const processEnv = new EnvCollector(EnvType.process)
+export const appEnvCtr =  new EnvCollector(EnvType.app)
 new Env_FilesLoader()
+export const sysEnv = process.env
+export const appEnv = AppEnv.storedVars
 
 
 const packageJson =  parseJSON(PathVar.packageJson)
