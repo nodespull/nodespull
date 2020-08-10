@@ -1,8 +1,7 @@
 
-export default function model(tableName:string, pk?:any):string{
-return `const { type } = require("@nodespull/core/utils/db")
-const { Database } = require("@nodespull/core")
-const { onUpload, onRevert, rawQuery } = Database
+export default function model(tableName:string, connectionSelector:string):string{
+return `const { Database } = require("@nodespull/core/database")("${connectionSelector}")
+const { type, onUpload, onRevert, rawQuery } = Database
 
 
 onUpload(() => {

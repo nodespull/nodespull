@@ -35,9 +35,9 @@ exports.appEnv = exports.processEnv = exports.npAuthProfile = exports.setAdapter
 const install_1 = require("./install");
 const cli = __importStar(require("./cli"));
 const express_1 = __importDefault(require("express"));
-const controller_1 = __importDefault(require("./database/controller"));
+const connection_1 = require("./database/connection");
 const user_interface_1 = require("./database/user-interface");
-const controller_2 = require("./route/controller");
+const controller_1 = require("./route/controller");
 const json_1 = require("./etc/system-tools/json");
 const exe_log_1 = require("./cli/exe/exe.log");
 const deploy_1 = require("./cli/deploy/deploy");
@@ -52,11 +52,12 @@ const log_1 = require("./etc/log");
 const pipe_1 = require("./utils/pipe");
 const auth_1 = require("./auth");
 const graphql_1 = require("./graphql");
+const database_files_1 = require("./files-runner/database-files");
+const files_runner_1 = require("./files-runner");
 const packageJson = json_1.parseJSON(paths_1.PathVar.packageJson);
 exports.PORT = 8888;
 exports.DB_PORT_TEST = 3332;
 const app = express_1.default();
-let noDatabase = false;
 function startServer(port, after) {
     // check that cors configurations are set
     if (!isCorsSet)
@@ -89,10 +90,9 @@ let Server = /** @class */ (() => {
                 _beforeStart: new Function(),
                 _afterStart: new Function(),
                 _start(after) {
-                    if (!noDatabase)
-                        for (let connName of Object.keys(controller_1.default.connections))
-                            if (controller_1.default.connections[connName].conf.isActive)
-                                controller_1.default.connections[connName].start();
+                    for (let connSelector of Object.keys(connection_1.DatabaseConnectionController.connections))
+                        if (connection_1.DatabaseConnectionController.connections[connSelector].conf.isActive)
+                            connection_1.DatabaseConnectionController.connections[connSelector].start();
                     startServer(exports.PORT, after);
                 }
             };
@@ -103,113 +103,120 @@ let Server = /** @class */ (() => {
          */
         ready(args) {
             return __awaiter(this, void 0, void 0, function* () {
-                if (Server.isRunning)
-                    return;
-                if (args && args.port)
-                    exports.PORT = args.port;
-                if (args && args.mode)
-                    process.argv[2] = args.mode;
-                // if(args && args.database){
-                //     db.config.database = args.database;
-                //     if(args.database == "nodespull-test-database") db.config.port = DB_PORT_TEST;
-                // }
-                if (args && args.use_database === false)
-                    noDatabase = true;
-                if (!controller_2.Route.is_homePath_fromUser)
-                    app.use("/", express_1.default.static(__dirname + '/public'));
-                if (graphql_1.GraphQL.isActive)
-                    graphql_1.GraphQL.setup(app);
-                let flag = process.argv[2];
-                let allImages = process.argv[3] && process.argv[3] == "-c";
-                let run_setup = (flag && flag == "init") ? true : false;
-                let run_dbImages_only = (flag && flag == "boot") ? true : false;
-                let stop_dbImages_only = (flag && flag == "stop") ? true : false;
-                let run_all_images = (flag && flag == "boot" && allImages) ? true : false;
-                let stop_all_images = (flag && flag == "stop" && allImages) ? true : false;
-                let buildFlag = (flag && flag == "build") ? true : false;
-                let runFlag = (flag && flag == "run") ? true : false;
-                let runFlag_fromContainer = (flag && flag == "docker-run") ? true : false;
-                let status = (flag && flag == "status") ? true : false;
-                let cliFlag = (flag && flag == "cli") ? true : false;
-                let doFlag = (flag && flag == "do") ? true : false; // runs in nodespull cli
-                let testFlag = (flag && flag == "test") ? true : false;
-                let deployFlag = (flag && flag == "deploy") ? true : false;
-                let migrateFlag = (flag && flag == "migrate") ? true : false;
-                // if(runFlag_fromContainer){
-                //     db.config.host = "nodespull-db-server";
-                //     db.config.port = "3306"
-                // }
-                //DB_Controller.setup(isModeInstall, db);
-                if (run_setup) {
-                    let projectName = process.argv[3] || null;
-                    if (!projectName) {
-                        new log_1.Log("Project name required for creation").FgRed().printValue();
-                        process.exit(1);
+                try {
+                    if (Server.isRunning)
+                        return;
+                    if (args && args.port)
+                        exports.PORT = args.port;
+                    if (args && args.mode)
+                        process.argv[2] = args.mode;
+                    // if(args && args.database){
+                    //     db.config.database = args.database;
+                    //     if(args.database == "nodespull-test-database") db.config.port = DB_PORT_TEST;
+                    // }
+                    // if(args && args.use_database === false) noDatabase = true;
+                    if (!controller_1.Route.is_homePath_fromUser)
+                        app.use("/", express_1.default.static(__dirname + '/public'));
+                    if (graphql_1.GraphQL.isActive)
+                        graphql_1.GraphQL.setup(app);
+                    let flag = process.argv[2];
+                    let allImages = process.argv[3] && process.argv[3] == "-c";
+                    let run_setup = (flag && flag == "init") ? true : false;
+                    let run_dbImages_only = (flag && flag == "boot") ? true : false;
+                    let stop_dbImages_only = (flag && flag == "stop") ? true : false;
+                    let run_all_images = (flag && flag == "boot" && allImages) ? true : false;
+                    let stop_all_images = (flag && flag == "stop" && allImages) ? true : false;
+                    let buildFlag = (flag && flag == "build") ? true : false;
+                    let runFlag = (flag && flag == "run") ? true : false;
+                    let runFlag_fromContainer = (flag && flag == "docker-run") ? true : false;
+                    let status = (flag && flag == "status") ? true : false;
+                    let cliFlag = (flag && flag == "cli") ? true : false;
+                    let doFlag = (flag && flag == "do") ? true : false; // runs in nodespull cli
+                    let testFlag = (flag && flag == "test") ? true : false;
+                    let deployFlag = (flag && flag == "deploy") ? true : false;
+                    let migrateFlag = (flag && flag == "migrate") ? true : false;
+                    // if(runFlag_fromContainer){
+                    //     db.config.host = "nodespull-db-server";
+                    //     db.config.port = "3306"
+                    // }
+                    //DB_Controller.setup(isModeInstall, db);
+                    if (run_setup) {
+                        let projectName = process.argv[3] || null;
+                        if (!projectName) {
+                            new log_1.Log("Project name required for creation").FgRed().printValue();
+                            process.exit(1);
+                        }
+                        install_1.install(projectName, exports.PORT, true /*, setup_db, DatabaseUserInterfaceController, DB_Controller*/); // install sql db image, db adminer, and dockerfile, + criticals
+                        packageJson["scripts"] = {
+                            start: "pull serve",
+                            test: "pull test",
+                            e2e: "pull e2e"
+                        };
+                        json_1.writeJSON(paths_1.PathVar.packageJson, packageJson);
                     }
-                    install_1.install(projectName, exports.PORT, true, /*setup_db,*/ user_interface_1.DatabaseUserInterfaceController, controller_1.default); // install sql db image, db adminer, and dockerfile, + criticals
-                    packageJson["scripts"] = {
-                        start: "pull serve",
-                        test: "pull test",
-                        e2e: "pull e2e"
-                    };
-                    json_1.writeJSON(paths_1.PathVar.packageJson, packageJson);
+                    else if (cliFlag) {
+                        new database_files_1.Database_FilesLoader();
+                        cli.start();
+                    }
+                    else if (doFlag) {
+                        cli.getCmd(process.argv[3], false);
+                    }
+                    else if (testFlag) {
+                        exe_log_1.cmd("npm", ["test"]);
+                    }
+                    else if (run_all_images) {
+                        exe_log_1.cmd('docker', ["stop", "nodespull_server.js_1"], false);
+                        exe_log_1.cmd('docker', ["rm", "nodespull_server.js_1"], false);
+                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-all.yml", "up", "--build"], true);
+                    }
+                    else if (stop_all_images) {
+                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-all.yml", "down"], true);
+                    }
+                    else if (buildFlag) {
+                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-all.yml", "build"], false);
+                    }
+                    else if (run_dbImages_only) {
+                        console.log("\n\n Wait until no new event, then open a new terminal to run your app.\n\n\n");
+                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-db.yml", "up",], true);
+                    }
+                    else if (stop_dbImages_only) {
+                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-db.yml", "down"], true);
+                    }
+                    else if (status) {
+                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-all.yml", "ps"], true);
+                    }
+                    else if (runFlag || runFlag_fromContainer) {
+                        // Server.isRunning = true;
+                        new files_runner_1.App_FilesLoader(); // now that sequelize obj is initialized, load routes, tables, and relations
+                        if (this._sys._beforeStart)
+                            this._sys._beforeStart();
+                        yield this._sys._start(this._sys._afterStart);
+                    }
+                    else if (deployFlag) {
+                        deploy_1.deploy();
+                    }
+                    else if (migrateFlag) {
+                        new database_files_1.Database_FilesLoader();
+                        new migration_1.Migration(process.argv[3], process.argv[4]);
+                    }
+                    else {
+                        console.log("\nTag missing. See options below: \n\
+                \n  init        initialize nodespull app\
+                \n  cli         open nodespull cli\
+                \n  boot        start nodespull servers: database, db_portal\
+                \n  run         run main.js with nodespull\
+                \n  stop        stop nodespull servers: database, db_portal\
+                \n  boot -c     start nodespull servers and run app in container: app, database, db_portal\
+                \n  stop -c     stop all nodespull servers: app, database, db_portal\
+                \n  migrate     use with (up | down | freeze)\
+                \n  build       build your app\
+                \n  deploy      deploy your app and get a url\
+                \n  status      show the status of servers\n");
+                    }
                 }
-                else if (cliFlag) {
-                    cli.start();
-                }
-                else if (doFlag) {
-                    cli.getCmd(process.argv[3], false);
-                }
-                else if (testFlag) {
-                    exe_log_1.cmd("npm", ["test"]);
-                }
-                else if (run_all_images) {
-                    exe_log_1.cmd('docker', ["stop", "nodespull_server.js_1"], false);
-                    exe_log_1.cmd('docker', ["rm", "nodespull_server.js_1"], false);
-                    exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-all.yml", "up", "--build"], true);
-                }
-                else if (stop_all_images) {
-                    exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-all.yml", "down"], true);
-                }
-                else if (buildFlag) {
-                    exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-all.yml", "build"], false);
-                }
-                else if (run_dbImages_only) {
-                    console.log("\n\n Wait until no new event, then open a new terminal to run your app.\n\n\n");
-                    exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-db.yml", "up",], true);
-                }
-                else if (stop_dbImages_only) {
-                    exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-db.yml", "down"], true);
-                }
-                else if (status) {
-                    exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-all.yml", "ps"], true);
-                }
-                else if (runFlag || runFlag_fromContainer) {
-                    Server.isRunning = true;
-                    require("./files-runner"); // now that sequelize obj is initialized, load routes, tables, and relations
-                    if (this._sys._beforeStart)
-                        this._sys._beforeStart();
-                    yield this._sys._start(this._sys._afterStart);
-                }
-                else if (deployFlag) {
-                    deploy_1.deploy();
-                }
-                else if (migrateFlag) {
-                    new migration_1.Migration(process.argv[3]);
-                }
-                else {
-                    console.log("\nTag missing. See options below: \n\
-            \n  init        initialize nodespull app\
-            \n  cli         open nodespull cli\
-            \n  boot        start nodespull servers: database, db_portal\
-            \n  run         run main.js with nodespull\
-            \n  stop        stop nodespull servers: database, db_portal\
-            \n  boot -c     start nodespull servers and run app in container: app, database, db_portal\
-            \n  stop -c     stop all nodespull servers: app, database, db_portal\
-            \n  migrate     use with (up | down | freeze)\
-            \n  build       build your app\
-            \n  deploy      deploy your app and get a url\
-            \n  status      show the status of servers\n");
+                catch (e) {
+                    console.log(e);
+                    process.exit(1);
                 }
             });
         }
@@ -262,7 +269,7 @@ exports.appServer = app;
 /**
  * Create a http route
  */
-exports.route = new controller_2.Route(app);
+exports.route = new controller_1.Route(app);
 exports.Router = exports.route;
 exports.http = exports.route;
 /**
@@ -287,7 +294,7 @@ exports.config = {
      */
     setDatabase: (args) => {
         if (args.system == "mySQL")
-            controller_1.default.openMySQLConnection(args);
+            connection_1.DatabaseConnectionController.createMySQLConnection(args);
     },
     /**
      * cross-site configuration

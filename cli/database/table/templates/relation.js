@@ -1,8 +1,8 @@
-
-export default function relation(tableName:string):string{
-return `const { Relations } = require("@nodespull/core/database/tools")
-const { Database } = require("@nodespull/core")
-const { onUpload, onRevert, rawQuery } = Database
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+function relation(tableName, connectionSelector) {
+    return `const { Database } = require("@nodespull/core/database")("${connectionSelector}")
+const { Relations, onUpload, onRevert, rawQuery } = Database
 
 
 onUpload(() => {
@@ -20,5 +20,6 @@ onRevert(() => {
         /** add FK to other tables */ has_many: [],
         /** create join tables */ many_to_many: []
     });
-})`
+})`;
 }
+exports.default = relation;

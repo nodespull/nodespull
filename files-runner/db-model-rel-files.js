@@ -3,40 +3,42 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DB_Model_Rel_FilesRunner = void 0;
+exports.DB_Model_Rel_FilesLoader = void 0;
 const fs_1 = __importDefault(require("fs"));
 const common_1 = require("./common");
-const controller_1 = __importDefault(require("../database/controller"));
+const connection_1 = require("../database/connection");
 const log_1 = require("../etc/log");
-const common_2 = require("../cli/db/sql/common");
-const x_stage_model_1 = __importDefault(require("../cli/db/sql/templates/x_stage.model"));
-const x_stage_relation_1 = __importDefault(require("../cli/db/sql/templates/x_stage.relation"));
+const common_2 = require("../database/helpers/common");
+const stage_attribute_1 = __importDefault(require("../cli/database/table/templates/stage.attribute"));
+const stage_relation_1 = __importDefault(require("../cli/database/table/templates/stage.relation"));
 const paths_1 = require("../etc/other/paths");
-class DB_Model_Rel_FilesRunner extends common_1.FilesEngine {
+class DB_Model_Rel_FilesLoader extends common_1.FilesEngine {
     constructor(args) {
         super();
         this.args = args;
         this.tableNames_definitions_map = {}; // used to store the "at.vx" definitions and update "stage.vx" files
         this.tableNames_relations_map = {};
-        if (args && controller_1.default.connections[args.dbConnectionSelector].migration.isRunning) {
+        this.dbPath = "";
+        this.dbPath = args.dbConnectionSelector + "-db";
+        if (args && connection_1.DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRunning) {
             let targetFolderPath;
-            if (controller_1.default.connections[args.dbConnectionSelector].migration.isRevertMode)
-                targetFolderPath = this.getFolderPath(paths_1.PathVar.dbModule + "/SQL", "stage.v"); // migration down scripts are in this folder
+            if (connection_1.DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRevertMode)
+                targetFolderPath = this.getFolderPath(paths_1.PathVar.dbModule + "/" + this.dbPath, "stage.v"); // migration down scripts are in this folder
             else
-                targetFolderPath = this.getFolderPath(paths_1.PathVar.dbModule + "/SQL", "at.v"); // migration up are here
+                targetFolderPath = this.getFolderPath(paths_1.PathVar.dbModule + "/" + this.dbPath, "at.v"); // migration up are here
             if (!targetFolderPath)
-                new log_1.Log(`missing folder with prefix '${controller_1.default.connections[args.dbConnectionSelector].migration.isRevertMode ?
+                new log_1.Log(`missing folder with prefix '${connection_1.DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRevertMode ?
                     "stage.v" : "at.v"}' in '${paths_1.PathVar.dbModule.split("/").slice(-2).join("/")}' directory tree`).throwError();
             else {
                 super.recursiveSearch(targetFolderPath, "attribute.js", { runFiles: true });
                 super.recursiveSearch(targetFolderPath, "relation.js", { runFiles: true });
             }
         }
-        if (args && controller_1.default.connections[args.dbConnectionSelector].migration.isRunning && args.overwrite_newStageScripts)
+        if (args && connection_1.DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRunning && args.overwrite_newStageScripts)
             this.updateStageFiles();
         else {
-            super.recursiveSearch(paths_1.PathVar.dbModule + "/SQL", "attribute.js", { runFiles: true });
-            super.recursiveSearch(paths_1.PathVar.dbModule + "/SQL", "relation.js", { runFiles: true });
+            super.recursiveSearch(paths_1.PathVar.dbModule + "/" + this.dbPath, "attribute.js", { runFiles: true });
+            super.recursiveSearch(paths_1.PathVar.dbModule + "/" + this.dbPath, "relation.js", { runFiles: true });
         }
     }
     /**
@@ -63,22 +65,22 @@ class DB_Model_Rel_FilesRunner extends common_1.FilesEngine {
      * update stage files with scripts from 'at.vx'
     */
     updateStageFiles() {
-        let modelPaths = super.recursiveSearch(paths_1.PathVar.dbModule + "/SQL/stage.v" + (common_2.getCurrentDBVersion() + 1) + "/", "attribute.js", { runFiles: false });
-        let relPaths = super.recursiveSearch(paths_1.PathVar.dbModule + "/SQL/stage.v" + (common_2.getCurrentDBVersion() + 1) + "/", "relation.js", { runFiles: false });
+        let modelPaths = super.recursiveSearch(paths_1.PathVar.dbModule + "/" + this.dbPath + "/stage.v" + (common_2.getCurrentDBVersion(this.args.dbConnectionSelector) + 1) + "/", "attribute.js", { runFiles: false });
+        let relPaths = super.recursiveSearch(paths_1.PathVar.dbModule + "/" + this.dbPath + "/stage.v" + (common_2.getCurrentDBVersion(this.args.dbConnectionSelector) + 1) + "/", "relation.js", { runFiles: false });
         for (let path of modelPaths) {
             let tableName = path.split("/").splice(-1)[0].split(".")[0];
             let modelFile = fs_1.default.readFileSync(path, 'utf8');
             let tempReg = modelFile.match(/(    | )Database.defineModel\(([\s\S]*?)}\)/);
             let modelFile_extract = tempReg ? tempReg[0] : null;
-            fs_1.default.writeFileSync(path, x_stage_model_1.default(modelFile_extract));
+            fs_1.default.writeFileSync(path, stage_attribute_1.default(modelFile_extract, this.args.dbConnectionSelector));
         }
         for (let path of relPaths) {
             let tableName = path.split("/").splice(-1)[0].split(".")[0];
             let modelFile = fs_1.default.readFileSync(path, 'utf8');
             let tempReg = modelFile.match(/(    | )Relations.set\(([\s\S]*?)}\)/);
             let modelFile_extract = tempReg ? tempReg[0] : null;
-            fs_1.default.writeFileSync(path, x_stage_relation_1.default(modelFile_extract));
+            fs_1.default.writeFileSync(path, stage_relation_1.default(modelFile_extract, this.args.dbConnectionSelector));
         }
     }
 }
-exports.DB_Model_Rel_FilesRunner = DB_Model_Rel_FilesRunner;
+exports.DB_Model_Rel_FilesLoader = DB_Model_Rel_FilesLoader;

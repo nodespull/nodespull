@@ -3,13 +3,13 @@ import { DatabaseUserInterface_interface } from "../../user-interface";
 import sequelize from "sequelize";
 import { RawQueryResponse, QueryInterface } from "../../models/query";
 import {Table, TableRelation, TableDefinition, ModelDefinition} from "./Table";
-import DB_Controller from "../../controller";
+import {DatabaseConnectionController} from "../../connection";
 
 
 export class DatabaseUserInterface_mySQL implements DatabaseUserInterface_interface{
     constructor(public connectionSelector:string){ }
 
-    defineModel(tableName:string):ModelDefinition|any{
+    defineModel = (tableName:string):ModelDefinition|any => {
         return new ModelDefinition(tableName, this.connectionSelector) // store somewhere
     }
 
@@ -53,7 +53,7 @@ export class DatabaseUserInterface_mySQL implements DatabaseUserInterface_interf
      * 
      * ```
      */
-    linkTable(tableName:string):TableRelation{ this.op
+    linkTable = (tableName:string):TableRelation => { //this.op
         return new TableRelation(tableName, this.connectionSelector);
     }
 
@@ -66,7 +66,7 @@ export class DatabaseUserInterface_mySQL implements DatabaseUserInterface_interf
      * })
      * ```
      */
-    defineTable(name:string):TableDefinition{
+    defineTable = (name:string):TableDefinition => {
         return new TableDefinition(name, this.connectionSelector) // store somewhere
     }
 
@@ -76,9 +76,9 @@ export class DatabaseUserInterface_mySQL implements DatabaseUserInterface_interf
      * Database.table('users')
      * ```
      */
-    table(name:string):Table{
+    table = (name:string):Table => {
         // if(!DB_Controller.ORM)error.db.modelNotSaved();
-        return new Table(DB_Controller.connections[this.connectionSelector].ORM.interface.model(name));
+        return new Table(DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.model(name));
     }
 
 
@@ -86,35 +86,35 @@ export class DatabaseUserInterface_mySQL implements DatabaseUserInterface_interf
      * Upload database version
      * @param {Function} actions
      */
-    onUpload(actions:Function){
+    onUpload = (actions:Function)=>{
         if(
-            !DB_Controller.connections[this.connectionSelector].migration.isRunning || 
-            DB_Controller.connections[this.connectionSelector].migration.isRevertMode) return;
+            !DatabaseConnectionController.connections[this.connectionSelector].migration.isRunning || 
+            DatabaseConnectionController.connections[this.connectionSelector].migration.isRevertMode) return;
         actions()
     }
     /**
      * Revert database to previous version
      * @param {Function} actions
      */
-    onRevert(actions:Function){
+    onRevert = (actions:Function)=>{
         if(
-            !DB_Controller.connections[this.connectionSelector].migration.isRunning || 
-            !DB_Controller.connections[this.connectionSelector].migration.isRevertMode) return;
+            !DatabaseConnectionController.connections[this.connectionSelector].migration.isRunning || 
+            !DatabaseConnectionController.connections[this.connectionSelector].migration.isRevertMode) return;
         actions()
     }
 
-    async runRawQuery(query?:string):Promise<RawQueryResponse|null>{
+    runRawQuery = async (query?:string):Promise<RawQueryResponse|null> => {
         if(!query) return Promise.resolve(null)
-        let [results, metadata] = await DB_Controller.connections[this.connectionSelector].ORM.interface.query(query!)
+        let [results, metadata] = await DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.query(query!)
         return Promise.resolve({results, metadata})
     }
     // only loads it into the migration obj -- will be ran migration.ts
-    rawQuery(query:string):void{
-        DB_Controller.connections[this.connectionSelector].migration.rawQueries.push(query)
+    rawQuery = (query:string):void =>{
+        DatabaseConnectionController.connections[this.connectionSelector].migration.rawQueries.push(query)
     }
 
-    getQueryInterface(): QueryInterface{
-        return DB_Controller.connections[this.connectionSelector].ORM.interface.getQueryInterface()
+    getQueryInterface = ():QueryInterface=>{
+        return DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.getQueryInterface()
     }
 
     Relations = {
@@ -149,6 +149,11 @@ class Type{
     blob = DataTypes.BLOB;
     boolean = DataTypes.BOOLEAN;
     enum = DataTypes.ENUM;
+    uuid = DataTypes.UUID;
+    UUIDV1 = DataTypes.UUIDV1;
+    UUIDV4 = DataTypes.UUIDV4;
+    NOW = DataTypes.NOW;
+    array = DataTypes.ARRAY;
 }
 
 

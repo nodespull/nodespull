@@ -1,5 +1,5 @@
 import sequelize from "sequelize";
-import functions_placeholders from "../../etc/functions-placeholders"
+import functions_placeholders from "../../helpers/functions-placeholders"
 import { db_mySQLConnectionArg } from "./model";
 import { Table } from "./Table";
 import { DB_Connection } from "../../models/db-connection";
@@ -12,10 +12,10 @@ export class DB_MySQL_Connection implements DB_Connection{
         isRevertMode: false,
         rawQueries: new Array<string>() // runs after model and relations are updated
     }
-    ORM:mySQL_ORM = new mySQL_ORM(true,{}) //placeholder
+    ORM:mySQL_ORM// = new mySQL_ORM({}) //placeholder
 
     constructor(public conf: db_mySQLConnectionArg){
-        this.ORM = new mySQL_ORM(false,conf)
+        this.ORM = new mySQL_ORM(conf)
     }
 
     start(){
@@ -29,10 +29,10 @@ export class DB_MySQL_Connection implements DB_Connection{
 
 class mySQL_ORM {
     interface:sequelize.Sequelize|any;
-    private r(){}//rogue empty function for install mode
-    constructor(isModeInstall:boolean,sequelize_user_inputs?:any){
-        if(isModeInstall) this.interface = {...functions_placeholders}
-        else this.interface = this.setup(sequelize_user_inputs?sequelize_user_inputs:{});
+    // private r(){}//rogue empty function for install mode
+    constructor(sequelize_user_inputs:any){
+        // if(isModeInstall) this.interface = {...functions_placeholders}
+        this.interface = this.setup(sequelize_user_inputs)
     }
 
     // initialize sequelize instance for ORM

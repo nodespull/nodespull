@@ -16,10 +16,13 @@ exports.DatabaseUserInterface_mySQL = void 0;
 const sequelize_1 = require("sequelize");
 const sequelize_2 = __importDefault(require("sequelize"));
 const Table_1 = require("./Table");
-const controller_1 = __importDefault(require("../../controller"));
+const connection_1 = require("../../connection");
 class DatabaseUserInterface_mySQL {
     constructor(connectionSelector) {
         this.connectionSelector = connectionSelector;
+        this.defineModel = (tableName) => {
+            return new Table_1.ModelDefinition(tableName, this.connectionSelector); // store somewhere
+        };
         /**
          * Database configuration object as specified by (npm) Sequelize.
          * ```
@@ -50,6 +53,71 @@ class DatabaseUserInterface_mySQL {
          * ```
          */
         this.op = sequelize_2.default.Op;
+        /**
+         * Add a SQL table relation. Example:
+         * ```
+         *  Database.linkTable("students").many_to_many("professors")
+         *
+         * ```
+         */
+        this.linkTable = (tableName) => {
+            return new Table_1.TableRelation(tableName, this.connectionSelector);
+        };
+        /**
+         * Define a SQL table. Example:
+         * ```
+         * Database.defineTable('users').as({
+         *      email: Database.type.string,
+         *      phone: Database.type.int
+         * })
+         * ```
+         */
+        this.defineTable = (name) => {
+            return new Table_1.TableDefinition(name, this.connectionSelector); // store somewhere
+        };
+        /**
+         * Return a nodepull table. Example:
+         * ```
+         * Database.table('users')
+         * ```
+         */
+        this.table = (name) => {
+            // if(!DB_Controller.ORM)error.db.modelNotSaved();
+            return new Table_1.Table(connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.model(name));
+        };
+        /**
+         * Upload database version
+         * @param {Function} actions
+         */
+        this.onUpload = (actions) => {
+            if (!connection_1.DatabaseConnectionController.connections[this.connectionSelector].migration.isRunning ||
+                connection_1.DatabaseConnectionController.connections[this.connectionSelector].migration.isRevertMode)
+                return;
+            actions();
+        };
+        /**
+         * Revert database to previous version
+         * @param {Function} actions
+         */
+        this.onRevert = (actions) => {
+            if (!connection_1.DatabaseConnectionController.connections[this.connectionSelector].migration.isRunning ||
+                !connection_1.DatabaseConnectionController.connections[this.connectionSelector].migration.isRevertMode)
+                return;
+            actions();
+        };
+        this.runRawQuery = (query) => __awaiter(this, void 0, void 0, function* () {
+            if (!query)
+                return Promise.resolve(null);
+            let [results, metadata] = yield connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.query(query);
+            return Promise.resolve({ results, metadata });
+        });
+        // only loads it into the migration obj -- will be ran migration.ts
+        this.rawQuery = (query) => {
+            connection_1.DatabaseConnectionController.connections[this.connectionSelector].migration.rawQueries.push(query);
+        };
+        this.getQueryInterface = () => {
+            return connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.getQueryInterface();
+        };
         this.Relations = {
             set: (rootTable, args) => {
                 if (args.one_to_one) {
@@ -75,77 +143,6 @@ class DatabaseUserInterface_mySQL {
             }
         };
     }
-    defineModel(tableName) {
-        return new Table_1.ModelDefinition(tableName, this.connectionSelector); // store somewhere
-    }
-    /**
-     * Add a SQL table relation. Example:
-     * ```
-     *  Database.linkTable("students").many_to_many("professors")
-     *
-     * ```
-     */
-    linkTable(tableName) {
-        this.op;
-        return new Table_1.TableRelation(tableName, this.connectionSelector);
-    }
-    /**
-     * Define a SQL table. Example:
-     * ```
-     * Database.defineTable('users').as({
-     *      email: Database.type.string,
-     *      phone: Database.type.int
-     * })
-     * ```
-     */
-    defineTable(name) {
-        return new Table_1.TableDefinition(name, this.connectionSelector); // store somewhere
-    }
-    /**
-     * Return a nodepull table. Example:
-     * ```
-     * Database.table('users')
-     * ```
-     */
-    table(name) {
-        // if(!DB_Controller.ORM)error.db.modelNotSaved();
-        return new Table_1.Table(controller_1.default.connections[this.connectionSelector].ORM.interface.model(name));
-    }
-    /**
-     * Upload database version
-     * @param {Function} actions
-     */
-    onUpload(actions) {
-        if (!controller_1.default.connections[this.connectionSelector].migration.isRunning ||
-            controller_1.default.connections[this.connectionSelector].migration.isRevertMode)
-            return;
-        actions();
-    }
-    /**
-     * Revert database to previous version
-     * @param {Function} actions
-     */
-    onRevert(actions) {
-        if (!controller_1.default.connections[this.connectionSelector].migration.isRunning ||
-            !controller_1.default.connections[this.connectionSelector].migration.isRevertMode)
-            return;
-        actions();
-    }
-    runRawQuery(query) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (!query)
-                return Promise.resolve(null);
-            let [results, metadata] = yield controller_1.default.connections[this.connectionSelector].ORM.interface.query(query);
-            return Promise.resolve({ results, metadata });
-        });
-    }
-    // only loads it into the migration obj -- will be ran migration.ts
-    rawQuery(query) {
-        controller_1.default.connections[this.connectionSelector].migration.rawQueries.push(query);
-    }
-    getQueryInterface() {
-        return controller_1.default.connections[this.connectionSelector].ORM.interface.getQueryInterface();
-    }
 }
 exports.DatabaseUserInterface_mySQL = DatabaseUserInterface_mySQL;
 class Type {
@@ -162,6 +159,11 @@ class Type {
         this.blob = sequelize_1.DataTypes.BLOB;
         this.boolean = sequelize_1.DataTypes.BOOLEAN;
         this.enum = sequelize_1.DataTypes.ENUM;
+        this.uuid = sequelize_1.DataTypes.UUID;
+        this.UUIDV1 = sequelize_1.DataTypes.UUIDV1;
+        this.UUIDV4 = sequelize_1.DataTypes.UUIDV4;
+        this.NOW = sequelize_1.DataTypes.NOW;
+        this.array = sequelize_1.DataTypes.ARRAY;
     }
 }
 // export function DatabaseToolsFactory():DatabaseTools {

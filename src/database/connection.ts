@@ -5,6 +5,8 @@
 import { DB_MySQL_Connection } from "./systems/mysql/connection";
 import { db_mySQLConnectionArg } from "./systems/mysql/model";
 import { Log } from "../etc/log";
+import { DB_Connection } from "./models/db-connection";
+import { DatabaseUserInterfaceController } from "./user-interface";
 
 
 
@@ -38,12 +40,22 @@ import { Log } from "../etc/log";
 //     }
 // }
 
-export default class DB_Controller {
-    static connections:{[dbName:string]:DB_MySQL_Connection} = {}
-    static openMySQLConnection(conf:db_mySQLConnectionArg){
+export class DatabaseConnectionController {
+    static connections:{[dbConnectionSelector:string]:DB_MySQL_Connection} = {}
+    static createMySQLConnection(conf:db_mySQLConnectionArg){
         let con = new DB_MySQL_Connection(conf)
-        if(Object.keys(DB_Controller.connections).includes(conf.selector)) new Log(`duplicate database selector '${conf.selector}'`).throwError()
-        DB_Controller.connections[conf.selector] = con
+        if(Object.keys(DatabaseConnectionController.connections).includes(conf.selector)) new Log(`duplicate database selector '${conf.selector}'`).throwError()
+        DatabaseConnectionController.connections[conf.selector] = con
+        DatabaseUserInterfaceController.addUserInterfaceForDBConnection(conf.selector)
+    }
+    static getConnection(dbConnectionSelector:string):DB_Connection{
+        if(!Object.keys(this.connections).includes(dbConnectionSelector)) new Log(`database selector '${dbConnectionSelector}' not found`).throwError()
+        return this.connections[dbConnectionSelector]
+    }
+
+    static throwIfNotRegistered(dbConnectionSelector:string){
+        if(!Object.keys(DatabaseConnectionController.connections).includes(dbConnectionSelector)) 
+            throw new Log(`database '${dbConnectionSelector}' not found`).FgRed().getValue()
     }
 }
 

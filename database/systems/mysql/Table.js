@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TableRelation = exports.ModelDefinition = exports.TableDefinition = exports.Table = void 0;
-const controller_1 = __importDefault(require("../../controller"));
+const connection_1 = require("../../connection");
 const log_1 = __importDefault(require("../../../etc/log"));
 class Table {
     constructor(model) {
@@ -205,7 +205,7 @@ class TableDefinition {
      * ```
      */
     as(fields) {
-        return controller_1.default.connections[this.connectionSelector].ORM.addTable(this._tableName, fields);
+        return connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.addTable(this._tableName, fields);
     }
 }
 exports.TableDefinition = TableDefinition;
@@ -224,12 +224,12 @@ class ModelDefinition {
      * ```
      */
     as(fields) {
-        if (controller_1.default.connections[this.connectionSelector].migration.isRunning) {
+        if (connection_1.DatabaseConnectionController.connections[this.connectionSelector].migration.isRunning) {
             //DB_Controller.ORM.interface.models = {}
-            controller_1.default.connections[this.connectionSelector].ORM.interface.define(this._tableName, fields, { freezeTableName: true });
+            connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.define(this._tableName, fields, { freezeTableName: true });
         }
         else {
-            controller_1.default.connections[this.connectionSelector].ORM.interface.define(this._tableName, fields, { freezeTableName: true });
+            connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.define(this._tableName, fields, { freezeTableName: true });
         }
     }
 }
@@ -237,7 +237,7 @@ exports.ModelDefinition = ModelDefinition;
 class TableRelation {
     constructor(tableName, connectionSelector) {
         this.connectionSelector = connectionSelector;
-        this._model = controller_1.default.connections[this.connectionSelector].ORM.interface.model(tableName);
+        this._model = connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.model(tableName);
     }
     /**
      * One entry in the left table may be linked with only one entry in the right table and vice versa. Example:
@@ -248,9 +248,9 @@ class TableRelation {
      */
     one_to_one(arg) {
         if (typeof arg == "string")
-            this._model.hasOne(controller_1.default.connections[this.connectionSelector].ORM.interface.model(arg));
+            this._model.hasOne(connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.model(arg));
         else
-            this._model.hasOne(controller_1.default.connections[this.connectionSelector].ORM.interface.model(arg.table), arg);
+            this._model.hasOne(connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.model(arg.table), arg);
     }
     /**
      * One entry in the left table may be linked with only one entry in the right table and vice versa. Example:
@@ -261,9 +261,9 @@ class TableRelation {
      */
     has_one(arg) {
         if (typeof arg == "string")
-            this._model.hasOne(controller_1.default.connections[this.connectionSelector].ORM.interface.model(arg));
+            this._model.hasOne(connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.model(arg));
         else
-            this._model.hasOne(controller_1.default.connections[this.connectionSelector].ORM.interface.model(arg.table), arg);
+            this._model.hasOne(connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.model(arg.table), arg);
     }
     /**
      * One entry in the left table may be linked with only one entry in the right table and vice versa. Example:
@@ -274,9 +274,9 @@ class TableRelation {
      */
     belongsTo_one(arg) {
         if (typeof arg == "string")
-            this._model.belongsTo(controller_1.default.connections[this.connectionSelector].ORM.interface.model(arg));
+            this._model.belongsTo(connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.model(arg));
         else
-            this._model.belongsTo(controller_1.default.connections[this.connectionSelector].ORM.interface.model(arg.table), arg);
+            this._model.belongsTo(connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.model(arg.table), arg);
     }
     /**
      * One entry in the left table may be linked with many entries in the right table. Example:
@@ -287,9 +287,9 @@ class TableRelation {
      */
     one_to_many(arg) {
         if (typeof arg == "string")
-            this._model.hasMany(controller_1.default.connections[this.connectionSelector].ORM.interface.model(arg));
+            this._model.hasMany(connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.model(arg));
         else
-            this._model.hasMany(controller_1.default.connections[this.connectionSelector].ORM.interface.model(arg.table), arg);
+            this._model.hasMany(connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.model(arg.table), arg);
     }
     /**
      * One entry in the left table may be linked with many entries in the right table and vice versa. Example:
@@ -300,9 +300,9 @@ class TableRelation {
      */
     many_to_many(arg) {
         if (typeof arg == "string")
-            this._model.belongsToMany(controller_1.default.connections[this.connectionSelector].ORM.interface.model(arg), { through: this._model.name + "_" + arg });
+            this._model.belongsToMany(connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.model(arg), { through: this._model.name + "_" + arg });
         else
-            this._model.belongsToMany(controller_1.default.connections[this.connectionSelector].ORM.interface.model(arg.table), Object.assign({ through: this._model.name + "_" + arg.table }, arg));
+            this._model.belongsToMany(connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.model(arg.table), Object.assign({ through: this._model.name + "_" + arg.table }, arg));
     }
 }
 exports.TableRelation = TableRelation;

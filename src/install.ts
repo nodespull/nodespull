@@ -19,7 +19,7 @@ export const rootFile_name:string = "server.js"
 export let project_name:string = ""
 
 
-export async function install(projectName:string, serverPort:number, pull_all:boolean, /*setupDb:Function,*/ dbTools:any, dbConstroller:any){
+export async function install(projectName:string, serverPort:number, pull_all:boolean, /*setupDb:Function, dbTools:any/*, dbConstroller:any*/){
     project_name = projectName
     console.log("\n** nodespull setup **\n");
     await install_core();

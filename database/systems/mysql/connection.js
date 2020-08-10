@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DB_MySQL_Connection = void 0;
 const sequelize_1 = __importDefault(require("sequelize"));
-const functions_placeholders_1 = __importDefault(require("../../etc/functions-placeholders"));
 const Table_1 = require("./Table");
 class DB_MySQL_Connection {
     constructor(conf) {
@@ -16,8 +15,7 @@ class DB_MySQL_Connection {
             isRevertMode: false,
             rawQueries: new Array() // runs after model and relations are updated
         };
-        this.ORM = new mySQL_ORM(true, {}); //placeholder
-        this.ORM = new mySQL_ORM(false, conf);
+        this.ORM = new mySQL_ORM(conf);
     }
     start() {
         this.ORM.interface.sync({ alter: true }).then(() => {
@@ -30,13 +28,11 @@ class DB_MySQL_Connection {
 }
 exports.DB_MySQL_Connection = DB_MySQL_Connection;
 class mySQL_ORM {
-    constructor(isModeInstall, sequelize_user_inputs) {
-        if (isModeInstall)
-            this.interface = Object.assign({}, functions_placeholders_1.default);
-        else
-            this.interface = this.setup(sequelize_user_inputs ? sequelize_user_inputs : {});
+    // private r(){}//rogue empty function for install mode
+    constructor(sequelize_user_inputs) {
+        // if(isModeInstall) this.interface = {...functions_placeholders}
+        this.interface = this.setup(sequelize_user_inputs);
     }
-    r() { } //rogue empty function for install mode
     // initialize sequelize instance for ORM
     setup(config) {
         // DB_Controller.final_HostAddr = (config.host?config.host:DEFAULTS.MYSQL_HOST) + (config.port?config.port:DEFAULTS.PORT);
