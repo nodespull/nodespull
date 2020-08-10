@@ -36,7 +36,7 @@ export class Migration extends FilesEngine{
             if(err) return console.log(err)
             for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries) 
             DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
-            new Log(`job ran for database '${res.config.database}'`).FgGreen().printValue()
+            new Log(`job ran for database '${res.config.database}' with selector '${this.dbConnectionSelector}'`).FgGreen().printValue()
             console.log("closing migration job ..\n")
         })
     }
@@ -50,7 +50,7 @@ export class Migration extends FilesEngine{
             if(err) return console.log(err)
             for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries) 
             DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
-            new Log(`job ran for database '${res.config.database}'`).FgGreen().printValue()
+            new Log(`job ran for database '${res.config.database}' with selector '${this.dbConnectionSelector}'`).FgGreen().printValue()
             console.log("closing migration job ..\n")
         })
     }
@@ -73,7 +73,7 @@ export class Migration extends FilesEngine{
             if(err) return console.log(err)
             for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries)
                 DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
-            new Log(`job ran for database '${res.config.database}'`).FgGreen().printValue()
+            new Log(`job ran for database '${res.config.database}' with selector '${this.dbConnectionSelector}'`).FgGreen().printValue()
             console.log("closing migration job ..\n")
         })
     }

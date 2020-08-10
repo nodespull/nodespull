@@ -21,6 +21,15 @@ import { GraphQL } from "./graphql";
 import { DbConnectionArg } from "./database/models/connectionArg";
 import { Database_FilesLoader } from "./files-runner/database-files";
 import { App_FilesLoader } from "./files-runner";
+import { Env_FilesLoader } from "./files-runner/env-files";
+
+
+/**
+ * environment variables
+ */
+export const processEnv = new ProcessEnv()
+export const appEnv = new AppEnv()
+new Env_FilesLoader()
 
 
 const packageJson =  parseJSON(PathVar.packageJson)
@@ -337,9 +346,3 @@ export const npAuthProfile = {
     oauth2: AuthController.oauth2
 }
 
-
-/**
- * environment variables
- */
-export const processEnv = new ProcessEnv()
-export const appEnv = new AppEnv()

@@ -39,7 +39,7 @@ class Migration extends common_2.FilesEngine {
                 return console.log(err);
             for (let query of connection_1.DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries)
                 user_interface_1.DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query);
-            new log_1.Log(`job ran for database '${res.config.database}'`).FgGreen().printValue();
+            new log_1.Log(`job ran for database '${res.config.database}' with selector '${this.dbConnectionSelector}'`).FgGreen().printValue();
             console.log("closing migration job ..\n");
         });
     }
@@ -53,7 +53,7 @@ class Migration extends common_2.FilesEngine {
                 return console.log(err);
             for (let query of connection_1.DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries)
                 user_interface_1.DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query);
-            new log_1.Log(`job ran for database '${res.config.database}'`).FgGreen().printValue();
+            new log_1.Log(`job ran for database '${res.config.database}' with selector '${this.dbConnectionSelector}'`).FgGreen().printValue();
             console.log("closing migration job ..\n");
         });
     }
@@ -76,7 +76,7 @@ class Migration extends common_2.FilesEngine {
                 return console.log(err);
             for (let query of connection_1.DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries)
                 user_interface_1.DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query);
-            new log_1.Log(`job ran for database '${res.config.database}'`).FgGreen().printValue();
+            new log_1.Log(`job ran for database '${res.config.database}' with selector '${this.dbConnectionSelector}'`).FgGreen().printValue();
             console.log("closing migration job ..\n");
         });
     }

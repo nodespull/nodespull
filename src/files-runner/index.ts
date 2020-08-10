@@ -9,7 +9,6 @@ import { Database_FilesLoader } from "./database-files"
 // load and complete runners in following order
 export class App_FilesLoader{
     constructor(){
-        new Env_FilesLoader()
         new Database_FilesLoader()
         new DB_Model_Rel_FilesLoader()
         new Module_FilesLoader()

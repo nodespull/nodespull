@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.appEnv = exports.processEnv = exports.npAuthProfile = exports.setAdapter_API_KEY = exports.Database = exports.config = exports.server = exports.http = exports.Router = exports.route = exports.appServer = exports.Pipe = exports.npService = exports.npRoute = exports.npModule = exports.DB_PORT_TEST = exports.PORT = void 0;
+exports.npAuthProfile = exports.setAdapter_API_KEY = exports.Database = exports.config = exports.server = exports.http = exports.Router = exports.route = exports.appServer = exports.Pipe = exports.npService = exports.npRoute = exports.npModule = exports.DB_PORT_TEST = exports.PORT = exports.appEnv = exports.processEnv = void 0;
 const install_1 = require("./install");
 const cli = __importStar(require("./cli"));
 const express_1 = __importDefault(require("express"));
@@ -54,6 +54,13 @@ const auth_1 = require("./auth");
 const graphql_1 = require("./graphql");
 const database_files_1 = require("./files-runner/database-files");
 const files_runner_1 = require("./files-runner");
+const env_files_1 = require("./files-runner/env-files");
+/**
+ * environment variables
+ */
+exports.processEnv = new environment_1.ProcessEnv();
+exports.appEnv = new environment_1.AppEnv();
+new env_files_1.Env_FilesLoader();
 const packageJson = json_1.parseJSON(paths_1.PathVar.packageJson);
 exports.PORT = 8888;
 exports.DB_PORT_TEST = 3332;
@@ -356,8 +363,3 @@ exports.npAuthProfile = {
      */
     oauth2: auth_1.AuthController.oauth2
 };
-/**
- * environment variables
- */
-exports.processEnv = new environment_1.ProcessEnv();
-exports.appEnv = new environment_1.AppEnv();
