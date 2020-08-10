@@ -33,9 +33,9 @@ class DB_Model_Rel_FilesLoader extends common_1.FilesEngine {
                 super.recursiveSearch(targetFolderPath, "attribute.js", { runFiles: true });
                 super.recursiveSearch(targetFolderPath, "relation.js", { runFiles: true });
             }
+            if (args && connection_1.DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRunning && args.overwrite_newStageScripts)
+                this.updateStageFiles();
         }
-        if (args && connection_1.DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRunning && args.overwrite_newStageScripts)
-            this.updateStageFiles();
         else {
             super.recursiveSearch(paths_1.PathVar.dbModule + "/" + this.dbPath, "attribute.js", { runFiles: true });
             super.recursiveSearch(paths_1.PathVar.dbModule + "/" + this.dbPath, "relation.js", { runFiles: true });

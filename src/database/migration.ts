@@ -71,8 +71,8 @@ export class Migration extends FilesEngine{
         new DB_Model_Rel_FilesLoader({dbConnectionSelector:this.dbConnectionSelector})
         DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.sync({alter:true}).then((res:any, err:any)=>{
             if(err) return console.log(err)
-            for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries) 
-            DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
+            for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries)
+                DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
             new Log(`job ran for database '${res.config.database}'`).FgGreen().printValue()
             console.log("closing migration job ..\n")
         })

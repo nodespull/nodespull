@@ -28,8 +28,8 @@ export class DB_Model_Rel_FilesLoader extends FilesEngine{
                 super.recursiveSearch(targetFolderPath, "attribute.js", {runFiles:true});
                 super.recursiveSearch(targetFolderPath, "relation.js", {runFiles:true});
             }
+            if(args && DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRunning && args.overwrite_newStageScripts) this.updateStageFiles()
         }
-        if(args && DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRunning && args.overwrite_newStageScripts) this.updateStageFiles()
         else{
             super.recursiveSearch(PathVar.dbModule+"/"+this.dbPath, "attribute.js", {runFiles:true});
             super.recursiveSearch(PathVar.dbModule+"/"+this.dbPath, "relation.js", {runFiles:true});

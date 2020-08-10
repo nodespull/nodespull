@@ -26,7 +26,7 @@ export class Log {
     printValue():void { console.log(this.message)}
     
     throwError():void{ console.error("\x1b[31m",new Error(this.message), "\x1b[0m") }
-    throwWarn():void{ console.warn("\x1b[33m", "\nWarn: "+this.message, "\x1b[0m") }
+    throwWarn():void{ console.warn("\x1b[33m", "Warn: "+this.message, "\x1b[0m") }
 
     FgRed():Log{ this.applyFgFormat("\x1b[31m"); return this }
     FgGreen():Log{ this.applyFgFormat("\x1b[32m"); return this}
