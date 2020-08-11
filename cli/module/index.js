@@ -23,7 +23,7 @@ function newModule(moduleName) {
         let moduleVarName = moduleName.toLowerCase();
         if (moduleName.slice(-1 * "Module".length) != "Module")
             moduleVarName = moduleVarName.toLowerCase() + "Module";
-        let moduleFileName = moduleVarName.substr(0, moduleVarName.length - 1 * "Module".length) + ".module.js";
+        let moduleFileName = moduleVarName.substr(0, moduleVarName.length - 1 * "Module".length) + ".mod.js";
         let moduleDirName = moduleVarName.substr(0, moduleVarName.length - 1 * "Module".length) + "-module";
         exe_log_1.cmd("mkdir", ["-p", root + "/" + moduleDirName]);
         exe_log_1.cmd("mkdir", ["-p", root + "/" + moduleDirName + "/services"]);

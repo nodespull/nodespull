@@ -59,7 +59,7 @@ function getTemplate(moduleName:string, routeName:string,template:Function, file
 export async function newRoute(name:string){
     let args = name.split("/");
     let moduleVarName:string = "mainModule"
-    if(args[0].toLowerCase().includes(".module")){
+    if(args[0].toLowerCase().includes(".module") || args[0].toLowerCase().includes(".mod")){
         moduleVarName = args[0].toLowerCase().split(".")[0]+"Module"
         args = args.slice(1)
     }

@@ -6,9 +6,9 @@ function del(path, moduleVarName, locationDepth) {
     name = name.split("-").join("_"); // remove dashes
     if (js_reserved_words_1.JSReservedWords.getList().includes(name))
         name = "_" + name; // put underscore in front of js reserved words
-    let moduleFileName = moduleVarName.substr(0, moduleVarName.length - 1 * "Module".length) + ".module";
+    let moduleFileName = moduleVarName.substr(0, moduleVarName.length - 1 * "Module".length) + ".mod";
     return `const { http, Database, npRoute, Pipe } = require("@nodespull/core")
-const { hash, jwt, oauth2 } = require("@nodespull/core/crypt")
+const { hash, oauth2, jwt } = require("@nodespull/core/crypt")
 const { ${moduleVarName} } = require("${'../'.repeat(locationDepth) + moduleFileName}")
 
 

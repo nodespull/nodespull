@@ -1,6 +1,6 @@
 
 export default function getOauth2Template(authSelector:string):string{
-    return `const { npAuthProfile } = require("@nodespull/core/crypt")
+    return `const { npAuthProfile } = require("@nodespull/core")
 
 
 npAuthProfile.oauth2({

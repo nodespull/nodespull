@@ -5,7 +5,7 @@ export default function post(path:string, moduleVarName:string, locationDepth:nu
     let name = path.split("/").pop()// remove slash, get last
     name  = name!.split("-").join("_"); // remove dashes
     if(JSReservedWords.getList().includes(name)) name = "_"+name // put underscore in front of js reserved words
-    let moduleFileName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+".module"
+    let moduleFileName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+".mod"
 
     return `const { http, Database, npRoute, Pipe } = require("@nodespull/core")
 const { hash, jwt, oauth2 } = require("@nodespull/core/crypt")

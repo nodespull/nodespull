@@ -19,8 +19,8 @@ class DB_Model_Rel_FilesLoader extends common_1.FilesEngine {
         this.tableNames_definitions_map = {}; // used to store the "at.vx" definitions and update "stage.vx" files
         this.tableNames_relations_map = {};
         this.dbPath = "";
-        this.dbPath = args.dbConnectionSelector + "-db";
-        if (args && connection_1.DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRunning) {
+        if (args.dbConnectionSelector && connection_1.DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRunning) {
+            this.dbPath = args.dbConnectionSelector + "-db";
             let targetFolderPath;
             if (connection_1.DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRevertMode)
                 targetFolderPath = this.getFolderPath(paths_1.PathVar.dbModule + "/" + this.dbPath, "stage.v"); // migration down scripts are in this folder

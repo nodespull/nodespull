@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function getOauth2Template(authSelector) {
-    return `const { npAuthProfile } = require("@nodespull/core/crypt")
+    return `const { npAuthProfile } = require("@nodespull/core")
 
 
 npAuthProfile.oauth2({

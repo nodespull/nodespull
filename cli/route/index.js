@@ -60,7 +60,7 @@ function newRoute(name) {
     return __awaiter(this, void 0, void 0, function* () {
         let args = name.split("/");
         let moduleVarName = "mainModule";
-        if (args[0].toLowerCase().includes(".module")) {
+        if (args[0].toLowerCase().includes(".module") || args[0].toLowerCase().includes(".mod")) {
             moduleVarName = args[0].toLowerCase().split(".")[0] + "Module";
             args = args.slice(1);
         }

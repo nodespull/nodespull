@@ -9,7 +9,7 @@ const root = PathVar.appModule;
 export async function newModule(moduleName:string){
     let moduleVarName = moduleName.toLowerCase()
     if(moduleName.slice(-1*"Module".length) != "Module") moduleVarName = moduleVarName.toLowerCase()+"Module"
-    let moduleFileName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+".module.js"
+    let moduleFileName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+".mod.js"
     let moduleDirName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+"-module"
 
     cmd("mkdir", ["-p", root+"/"+moduleDirName]);

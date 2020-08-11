@@ -2,6 +2,7 @@
 import jwt from "jsonwebtoken"
 import { JwtAuthProfileInterface, npJWTGuard } from "./interface";
 import { Log } from "../../etc/log";
+import { JwtAlg } from "..";
 
 
 export class npJWT{
@@ -25,7 +26,7 @@ export class npJWT{
     createTokenWith(userData:object):string{
         let token:string
         switch(this._args.algorithm){
-            case(JWTAlgType.HS256): token = JWTAlgModel.HS256.sign(userData, this._args)
+            case(JwtAlg.HS256): token = JWTAlgModel.HS256.sign(userData, this._args)
             default: token = JWTAlgModel.HS256.sign(userData, this._args)
         }
         return token
@@ -54,7 +55,7 @@ export class npJWT{
         let token = authorization?req.header("Authorization").split(" ")[1]:undefined; //remove 'Bearer'
         if(token) {
             switch(this._args.algorithm){
-                case(JWTAlgType.HS256): JWTAlgModel.HS256.verify(token, this._args, checkConfigAndReply)
+                case(JwtAlg.HS256): JWTAlgModel.HS256.verify(token, this._args, checkConfigAndReply)
                 default: token = JWTAlgModel.HS256.verify(token, this._args, checkConfigAndReply)
             }
         }
@@ -62,14 +63,6 @@ export class npJWT{
     };
     
 
-}
-
-
-/**
- * list of jwt algorithms
- */
-export enum JWTAlgType{
-    HS256 = "hs256"
 }
 
 
@@ -84,7 +77,7 @@ class JWTAlgModel {
         },
         sign: (data:object, args:JwtAuthProfileInterface):string=>{
             JWTAlgModel.HS256.beforeAll(args)
-            return jwt.sign(data, args.secret!, {expiresIn: args.expiresIn})   
+            return jwt.sign(data, args.secret!, {expiresIn: args.expiresIn.duration_sec})   
         },
         verify: (token:string, args:JwtAuthProfileInterface, callback:Function):void=>{
             JWTAlgModel.HS256.beforeAll(args)

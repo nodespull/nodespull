@@ -3,9 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.JWTAlgType = exports.npJWT = void 0;
+exports.npJWT = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const log_1 = require("../../etc/log");
+const __1 = require("..");
 class npJWT {
     constructor(_args) {
         this._args = _args;
@@ -25,7 +26,7 @@ class npJWT {
     createTokenWith(userData) {
         let token;
         switch (this._args.algorithm) {
-            case (JWTAlgType.HS256): token = JWTAlgModel.HS256.sign(userData, this._args);
+            case (__1.JwtAlg.HS256): token = JWTAlgModel.HS256.sign(userData, this._args);
             default: token = JWTAlgModel.HS256.sign(userData, this._args);
         }
         return token;
@@ -57,7 +58,7 @@ class npJWT {
         let token = authorization ? req.header("Authorization").split(" ")[1] : undefined; //remove 'Bearer'
         if (token) {
             switch (this._args.algorithm) {
-                case (JWTAlgType.HS256): JWTAlgModel.HS256.verify(token, this._args, checkConfigAndReply);
+                case (__1.JwtAlg.HS256): JWTAlgModel.HS256.verify(token, this._args, checkConfigAndReply);
                 default: token = JWTAlgModel.HS256.verify(token, this._args, checkConfigAndReply);
             }
         }
@@ -67,13 +68,6 @@ class npJWT {
     ;
 }
 exports.npJWT = npJWT;
-/**
- * list of jwt algorithms
- */
-var JWTAlgType;
-(function (JWTAlgType) {
-    JWTAlgType["HS256"] = "hs256";
-})(JWTAlgType = exports.JWTAlgType || (exports.JWTAlgType = {}));
 /**
  * implementation of JWT algorithms
  */
@@ -87,7 +81,7 @@ let JWTAlgModel = /** @class */ (() => {
         },
         sign: (data, args) => {
             JWTAlgModel.HS256.beforeAll(args);
-            return jsonwebtoken_1.default.sign(data, args.secret, { expiresIn: args.expiresIn });
+            return jsonwebtoken_1.default.sign(data, args.secret, { expiresIn: args.expiresIn.duration_sec });
         },
         verify: (token, args, callback) => {
             JWTAlgModel.HS256.beforeAll(args);

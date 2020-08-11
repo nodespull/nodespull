@@ -1,4 +1,5 @@
 import { npJWT } from "./jwt";
+import { DurationInstance } from "..";
 
 export interface AuthProfile {
 
@@ -8,7 +9,7 @@ export interface npJWTGuard extends npJWT{}
 
 export interface JwtAuthProfileInterface{
     selector: string,
-    expiresIn: number, //seconds
+    expiresIn: DurationInstance, //seconds
     algorithm: string,
     secret?: string,
     privateKey?: string,
