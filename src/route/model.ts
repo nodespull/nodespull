@@ -1,4 +1,4 @@
-import { npJWT } from "../auth/models/jwt";
+import { npJWT } from "../crypt/models/jwt";
 
 
 export interface routeHandlerArg_interface {

@@ -60,16 +60,16 @@ function newRoute(name) {
     return __awaiter(this, void 0, void 0, function* () {
         let args = name.split("/");
         let moduleVarName = "mainModule";
-        if (args[0].toLowerCase().includes(".module")) {
+        if (args[0].toLowerCase().includes(".module") || args[0].toLowerCase().includes(".mod")) {
             moduleVarName = args[0].toLowerCase().split(".")[0] + "Module";
             args = args.slice(1);
         }
         let fileName = "";
         let fileName_withUnderscore = "";
-        let routeDirPath = "main-module/rest";
+        let routeDirPath = "main-module/routes";
         if (moduleVarName != "mainModule") {
             let moduleDirName = moduleVarName.substr(0, moduleVarName.length - 1 * "Module".length) + "-module";
-            routeDirPath = moduleDirName + "/rest";
+            routeDirPath = moduleDirName + "/routes";
         }
         while (args.length > 0) {
             let e = args.shift();

@@ -1,6 +1,6 @@
 import express from "express"
 import {Application} from "express"
-import { npJWT } from "../auth/models/jwt";
+import { npJWT } from "../crypt/models/jwt";
 import { routeHandlerArg_interface } from "./model";
 
 

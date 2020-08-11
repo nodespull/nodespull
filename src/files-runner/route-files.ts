@@ -2,7 +2,7 @@ import { FilesEngine } from "./common" ;
 import { PathVar } from "../etc/other/paths"
 
 
-export class Route_FilesRunner extends FilesEngine{
+export class RestRoute_FilesLoader extends FilesEngine{
     constructor(){
         super()
         super.recursiveSearch(PathVar.appModule, "delete.js", {runFiles:true});

@@ -2,7 +2,7 @@ import { npServiceInterface, npModuleUserInterface, npRouteInterface, npModuleSe
 import { http } from "../server"
 import { Log } from "../etc/log"
 import cloneObject from "../etc/system-tools/clone-object"
-import { npJWT } from "../auth/models/jwt"
+import { npJWT } from "../crypt/models/jwt"
 import { routeHandlerArg_interface } from "../route/model"
 
 export class npModule {
@@ -11,7 +11,7 @@ export class npModule {
 
     constructor(
         public _name: string,
-        public _isModuleActive: boolean | undefined,
+        public _loadRoutes: boolean | undefined,
         public _jwtProfile: npJWT | null,
         public _importedModules: npModule[]) {
             // propagate importedModules' services to this module
@@ -38,7 +38,7 @@ export class npModule {
         // load route into nodespull module
         this._route[route.method.name + ":" + route.path] = route
         // load route into nodespull router
-        route.isRouteActive = route.isRouteActive!=undefined?route.isRouteActive:(this._isModuleActive!=undefined?this._isModuleActive:false)
+        route.isRouteActive = route.isRouteActive!=undefined?route.isRouteActive:(this._loadRoutes!=undefined?this._loadRoutes:false)
         let routeArgs: routeHandlerArg_interface = {
             handler: route.handler, 
             isRouteActive: route.isRouteActive, 

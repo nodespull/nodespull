@@ -6,7 +6,8 @@ export class npModuleController{
     static registeredModules:npModule[] = []
 
     static handler(args:npModuleArgInterface):npModule{
-        let newModule = new npModule(args.name, args.isModuleActive, args.jwtProfile, args.imports)
+        args.jwtProfile = args.useGuard
+        let newModule = new npModule(args.name, args.loadRoutes, args.jwtProfile, args.imports)
         npModuleController.registeredModules.push(newModule)
         return newModule
     }

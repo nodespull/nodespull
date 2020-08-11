@@ -1,7 +1,7 @@
 
 export default function get(path:string):string{
     return `{
-    "${path}/{uuid}":{
+    "${path}":{
         "get":{
             "summary": "no summary",
             "description":"no description",

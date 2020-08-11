@@ -20,7 +20,6 @@ const paths_1 = require("../../etc/other/paths");
 const service_template_1 = __importDefault(require("./templates/service.template"));
 const service_boot_template_1 = __importDefault(require("./templates/service.boot.template"));
 const service_pipe_template_1 = __importDefault(require("./templates/service.pipe.template"));
-const service_socket_template_1 = __importDefault(require("./templates/service.socket.template"));
 const validOptions = ["--boot", "-b", "--pipe", "-p", "--socket", "-s", "--default"];
 function newService(args) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -70,13 +69,13 @@ function newService(args) {
                 fs_1.default.writeFile(serviceFileRef, service_pipe_template_1.default(serviceVarName, moduleVarName), () => { });
                 break;
             }
-            case "--socket":
-            case "-s": {
-                serviceFileRef = servicePath + "/socket/" + serviceVarName + ".service.js";
-                exe_log_1.cmd("touch", [serviceFileRef]);
-                fs_1.default.writeFile(serviceFileRef, service_socket_template_1.default(serviceVarName, moduleVarName), () => { });
-                break;
-            }
+            // case "--socket":
+            // case "-s": {
+            //     serviceFileRef = servicePath+"/socket/"+serviceVarName+".service.js"
+            //     cmd("touch",[serviceFileRef])
+            //     fs.writeFile(serviceFileRef, getSocketTemplate(serviceVarName, moduleVarName), ()=>{})
+            //     break
+            // }
             default: {
                 serviceFileRef = servicePath + "/generic/" + serviceVarName + ".service.js";
                 exe_log_1.cmd("touch", [serviceFileRef]);

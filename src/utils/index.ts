@@ -1,6 +1,6 @@
 
 import {Hash_Algorithm} from "../etc/system-tools/hash"
-import { AuthController } from "../auth";
+import { AuthController } from "../crypt";
 
 
 

@@ -12,10 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.error = exports.getCmd = exports.start = void 0;
 const stdin_1 = require("../etc/system-tools/stdin");
 const route_1 = require("./route");
-const sql_1 = require("./db/sql");
+const db_1 = require("./database/db");
+const table_1 = require("./database/table");
 const module_1 = require("./module");
 const service_1 = require("./service");
 const log_1 = require("../etc/log");
+const auth_1 = require("./auth");
 let stdinInterface;
 function start() {
     new log_1.Log(`\n*** Nodespull Interactive Mode ***  \n(enter 'help' for info)`).printValue();
@@ -72,11 +74,25 @@ function getCmd(input, loop) {
                         yield service_1.newService(args.slice(2));
                     else
                         throw exports.error.falseCmd;
-                    new log_1.Log("\nService \"" + name + "\" successfully created").FgGreen().printValue();
+                    new log_1.Log("\nService \"" + args[3] + "\" successfully created").FgGreen().printValue();
+                    break;
+                case "profile":
+                    if (createCmd.includes(userCmd))
+                        yield auth_1.newAuthProfile(args.slice(2));
+                    else
+                        throw exports.error.falseCmd;
+                    new log_1.Log("\nAuth Profile \"" + args[3] + "\" successfully created").FgGreen().printValue();
+                    break;
+                case "database":
+                    if (createCmd.includes(userCmd))
+                        yield db_1.newDatabase(name);
+                    else
+                        throw exports.error.falseCmd;
+                    new log_1.Log("\nDatabase \"" + name + "\" successfully created").FgGreen().printValue();
                     break;
                 case "table":
                     if (createCmd.includes(userCmd))
-                        yield sql_1.newTable(name);
+                        yield table_1.newTable(args[2]);
                     else
                         throw exports.error.falseCmd;
                     new log_1.Log("\nTable \"" + name + "\" successfully created").FgGreen().printValue();
@@ -100,10 +116,12 @@ function help() {
 commands:
     Create
     Use the 'create' or 'c' command as follow:
-        create module  <name>       : generate module
-        create table   <name>       : generate database table/model
-        create service <name>       : generate service
-        create route   <path/path>  : generate route at path <path/path>
+        create module   <name>                   : generate module
+        create database <name>                   : generate route at path <path/path>
+        create table    <selector.database/name> : generate table/model for specified db
+        create service  <name>                   : generate service
+        create profile  <name>                   : generate auth profile
+        create route    <path/path>              : generate route at path <path/path>
 
     To target modules, add the module name before the name of the element as follow:
     - i.e. create <entity> <moduleName>.module/<entityName>
@@ -115,6 +133,12 @@ commands:
         --pipe | -p     : generate pipe-usable service
     e.g. create service -b core.module/socket
 
+    Auth Profile
+    The 'profile' entity uses the flags:
+        --jwt           : generate jwt auth profile
+        --oauth2 |      : generate oauth2 auth profile
+    e.g. create profile --jwt main
+
     
     q | quit | exit        : exit nodespull cli
     h | help | info | ?    : view available commands`);
@@ -124,7 +148,7 @@ function exit() {
     new log_1.Log("Exiting Interactive mode...").FgBlue().printValue();
 }
 exports.error = {
-    falseCmd: "ERR: Command not recognized. Enter `help` for info.",
-    falseNameFormat: "ERR: Name format incorrect.",
-    wrongUsage: "ERR: command usage incorrect"
+    falseCmd: new log_1.Log("ERR: Command not recognized. Enter `help` for info").FgRed().getValue(),
+    falseNameFormat: new log_1.Log("ERR: Name format incorrect").FgRed().getValue(),
+    wrongUsage: new log_1.Log("ERR: command usage incorrect").FgRed().getValue()
 };

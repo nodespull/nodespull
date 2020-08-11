@@ -1,11 +1,20 @@
-import { DB_SQL_FilesRunner } from "./db-sql-files"
-import { Module_FilesRunner } from "./module-files"
-import { Service_FilesRunner } from "./service-files"
-import { Route_FilesRunner } from "./route-files"
+import { DB_Model_Rel_FilesLoader } from "./db-model-rel-files"
+import { Module_FilesLoader } from "./module-files"
+import { Service_FilesLoader } from "./service-files"
+import { RestRoute_FilesLoader } from "./route-files"
+import { Env_FilesLoader } from "./env-files"
+import { Database_FilesLoader } from "./database-files"
+import { Auth_FilesLoader } from "./auth-files"
 
 
 // load and complete runners in following order
-new DB_SQL_FilesRunner()
-new Module_FilesRunner()
-new Service_FilesRunner()
-new Route_FilesRunner()
+export class App_FilesLoader{
+    constructor(){
+        new Database_FilesLoader()
+        new Auth_FilesLoader()
+        new DB_Model_Rel_FilesLoader({dbConnectionSelector:null})
+        new Module_FilesLoader()
+        new Service_FilesLoader()
+        new RestRoute_FilesLoader()
+    }
+}

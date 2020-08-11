@@ -8,9 +8,9 @@ const fs_1 = __importDefault(require("fs"));
 const common_1 = require("./common");
 const controller_1 = __importDefault(require("../database/controller"));
 const log_1 = require("../etc/log");
-const common_2 = require("../cli/db/sql/common");
-const x_stage_model_1 = __importDefault(require("../cli/db/sql/templates/x_stage.model"));
-const x_stage_relation_1 = __importDefault(require("../cli/db/sql/templates/x_stage.relation"));
+const common_2 = require("../_cli/db/sql/common");
+const x_stage_model_1 = __importDefault(require("../_cli/db/sql/templates/x_stage.model"));
+const x_stage_relation_1 = __importDefault(require("../_cli/db/sql/templates/x_stage.relation"));
 const paths_1 = require("../etc/other/paths");
 class DB_SQL_FilesRunner extends common_1.FilesEngine {
     constructor(option) {

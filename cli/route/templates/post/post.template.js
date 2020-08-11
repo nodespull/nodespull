@@ -6,10 +6,11 @@ function post(path, moduleVarName, locationDepth) {
     name = name.split("-").join("_"); // remove dashes
     if (js_reserved_words_1.JSReservedWords.getList().includes(name))
         name = "_" + name; // put underscore in front of js reserved words
-    let moduleFileName = moduleVarName.substr(0, moduleVarName.length - 1 * "Module".length) + ".module";
+    let moduleFileName = moduleVarName.substr(0, moduleVarName.length - 1 * "Module".length) + ".mod";
     return `const { http, Database, npRoute, Pipe } = require("@nodespull/core")
-const { Hash, Session } = require("@nodespull/core/utils")
+const { hash, jwt, oauth2 } = require("@nodespull/core/crypt")
 const { ${moduleVarName} } = require("${'../'.repeat(locationDepth) + moduleFileName}")
+
 
 
 const $ = npRoute({
@@ -17,9 +18,7 @@ const $ = npRoute({
     method: http.POST,
     handler: ${name}Handler,
     path: "${path}",
-    urlParams: [],
-    isRouteActive: undefined,
-    isRouteProtected: undefined,
+    urlParams: []
 })
 
 /**
@@ -27,15 +26,8 @@ const $ = npRoute({
  * @param {Response} res response contains http methods
  */
 function ${name}Handler(req, res) {
-    /** @type {json} */ let client = req.session;
-    /** @type {json} */ let params = req.params;
-    /** @type {json} */ let query = req.query;
-    /** @type {json} */ let body = req.body;
-    /* ------------------------------------------ */
-
     
     res.send("post:${path} works")
-
 
 }
 `;

@@ -27,7 +27,7 @@ const app_env_1 = __importDefault(require("./templates/app-env"));
 const paths_1 = require("./etc/other/paths");
 exports.rootFile_name = "server.js";
 exports.project_name = "";
-function install(projectName, serverPort, pull_all, setupDb, dbTools, dbConstroller) {
+function install(projectName, serverPort, pull_all) {
     return __awaiter(this, void 0, void 0, function* () {
         exports.project_name = projectName;
         console.log("\n** nodespull setup **\n");
@@ -36,20 +36,20 @@ function install(projectName, serverPort, pull_all, setupDb, dbTools, dbConstrol
             yield install_others(serverPort);
         console.log("\n.. 100% - complete.\n");
         // await run("readme", "open", ["-a", "TextEdit", "nodespull-README.md"],(ok:boolean,data?:any)=>{})
-        setupDb(dbConstroller);
+        //setupDb(dbConstroller);
     });
 }
 exports.install = install;
 function install_core() {
     return __awaiter(this, void 0, void 0, function* () {
         // installs for os (docker files) and np's npm dependencies
-        yield run("mkdir sys", "mkdir", ["-p", paths_1.PathVar.etc_os_dir], (ok, data) => { });
-        yield run("npm MySQL2", "sudo", ["npm", "i", "mysql2"], (ok, data) => { });
+        yield run("sys config", "mkdir", ["-p", paths_1.PathVar.etc_os_dir], (ok, data) => { });
+        yield run("MySQL2 setup", "sudo", ["npm", "i", "mysql2"], (ok, data) => { });
         //database
-        yield run("create np database", "mkdir", ["-p", paths_1.PathVar.dbModule + "/SQL"], (ok, data) => { });
-        yield run("database", "mkdir", ["-p", paths_1.PathVar.dbModule + "/noSQL"], (ok, data) => { });
+        yield run("config database MS", "mkdir", ["-p", paths_1.PathVar.dbModule], (ok, data) => { });
+        // await run("database", "mkdir", ["-p", PathVar.dbModule+"/noSQL"],(ok:boolean,data?:any)=>{})
         //app env
-        yield run("create np appEnvir", "mkdir", ["-p", paths_1.PathVar.appEnvModule], (ok, data) => {
+        yield run("setup np appEnvir", "mkdir", ["-p", paths_1.PathVar.appEnvModule], (ok, data) => {
             run("app local env", "touch", [paths_1.PathVar.appEnvModule + "/app.local.env.js"], (ok, data) => {
                 if (ok)
                     fs.writeFile(paths_1.PathVar.appEnvModule + "/app.local.env.js", app_env_1.default("local"), () => { });
@@ -59,6 +59,8 @@ function install_core() {
                     fs.writeFile(paths_1.PathVar.appEnvModule + "/app.prod.env.js", app_env_1.default("prod"), () => { });
             });
         });
+        yield run("config jwt auth profile", "mkdir", ["-p", paths_1.PathVar.root + "/auth/jwt"], (ok, data) => { });
+        yield run("config oauth auth profile", "mkdir", ["-p", paths_1.PathVar.root + "/auth/oauth2"], (ok, data) => { });
         // main module
         yield run("create app files", "mkdir", ["-p", paths_1.PathVar.appModule], (ok, data) => { });
         cli_1.getCmd("c module main", false);

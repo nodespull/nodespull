@@ -1,10 +1,12 @@
 import {customStdinResponse, userInput} from "../etc/system-tools/stdin"
 import {newRoute} from "./route"
-import {newTable} from "./db/sql"
+import { newDatabase } from "./database/db";
+import { newTable } from "./database/table"
 import { newModule } from "./module";
 import { newService } from "./service";
 import { Log } from "../etc/log";
 import { cliStack } from "../etc/system-tools/stdin";
+import { newAuthProfile } from "./auth";
 
 let stdinInterface:customStdinResponse
 
@@ -56,10 +58,20 @@ export async function getCmd(input:string, loop:boolean){
             case "service": 
                 if(createCmd.includes(userCmd)) await newService(args.slice(2));
                 else throw error.falseCmd;
-                new Log("\nService \""+ name+"\" successfully created").FgGreen().printValue()
+                new Log("\nService \""+ args[3]+"\" successfully created").FgGreen().printValue()
+                break;
+            case "profile": 
+                if(createCmd.includes(userCmd)) await newAuthProfile(args.slice(2));
+                else throw error.falseCmd;
+                new Log("\nAuth Profile \""+ args[3]+"\" successfully created").FgGreen().printValue()
+                break;
+            case "database": 
+                if(createCmd.includes(userCmd)) await newDatabase(name);
+                else throw error.falseCmd;
+                new Log("\nDatabase \""+ name+"\" successfully created").FgGreen().printValue()
                 break;
             case "table": 
-                if(createCmd.includes(userCmd)) await newTable(name);
+                if(createCmd.includes(userCmd)) await newTable(args[2]);
                 else throw error.falseCmd;
                 new Log("\nTable \""+ name+"\" successfully created").FgGreen().printValue()
                 break;
@@ -80,10 +92,12 @@ function help(){
 commands:
     Create
     Use the 'create' or 'c' command as follow:
-        create module  <name>       : generate module
-        create table   <name>       : generate database table/model
-        create service <name>       : generate service
-        create route   <path/path>  : generate route at path <path/path>
+        create module   <name>                   : generate module
+        create database <name>                   : generate route at path <path/path>
+        create table    <selector.database/name> : generate table/model for specified db
+        create service  <name>                   : generate service
+        create profile  <name>                   : generate auth profile
+        create route    <path/path>              : generate route at path <path/path>
 
     To target modules, add the module name before the name of the element as follow:
     - i.e. create <entity> <moduleName>.module/<entityName>
@@ -94,6 +108,12 @@ commands:
         --boot | -b     : generate self-booting service
         --pipe | -p     : generate pipe-usable service
     e.g. create service -b core.module/socket
+
+    Auth Profile
+    The 'profile' entity uses the flags:
+        --jwt           : generate jwt auth profile
+        --oauth2 |      : generate oauth2 auth profile
+    e.g. create profile --jwt main
 
     
     q | quit | exit        : exit nodespull cli
@@ -109,7 +129,7 @@ function exit(){
 
 
 export const error = {
-    falseCmd: "ERR: Command not recognized. Enter `help` for info.",
-    falseNameFormat: "ERR: Name format incorrect.",
-    wrongUsage: "ERR: command usage incorrect"
+    falseCmd: new Log("ERR: Command not recognized. Enter `help` for info").FgRed().getValue(),
+    falseNameFormat: new Log("ERR: Name format incorrect").FgRed().getValue(),
+    wrongUsage: new Log("ERR: command usage incorrect").FgRed().getValue()
 }
