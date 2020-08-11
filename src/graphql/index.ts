@@ -1,5 +1,5 @@
 import { Application } from "express";
-import expressGraphql from "express-graphql"
+// import expressGraphql from "express-graphql"
 
 export class GraphQL {
     static isActive:boolean = false

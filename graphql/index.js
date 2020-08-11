@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GraphQL = void 0;
+// import expressGraphql from "express-graphql"
 let GraphQL = /** @class */ (() => {
     class GraphQL {
         static setup(app) {

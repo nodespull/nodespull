@@ -17,6 +17,7 @@ const table_1 = require("./database/table");
 const module_1 = require("./module");
 const service_1 = require("./service");
 const log_1 = require("../etc/log");
+const stdin_2 = require("../etc/system-tools/stdin");
 const auth_1 = require("./auth");
 let stdinInterface;
 function start() {
@@ -33,6 +34,8 @@ function main() {
 }
 function getCmd(input, loop) {
     return __awaiter(this, void 0, void 0, function* () {
+        if (input != stdin_2.cliStack[stdin_2.cliStack.length - 1] && input.length > 0)
+            stdin_2.cliStack.push(input);
         if (input == "clear") {
             stdinInterface.interface.removeAllListeners();
             stdinInterface.interface.close();
