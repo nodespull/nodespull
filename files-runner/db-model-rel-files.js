@@ -37,8 +37,16 @@ class DB_Model_Rel_FilesLoader extends common_1.FilesEngine {
                 this.updateStageFiles();
         }
         else {
-            super.recursiveSearch(paths_1.PathVar.dbModule + "/" + this.dbPath, "attribute.js", { runFiles: true });
-            super.recursiveSearch(paths_1.PathVar.dbModule + "/" + this.dbPath, "relation.js", { runFiles: true });
+            const dbFolderPaths = fs_1.default.readdirSync(paths_1.PathVar.dbModule + "/" + this.dbPath, { withFileTypes: true })
+                .filter(dirent => !dirent.isFile())
+                .map(dirent => dirent.name);
+            for (let dbFolderPath of dbFolderPaths) {
+                let targetFolderPath = this.getFolderPath(paths_1.PathVar.dbModule + "/" + this.dbPath + "/" + dbFolderPath, "at.v");
+                if (!targetFolderPath)
+                    throw new log_1.Log("missing folder with prefix 'at.v' in " + dbFolderPath).getValue();
+                super.recursiveSearch(targetFolderPath, "attribute.js", { runFiles: true });
+                super.recursiveSearch(targetFolderPath, "relation.js", { runFiles: true });
+            }
         }
     }
     /**

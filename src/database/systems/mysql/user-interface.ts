@@ -81,6 +81,7 @@ export class DatabaseUserPortal_mySQL implements DatabaseUserPortalInterface{
         return new Table(DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.model(name));
     }
 
+    getSequelize = ()=>{ return DatabaseConnectionController.connections[this.connectionSelector].ORM.interface}
 
     /**
      * Upload database version
@@ -88,7 +89,8 @@ export class DatabaseUserPortal_mySQL implements DatabaseUserPortalInterface{
      */
     onUpload = (actions:Function)=>{
         if(
-            !DatabaseConnectionController.connections[this.connectionSelector].migration.isRunning || 
+            // !DatabaseConnectionController.connections[this.connectionSelector].migration.isRunning || 
+            !DatabaseConnectionController.connections[this.connectionSelector].conf.isActive ||
             DatabaseConnectionController.connections[this.connectionSelector].migration.isRevertMode) return;
         actions()
     }
@@ -98,7 +100,8 @@ export class DatabaseUserPortal_mySQL implements DatabaseUserPortalInterface{
      */
     onRevert = (actions:Function)=>{
         if(
-            !DatabaseConnectionController.connections[this.connectionSelector].migration.isRunning || 
+            // !DatabaseConnectionController.connections[this.connectionSelector].migration.isRunning || 
+            !DatabaseConnectionController.connections[this.connectionSelector].conf.isActive ||
             !DatabaseConnectionController.connections[this.connectionSelector].migration.isRevertMode) return;
         actions()
     }

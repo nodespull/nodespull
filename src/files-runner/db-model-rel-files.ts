@@ -31,8 +31,15 @@ export class DB_Model_Rel_FilesLoader extends FilesEngine{
             if(args && DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRunning && args.overwrite_newStageScripts) this.updateStageFiles()
         }
         else{
-            super.recursiveSearch(PathVar.dbModule+"/"+this.dbPath, "attribute.js", {runFiles:true});
-            super.recursiveSearch(PathVar.dbModule+"/"+this.dbPath, "relation.js", {runFiles:true});
+            const dbFolderPaths:string[] = fs.readdirSync(PathVar.dbModule+"/"+this.dbPath, { withFileTypes: true })
+                .filter(dirent => !dirent.isFile())
+                .map(dirent => dirent.name);
+            for(let dbFolderPath of dbFolderPaths){
+                let targetFolderPath = this.getFolderPath(PathVar.dbModule+"/"+this.dbPath+"/"+dbFolderPath, "at.v")
+                if(!targetFolderPath) throw new Log("missing folder with prefix 'at.v' in "+dbFolderPath).getValue()
+                super.recursiveSearch(targetFolderPath, "attribute.js", {runFiles:true});
+                super.recursiveSearch(targetFolderPath, "relation.js", {runFiles:true});
+            }
         }
     }
 

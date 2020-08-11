@@ -85,12 +85,15 @@ class DatabaseUserPortal_mySQL {
             // if(!DB_Controller.ORM)error.db.modelNotSaved();
             return new Table_1.Table(connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.model(name));
         };
+        this.getSequelize = () => { return connection_1.DatabaseConnectionController.connections[this.connectionSelector].ORM.interface; };
         /**
          * Upload database version
          * @param {Function} actions
          */
         this.onUpload = (actions) => {
-            if (!connection_1.DatabaseConnectionController.connections[this.connectionSelector].migration.isRunning ||
+            if (
+            // !DatabaseConnectionController.connections[this.connectionSelector].migration.isRunning || 
+            !connection_1.DatabaseConnectionController.connections[this.connectionSelector].conf.isActive ||
                 connection_1.DatabaseConnectionController.connections[this.connectionSelector].migration.isRevertMode)
                 return;
             actions();
@@ -100,7 +103,9 @@ class DatabaseUserPortal_mySQL {
          * @param {Function} actions
          */
         this.onRevert = (actions) => {
-            if (!connection_1.DatabaseConnectionController.connections[this.connectionSelector].migration.isRunning ||
+            if (
+            // !DatabaseConnectionController.connections[this.connectionSelector].migration.isRunning || 
+            !connection_1.DatabaseConnectionController.connections[this.connectionSelector].conf.isActive ||
                 !connection_1.DatabaseConnectionController.connections[this.connectionSelector].migration.isRevertMode)
                 return;
             actions();
