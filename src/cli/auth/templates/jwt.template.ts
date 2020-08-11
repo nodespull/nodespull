@@ -13,6 +13,9 @@ npAuthProfile.jwt({
         continueToRoute: false,
         statusCode: 401,
         json: null
+    },
+    onFinish: (req, data, err, next) => {
+        next()
     }
 })
     

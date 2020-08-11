@@ -8,9 +8,9 @@ const server_1 = require("../server");
 const log_1 = require("../etc/log");
 const clone_object_1 = __importDefault(require("../etc/system-tools/clone-object"));
 class npModule {
-    constructor(_name, _isModuleActive, _jwtProfile, _importedModules) {
+    constructor(_name, _loadRoutes, _jwtProfile, _importedModules) {
         this._name = _name;
-        this._isModuleActive = _isModuleActive;
+        this._loadRoutes = _loadRoutes;
         this._jwtProfile = _jwtProfile;
         this._importedModules = _importedModules;
         this._route = {};
@@ -36,7 +36,7 @@ class npModule {
         // load route into nodespull module
         this._route[route.method.name + ":" + route.path] = route;
         // load route into nodespull router
-        route.isRouteActive = route.isRouteActive != undefined ? route.isRouteActive : (this._isModuleActive != undefined ? this._isModuleActive : false);
+        route.isRouteActive = route.isRouteActive != undefined ? route.isRouteActive : (this._loadRoutes != undefined ? this._loadRoutes : false);
         let routeArgs = {
             handler: route.handler,
             isRouteActive: route.isRouteActive,

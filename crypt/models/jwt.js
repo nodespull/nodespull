@@ -10,6 +10,53 @@ const __1 = require("..");
 class npJWT {
     constructor(_args) {
         this._args = _args;
+        /**
+         * generate a jwt using this jwt profile
+         * @param userData data to be stored in the token
+         */
+        this.createWith = (userData) => {
+            let token;
+            switch (this._args.algorithm) {
+                case (__1.JwtAlg.HS256): token = JWTAlgModel.HS256.sign(userData, this._args);
+                default: token = JWTAlgModel.HS256.sign(userData, this._args);
+            }
+            return token;
+        };
+        /**
+         * verify that a jwt is provided and is valid
+         * use configs to decide next action: return to client or pass to route handler
+         */
+        this.verifyToken = (req, res, next) => {
+            let checkConfigAndReply = (err, decoded) => {
+                req["jwt"] = {};
+                req["jwt"]["data"] = decoded;
+                let completeTask = () => {
+                    if (err && !this._args.onError.continueToRoute) {
+                        let response = res.status(this._args.onError.statusCode);
+                        if (this._args.onError.json)
+                            response.json(this._args.onError.json);
+                        else
+                            response.send();
+                    }
+                    else
+                        next();
+                };
+                if (this._args.onFinish)
+                    this._args.onFinish(req, decoded, err, completeTask);
+                else
+                    completeTask();
+            };
+            let authorization = req.header("Authorization");
+            let token = authorization ? req.header("Authorization").split(" ")[1] : undefined; //remove 'Bearer'
+            if (token) {
+                switch (this._args.algorithm) {
+                    case (__1.JwtAlg.HS256): JWTAlgModel.HS256.verify(token, this._args, checkConfigAndReply);
+                    default: token = JWTAlgModel.HS256.verify(token, this._args, checkConfigAndReply);
+                }
+            }
+            else
+                checkConfigAndReply(new Error("Authorization Token not found"), null);
+        };
     }
     /**
      * a JWT Guard is used to protect a route or all routes in a npModule.
@@ -19,53 +66,6 @@ class npJWT {
     getGuard() {
         return this;
     }
-    /**
-     * generate a jwt using this jwt profile
-     * @param userData data to be stored in the token
-     */
-    createTokenWith(userData) {
-        let token;
-        switch (this._args.algorithm) {
-            case (__1.JwtAlg.HS256): token = JWTAlgModel.HS256.sign(userData, this._args);
-            default: token = JWTAlgModel.HS256.sign(userData, this._args);
-        }
-        return token;
-    }
-    /**
-     * verify that a jwt is provided and is valid
-     * use configs to decide next action: return to client or pass to route handler
-     */
-    verifyToken(req, res, next) {
-        let checkConfigAndReply = (err, decoded) => {
-            req["jwt"]["data"] = decoded;
-            let completeTask = () => {
-                if (err && !this._args.onError.continueToRoute) {
-                    let response = res.status(this._args.onError.statusCode);
-                    if (this._args.onError.json)
-                        response.json(this._args.onError.json);
-                    else
-                        response.send();
-                }
-                else
-                    next();
-            };
-            if (this._args.onFinish)
-                this._args.onFinish(req, decoded, err, completeTask);
-            else
-                completeTask();
-        };
-        let authorization = req.header("Authorization");
-        let token = authorization ? req.header("Authorization").split(" ")[1] : undefined; //remove 'Bearer'
-        if (token) {
-            switch (this._args.algorithm) {
-                case (__1.JwtAlg.HS256): JWTAlgModel.HS256.verify(token, this._args, checkConfigAndReply);
-                default: token = JWTAlgModel.HS256.verify(token, this._args, checkConfigAndReply);
-            }
-        }
-        else
-            checkConfigAndReply(new Error("Authorization Token not found"), null);
-    }
-    ;
 }
 exports.npJWT = npJWT;
 /**

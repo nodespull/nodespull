@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.JwtAlg = exports.DurationInstance = exports.Duration = exports.hash = exports.jwt = exports.AuthController = void 0;
+exports.JwtAlg = exports.DurationInstance = exports.Duration = exports.hash = exports.oauth2 = exports.jwt = exports.AuthController = void 0;
 const string_validator_1 = require("../etc/system-tools/string-validator");
 const jwt_1 = require("./models/jwt");
 const oauth2_1 = require("./models/oauth2");
@@ -21,9 +21,10 @@ let AuthController = /** @class */ (() => {
 })();
 exports.AuthController = AuthController;
 exports.jwt = AuthController._profiles.jwt;
+exports.oauth2 = AuthController._profiles.oauth2;
 exports.hash = {
-    SHA256: { createWIth: (str) => { return hash_1.Hash_Algorithm.sha256(str); } },
-    SHA512: { createWIth: (str) => { return hash_1.Hash_Algorithm.sha512(str); } }
+    SHA256: { createWith: (str) => { return hash_1.Hash_Algorithm.sha256(str); } },
+    SHA512: { createWith: (str) => { return hash_1.Hash_Algorithm.sha512(str); } }
 };
 class Duration {
     static sec(num) { return new DurationInstance(num); }

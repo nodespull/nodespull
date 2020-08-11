@@ -13,6 +13,7 @@ export interface npModuleArgInterface { // interface for arguments used to creat
     name: string,
     loadRoutes: boolean|undefined,
     jwtProfile: npJWT|null,
+    useGuard: npJWT|null, //interchangeable with jwtProfile, value is eventually copied to it
     imports: npModule[]
 }
 

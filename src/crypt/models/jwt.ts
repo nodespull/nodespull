@@ -23,7 +23,7 @@ export class npJWT{
      * generate a jwt using this jwt profile
      * @param userData data to be stored in the token
      */
-    createTokenWith(userData:object):string{
+    createWith = (userData:object):string => {
         let token:string
         switch(this._args.algorithm){
             case(JwtAlg.HS256): token = JWTAlgModel.HS256.sign(userData, this._args)
@@ -37,8 +37,9 @@ export class npJWT{
      * verify that a jwt is provided and is valid
      * use configs to decide next action: return to client or pass to route handler
      */
-    verifyToken(req:any, res:any, next:Function){
+    verifyToken = (req:any, res:any, next:Function) => {
         let checkConfigAndReply = (err:any, decoded:any)=>{
+            req["jwt"] = {}
             req["jwt"]["data"] = decoded
             let completeTask = ()=>{
                 if(err && !this._args.onError.continueToRoute){
