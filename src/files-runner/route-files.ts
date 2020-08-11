@@ -1,13 +1,14 @@
-import { FilesRunner } from "./common" ;
+import { FilesEngine } from "./common" ;
+import { PathVar } from "../etc/other/paths"
 
 
-export class Route_FilesRunner extends FilesRunner{
+export class RestRoute_FilesLoader extends FilesEngine{
     constructor(){
         super()
-        super.recursiveRun(FilesRunner.rootPath, "delete.js");
-        super.recursiveRun(FilesRunner.rootPath, "get.js");
-        super.recursiveRun(FilesRunner.rootPath, "head.js");
-        super.recursiveRun(FilesRunner.rootPath, "post.js");
-        super.recursiveRun(FilesRunner.rootPath, "put.js");
+        super.recursiveSearch(PathVar.appModule, "delete.js", {runFiles:true});
+        super.recursiveSearch(PathVar.appModule, "get.js", {runFiles:true});
+        super.recursiveSearch(PathVar.appModule, "head.js", {runFiles:true});
+        super.recursiveSearch(PathVar.appModule, "post.js", {runFiles:true});
+        super.recursiveSearch(PathVar.appModule, "put.js", {runFiles:true});
     }
 }

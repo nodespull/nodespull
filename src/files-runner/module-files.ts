@@ -1,10 +1,10 @@
-import { FilesRunner } from "./common" ;
+import { FilesEngine } from "./common" ;
+import { PathVar } from "../etc/other/paths"
 
-
-export class Module_FilesRunner extends FilesRunner{
+export class Module_FilesLoader extends FilesEngine{
     constructor(){
         super()
-        super.recursiveRun(FilesRunner.rootPath, "module.js");
+        super.recursiveSearch(PathVar.appModule, "module.js", {runFiles:true});
 
     }
 }

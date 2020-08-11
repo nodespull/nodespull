@@ -1,6 +1,7 @@
 import {parseJSON} from "../../etc/system-tools/json"
+import {PathVar} from "../../etc/other/paths"
 
-const packageJSON = parseJSON("./package.json");
+const packageJSON = parseJSON(PathVar.packageJson);
 
 export default function(){
     return {

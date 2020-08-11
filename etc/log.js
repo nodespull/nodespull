@@ -21,8 +21,8 @@ class Log {
     setValue(message) { this.message = message; return this; }
     getValue() { return this.message; }
     printValue() { console.log(this.message); }
-    throwError() { console.error("\x1b[31m", new Error(this.message), "\x1b[37m"); }
-    throwWarn() { console.warn("\x1b[33m", "\nWarn: " + this.message, "\x1b[37m"); }
+    throwError() { console.error("\x1b[31m", new Error(this.message), "\x1b[0m"); }
+    throwWarn() { console.warn("\x1b[33m", "Warn: " + this.message, "\x1b[0m"); }
     FgRed() { this.applyFgFormat("\x1b[31m"); return this; }
     FgGreen() { this.applyFgFormat("\x1b[32m"); return this; }
     FgYellow() { this.applyFgFormat("\x1b[33m"); return this; }
@@ -37,7 +37,7 @@ class Log {
     BgMagenta() { this.applyBgFormat("\x1b[45m"); return this; }
     BgCyan() { this.applyBgFormat("\x1b[46m"); return this; }
     BgWhite() { this.applyBgFormat("\x1b[47m"); return this; }
-    applyFgFormat(format) { return format + this.message + "\x1b[37m"; }
-    applyBgFormat(format) { return format + this.message + "\x1b[40m"; }
+    applyFgFormat(format) { this.message = format + this.message + "\x1b[0m"; }
+    applyBgFormat(format) { this.message = format + this.message + "\x1b[0m"; }
 }
 exports.Log = Log;

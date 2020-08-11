@@ -17,9 +17,10 @@ const exe_log_1 = require("../exe/exe.log");
 const fs_1 = __importDefault(require("fs"));
 const dockerfile_1 = require("../deploy/templates/dockerfile");
 const json_1 = require("../../etc/system-tools/json");
-const stdin_1 = __importDefault(require("../../etc/system-tools/stdin"));
-let packageJson = json_1.parseJSON("./package.json");
-const rootFile = fs_1.default.readFileSync("./" + packageJson.main, "utf8");
+const stdin_1 = require("../../etc/system-tools/stdin");
+const paths_1 = require("../../etc/other/paths");
+let packageJson = json_1.parseJSON(paths_1.PathVar.packageJson);
+const rootFile = process.argv[1]; //fs.readFileSync("./"+packageJson.main,"utf8");
 //log into heroku
 function herokuLogin() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -41,7 +42,7 @@ function herokuPush() {
     return __awaiter(this, void 0, void 0, function* () {
         let appName = "";
         exe_log_1.cmd("heroku", ["apps"]);
-        stdin_1.default("Enter app name (press `enter` for new app): ").then((name) => {
+        stdin_1.userInput("Enter app name (press `enter` for new app): ").getPromise().then((name) => {
             if (name && name != "")
                 appName = name;
             else { // also upload mysql image to new app

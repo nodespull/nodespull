@@ -8,25 +8,32 @@ const fs_1 = __importDefault(require("fs"));
 const common_1 = require("./common");
 const controller_1 = __importDefault(require("../database/controller"));
 const log_1 = require("../etc/log");
-class DB_FilesRunner extends common_1.FilesRunner {
-    constructor() {
+const common_2 = require("../cli/db/sql/common");
+const x_stage_model_1 = __importDefault(require("../cli/db/sql/templates/x_stage.model"));
+const x_stage_relation_1 = __importDefault(require("../cli/db/sql/templates/x_stage.relation"));
+class DB_FilesRunner extends common_1.FilesEngine {
+    constructor(option) {
         super();
+        this.tableNames_definitions_map = {}; // used to store the "at.vx" definitions and update "stage.vx" files
+        this.tableNames_relations_map = {};
         if (controller_1.default.migration.isRunning) {
             let targetFolderPath;
             if (controller_1.default.migration.isRevertMode)
-                targetFolderPath = this.getFolderPath(common_1.FilesRunner.rootPath, "at.v"); // migration down scripts are in this folder
+                targetFolderPath = this.getFolderPath(common_1.FilesEngine.dbRootPath, "stage.v"); // migration down scripts are in this folder
             else
-                targetFolderPath = this.getFolderPath(common_1.FilesRunner.rootPath, "stage.v"); // migration up are here
+                targetFolderPath = this.getFolderPath(common_1.FilesEngine.dbRootPath, "at.v"); // migration up are here
             if (!targetFolderPath)
-                new log_1.Log(`missing folder with prefix '${controller_1.default.migration.isRevertMode ? "at.v" : "stage.v"}' in '${common_1.FilesRunner.rootPath.split("/").slice(-2)[0]}' directory tree`).throwError();
+                new log_1.Log(`missing folder with prefix '${controller_1.default.migration.isRevertMode ? "stage.v" : "at.v"}' in '${common_1.FilesEngine.dbRootPath.split("/").slice(-2)[0]}' directory tree`).throwError();
             else {
-                super.recursiveRun(targetFolderPath, "model.js");
-                super.recursiveRun(targetFolderPath, "relation.js");
+                super.recursiveSearch(targetFolderPath, "model.js", { runFiles: true });
+                super.recursiveSearch(targetFolderPath, "relation.js", { runFiles: true });
             }
         }
+        if (controller_1.default.migration.isRunning && option && option.overwrite_newStageScripts)
+            this.updateStageFiles();
         else {
-            super.recursiveRun(common_1.FilesRunner.rootPath, "model.js");
-            super.recursiveRun(common_1.FilesRunner.rootPath, "relation.js");
+            super.recursiveSearch(common_1.FilesEngine.dbRootPath, "model.js", { runFiles: true });
+            super.recursiveSearch(common_1.FilesEngine.dbRootPath, "relation.js", { runFiles: true });
         }
     }
     /**
@@ -47,6 +54,27 @@ class DB_FilesRunner extends common_1.FilesRunner {
         }
         catch (_a) {
             return;
+        }
+    }
+    /**
+     * update stage files with scripts from 'at.vx'
+    */
+    updateStageFiles() {
+        let modelPaths = super.recursiveSearch(common_1.FilesEngine.dbRootPath + "/SQL/stage.v" + (common_2.getCurrentDBVersion() + 1) + "/", "model.js", { runFiles: false });
+        let relPaths = super.recursiveSearch(common_1.FilesEngine.dbRootPath + "/SQL/stage.v" + (common_2.getCurrentDBVersion() + 1) + "/", "relation.js", { runFiles: false });
+        for (let path of modelPaths) {
+            let tableName = path.split("/").splice(-1)[0].split(".")[0];
+            let modelFile = fs_1.default.readFileSync(path, 'utf8');
+            let tempReg = modelFile.match(/(    | )Database.defineModel\(([\s\S]*?)}\)/);
+            let modelFile_extract = tempReg ? tempReg[0] : null;
+            fs_1.default.writeFileSync(path, x_stage_model_1.default(modelFile_extract));
+        }
+        for (let path of relPaths) {
+            let tableName = path.split("/").splice(-1)[0].split(".")[0];
+            let modelFile = fs_1.default.readFileSync(path, 'utf8');
+            let tempReg = modelFile.match(/(    | )Relations.set\(([\s\S]*?)}\)/);
+            let modelFile_extract = tempReg ? tempReg[0] : null;
+            fs_1.default.writeFileSync(path, x_stage_relation_1.default(modelFile_extract));
         }
     }
 }
