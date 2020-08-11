@@ -6,20 +6,18 @@ const user_interface_1 = require("./systems/mysql/user-interface");
 const log_1 = require("../etc/log");
 let DatabaseUserInterfaceController = /** @class */ (() => {
     class DatabaseUserInterfaceController {
-        constructor() { }
         // add interface at the same time that a dbConnection is added
         static addUserInterfaceForDBConnection(connSelector) {
             if (!Object.keys(DatabaseUserInterfaceController.interfaces).includes(connSelector)) {
                 let con = connection_1.DatabaseConnectionController.connections[connSelector];
                 switch (con.conf.system) {
                     case ("mySQL"): {
-                        DatabaseUserInterfaceController.interfaces[connSelector] = new user_interface_1.DatabaseUserInterface_mySQL(connSelector);
+                        DatabaseUserInterfaceController.interfaces[connSelector] = new user_interface_1.DatabaseUserPortal_mySQL(connSelector);
                         break;
                     }
                     default: new log_1.Log(`db-connection's user-interface could not be created; unsuported system '${con.conf.system}' for database '${con.conf.selector}'`).throwError();
                 }
             }
-            return DatabaseUserInterfaceController.interfaces[connSelector];
         }
         static getUserInterfaceForDBConnection(dbConnectionSelector) {
             if (!Object.keys(DatabaseUserInterfaceController.interfaces).includes(dbConnectionSelector))

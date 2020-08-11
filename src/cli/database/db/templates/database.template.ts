@@ -1,6 +1,6 @@
 
 export default function getDatabaseTemplate(dbSelector:string):string{
-    return `const { config } = require("@nodespull/core")
+    return `const { config, sysEnv, appEnv } = require("@nodespull/core")
 const { system } = require("@nodespull/core/utils/db")
 
 
@@ -9,7 +9,7 @@ const { system } = require("@nodespull/core/utils/db")
  */
 config.setDatabase({
     isActive: false,
-    system: system.NONE,
+    system: system.mySQL,
     selector: "${dbSelector}",
     database: undefined,
     host: undefined,

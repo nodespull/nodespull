@@ -1,7 +1,7 @@
 import {DatabaseConnectionController} from "./connection";
-import { DatabaseUserInterfaceController, DatabaseUserInterface_interface } from "./user-interface";
+import { DatabaseUserInterfaceController, DatabaseUserPortalInterface } from "./user-interface";
 import { Log } from "../etc/log";
-import { DatabaseUserInterface_mySQL } from "./systems/mysql/user-interface";
+import { DatabaseUserPortal_mySQL } from "./systems/mysql/user-interface";
 
 /**
  * Database main handler (function) exposed to the user
@@ -11,7 +11,7 @@ module.exports = function userExportedPortal(dbConnectionSelector:string): userE
     let system = DatabaseConnectionController.getConnection(dbConnectionSelector).conf.system
     switch(system){
         case("mySQL"): {
-            return { Database: userInterface as DatabaseUserInterface_mySQL }
+            return { Database: userInterface as DatabaseUserPortal_mySQL }
         }
         default: {
             new Log(`error when loading database interface controller for user: system '${system}' not recognized`).throwError()
@@ -21,5 +21,5 @@ module.exports = function userExportedPortal(dbConnectionSelector:string): userE
 }
 
 interface userExportedPortalResult_interface{
-    Database: DatabaseUserInterface_interface
+    Database: DatabaseUserPortalInterface
 }

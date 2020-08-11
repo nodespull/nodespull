@@ -1,11 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 function getAppEnvTemplate(env) {
-    return `const { npAppEnv } = require("nodespull")
+    return `const { npEnv } = require("@nodespull/core")
 
-npAppEnv({
-    production: ${env === "prod"}
-})
-`;
+/**
+ * accessible within app modules
+ */
+npEnv.app.loadVars(forTags = [${env == "prod" ? '"prod"' : ''}], {
+
+})`;
 }
 exports.default = getAppEnvTemplate;

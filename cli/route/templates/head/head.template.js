@@ -8,8 +8,9 @@ function head(path, moduleVarName, locationDepth) {
         name = "_" + name; // put underscore in front of js reserved words
     let moduleFileName = moduleVarName.substr(0, moduleVarName.length - 1 * "Module".length) + ".module";
     return `const { http, Database, npRoute, Pipe } = require("@nodespull/core")
-const { Hash, Session } = require("@nodespull/core/utils")
+const { hash, jwt, oauth2 } = require("@nodespull/core/crypt")
 const { ${moduleVarName} } = require("${'../'.repeat(locationDepth) + moduleFileName}")
+
 
 
 const $ = npRoute({
@@ -18,8 +19,6 @@ const $ = npRoute({
     handler: ${name}Handler,
     path: "${path}",
     urlParams: [],
-    isRouteActive: undefined,
-    isRouteProtected: undefined,
 })
 
 /**
@@ -27,14 +26,8 @@ const $ = npRoute({
  * @param {Response} res response contains http methods
  */
 function ${name}Handler(req, res) {
-    /** @type {json} */ let client = req.session;
-    /** @type {json} */ let params = req.params;
-    /** @type {json} */ let query = req.query;
-    /* ------------------------------------------ */
-
     
     res.send("head:${path} works")
-
 
 }
 `;

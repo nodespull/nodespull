@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.npAuthProfile = exports.setAdapter_API_KEY = exports.Database = exports.config = exports.server = exports.http = exports.Router = exports.route = exports.appServer = exports.Pipe = exports.npService = exports.npRoute = exports.npModule = exports.DB_PORT_TEST = exports.PORT = exports.appEnv = exports.sysEnv = exports.appEnvCtr = exports.processEnv = void 0;
+exports.npAuthProfile = exports.setAdapter_API_KEY = exports.Database = exports.config = exports.server = exports.http = exports.Router = exports.route = exports.appServer = exports.Pipe = exports.npService = exports.npRoute = exports.npModule = exports.DB_PORT_TEST = exports.PORT = exports.appEnv = exports.sysEnv = exports.npEnv = void 0;
 const install_1 = require("./install");
 const cli = __importStar(require("./cli"));
 const express_1 = __importDefault(require("express"));
@@ -50,16 +50,18 @@ const environment_1 = require("./environment");
 const loader_1 = __importDefault(require("./templates/swagger/loader"));
 const log_1 = require("./etc/log");
 const pipe_1 = require("./utils/pipe");
-const auth_1 = require("./auth");
+const crypt_1 = require("./crypt");
 const graphql_1 = require("./graphql");
 const database_files_1 = require("./files-runner/database-files");
 const files_runner_1 = require("./files-runner");
 const env_files_1 = require("./files-runner/env-files");
 /**
- * environment variables
+ * user's environment variables setup
  */
-exports.processEnv = new environment_1.EnvCollector(environment_1.EnvType.process);
-exports.appEnvCtr = new environment_1.EnvCollector(environment_1.EnvType.app);
+exports.npEnv = {
+    process: new environment_1.EnvCollector(environment_1.EnvType.process),
+    app: new environment_1.EnvCollector(environment_1.EnvType.app)
+};
 new env_files_1.Env_FilesLoader();
 exports.sysEnv = process.env;
 exports.appEnv = environment_1.AppEnv.storedVars;
@@ -350,7 +352,7 @@ let isCorsSet = false;
 /**
  * database user interface
  */
-exports.Database = new user_interface_1.DatabaseUserInterfaceController();
+exports.Database = user_interface_1.DatabaseUserInterfaceController.interfaces;
 function setAdapter_API_KEY(secret) {
     // PENDING
 }
@@ -359,9 +361,9 @@ exports.npAuthProfile = {
     /**
      * create a jwt auth profile
      */
-    jwt: auth_1.AuthController.jwt,
+    jwt: crypt_1.AuthController.jwt,
     /**
      * create a oauth2 profile
      */
-    oauth2: auth_1.AuthController.oauth2
+    oauth2: crypt_1.AuthController.oauth2
 };

@@ -16,7 +16,7 @@ import { EnvCollector, AppEnv, EnvType } from "./environment";
 import swaggerLoader from "./templates/swagger/loader"
 import { Log } from "./etc/log";
 import { npPipe } from "./utils/pipe";
-import { AuthController } from "./auth";
+import { AuthController } from "./crypt";
 import { GraphQL } from "./graphql";
 import { DbConnectionArg } from "./database/models/connectionArg";
 import { Database_FilesLoader } from "./files-runner/database-files";
@@ -25,13 +25,16 @@ import { Env_FilesLoader } from "./files-runner/env-files";
 
 
 /**
- * environment variables
+ * user's environment variables setup
  */
-export const processEnv = new EnvCollector(EnvType.process)
-export const appEnvCtr =  new EnvCollector(EnvType.app)
+export const npEnv = {
+    process: new EnvCollector(EnvType.process),
+    app: new EnvCollector(EnvType.app)
+}
 new Env_FilesLoader()
 export const sysEnv = process.env
 export const appEnv = AppEnv.storedVars
+
 
 
 const packageJson =  parseJSON(PathVar.packageJson)
@@ -329,7 +332,7 @@ let isCorsSet = false;
 /**
  * database user interface
  */
-export let Database = new DatabaseUserInterfaceController()
+export let Database = DatabaseUserInterfaceController.interfaces
 
 
 export function setAdapter_API_KEY(secret:string){

@@ -33,13 +33,13 @@ export async function install(projectName:string, serverPort:number, pull_all:bo
 
 async function install_core(){
     // installs for os (docker files) and np's npm dependencies
-    await run("mkdir sys", "mkdir", ["-p",PathVar.etc_os_dir],(ok:boolean,data?:any)=>{})
-    await run("npm MySQL2", "sudo", ["npm", "i","mysql2"],(ok:boolean,data?:any)=>{})
+    await run("sys config", "mkdir", ["-p",PathVar.etc_os_dir],(ok:boolean,data?:any)=>{})
+    await run("MySQL2 setup", "sudo", ["npm", "i","mysql2"],(ok:boolean,data?:any)=>{})
     //database
-    await run("create np database", "mkdir", ["-p", PathVar.dbModule+"/SQL"],(ok:boolean,data?:any)=>{})
-    await run("database", "mkdir", ["-p", PathVar.dbModule+"/noSQL"],(ok:boolean,data?:any)=>{})
+    await run("config database MS", "mkdir", ["-p", PathVar.dbModule],(ok:boolean,data?:any)=>{})
+    // await run("database", "mkdir", ["-p", PathVar.dbModule+"/noSQL"],(ok:boolean,data?:any)=>{})
     //app env
-    await run("create np appEnvir", "mkdir", ["-p", PathVar.appEnvModule],(ok:boolean,data?:any)=>{
+    await run("setup np appEnvir", "mkdir", ["-p", PathVar.appEnvModule],(ok:boolean,data?:any)=>{
         run("app local env", "touch", [PathVar.appEnvModule+"/app.local.env.js"],(ok:boolean,data?:any)=>{
             if(ok)fs.writeFile(PathVar.appEnvModule+"/app.local.env.js", getAppEnvTemplate("local"),()=>{})
         })
@@ -47,6 +47,8 @@ async function install_core(){
             if(ok)fs.writeFile(PathVar.appEnvModule+"/app.prod.env.js", getAppEnvTemplate("prod"),()=>{})
         })
     })
+    await run("config jwt auth profile", "mkdir", ["-p", PathVar.root+"/auth/jwt"],(ok:boolean,data?:any)=>{})
+    await run("config oauth auth profile", "mkdir", ["-p", PathVar.root+"/auth/oauth2"],(ok:boolean,data?:any)=>{})
 
     // main module
     await run("create app files", "mkdir", ["-p", PathVar.appModule],(ok:boolean,data?:any)=>{})

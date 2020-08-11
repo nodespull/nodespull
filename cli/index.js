@@ -17,6 +17,7 @@ const table_1 = require("./database/table");
 const module_1 = require("./module");
 const service_1 = require("./service");
 const log_1 = require("../etc/log");
+const auth_1 = require("./auth");
 let stdinInterface;
 function start() {
     new log_1.Log(`\n*** Nodespull Interactive Mode ***  \n(enter 'help' for info)`).printValue();
@@ -73,7 +74,14 @@ function getCmd(input, loop) {
                         yield service_1.newService(args.slice(2));
                     else
                         throw exports.error.falseCmd;
-                    new log_1.Log("\nService \"" + name + "\" successfully created").FgGreen().printValue();
+                    new log_1.Log("\nService \"" + args[3] + "\" successfully created").FgGreen().printValue();
+                    break;
+                case "profile":
+                    if (createCmd.includes(userCmd))
+                        yield auth_1.newAuthProfile(args.slice(2));
+                    else
+                        throw exports.error.falseCmd;
+                    new log_1.Log("\nAuth Profile \"" + args[3] + "\" successfully created").FgGreen().printValue();
                     break;
                 case "database":
                     if (createCmd.includes(userCmd))
@@ -112,6 +120,7 @@ commands:
         create database <name>                   : generate route at path <path/path>
         create table    <selector.database/name> : generate table/model for specified db
         create service  <name>                   : generate service
+        create profile  <name>                   : generate auth profile
         create route    <path/path>              : generate route at path <path/path>
 
     To target modules, add the module name before the name of the element as follow:
@@ -123,6 +132,12 @@ commands:
         --boot | -b     : generate self-booting service
         --pipe | -p     : generate pipe-usable service
     e.g. create service -b core.module/socket
+
+    Auth Profile
+    The 'profile' entity uses the flags:
+        --jwt           : generate jwt auth profile
+        --oauth2 |      : generate oauth2 auth profile
+    e.g. create profile --jwt main
 
     
     q | quit | exit        : exit nodespull cli

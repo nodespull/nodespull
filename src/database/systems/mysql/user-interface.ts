@@ -1,12 +1,12 @@
 import {DataTypes, Sequelize} from "sequelize";
-import { DatabaseUserInterface_interface } from "../../user-interface";
+import { DatabaseUserPortalInterface } from "../../user-interface";
 import sequelize from "sequelize";
 import { RawQueryResponse, QueryInterface } from "../../models/query";
 import {Table, TableRelation, TableDefinition, ModelDefinition} from "./Table";
 import {DatabaseConnectionController} from "../../connection";
 
 
-export class DatabaseUserInterface_mySQL implements DatabaseUserInterface_interface{
+export class DatabaseUserPortal_mySQL implements DatabaseUserPortalInterface{
     constructor(public connectionSelector:string){ }
 
     defineModel = (tableName:string):ModelDefinition|any => {

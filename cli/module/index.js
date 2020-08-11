@@ -31,7 +31,7 @@ function newModule(moduleName) {
         // cmd("mkdir", ["-p", root+"/"+moduleDirName+"/services/socket"]);
         exe_log_1.cmd("mkdir", ["-p", root + "/" + moduleDirName + "/services/pipe-usable"]);
         exe_log_1.cmd("mkdir", ["-p", root + "/" + moduleDirName + "/services/generic"]);
-        exe_log_1.cmd("mkdir", ["-p", root + "/" + moduleDirName + "/rest"]);
+        exe_log_1.cmd("mkdir", ["-p", root + "/" + moduleDirName + "/routes"]);
         // cmd("mkdir", ["-p", root+"/"+moduleDirName+"/graphql"]);
         exe_log_1.cmd("touch", [root + "/" + moduleDirName + "/" + moduleFileName]); // create module file
         fs_1.default.writeFile(root + "/" + moduleDirName + "/" + moduleFileName, module_template_1.default(moduleVarName), () => { }); // populate module file with template

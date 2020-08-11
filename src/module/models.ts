@@ -1,5 +1,5 @@
 import { npModule } from "./npmodule";
-import { npJWT } from "../auth/models/jwt";
+import { npJWT } from "../crypt/models/jwt";
 
 export interface npModuleUserInterface { // interface for object returned to user
     readonly name: string,
@@ -11,7 +11,7 @@ export interface npModuleUserInterface { // interface for object returned to use
 
 export interface npModuleArgInterface { // interface for arguments used to create module
     name: string,
-    isModuleActive: boolean|undefined,
+    loadRoutes: boolean|undefined,
     jwtProfile: npJWT|null,
     imports: npModule[]
 }

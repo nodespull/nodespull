@@ -2,7 +2,7 @@ import { npServiceInterface, npModuleUserInterface, npRouteInterface, npModuleSe
 import { http } from "../server"
 import { Log } from "../etc/log"
 import cloneObject from "../etc/system-tools/clone-object"
-import { npJWT } from "../auth/models/jwt"
+import { npJWT } from "../crypt/models/jwt"
 import { routeHandlerArg_interface } from "../route/model"
 
 export class npModule {

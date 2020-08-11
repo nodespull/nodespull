@@ -1,8 +1,10 @@
 export default function getAppEnvTemplate(env:string):string{
-    return `const { npAppEnv } = require("nodespull")
+    return `const { npEnv } = require("@nodespull/core")
 
-npAppEnv({
-    production: ${env === "prod"}
-})
-`
+/**
+ * accessible within app modules
+ */
+npEnv.app.loadVars(forTags = [${env=="prod"?'"prod"':''}], {
+
+})`
 }

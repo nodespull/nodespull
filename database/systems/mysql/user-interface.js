@@ -12,12 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DatabaseUserInterface_mySQL = void 0;
+exports.DatabaseUserPortal_mySQL = void 0;
 const sequelize_1 = require("sequelize");
 const sequelize_2 = __importDefault(require("sequelize"));
 const Table_1 = require("./Table");
 const connection_1 = require("../../connection");
-class DatabaseUserInterface_mySQL {
+class DatabaseUserPortal_mySQL {
     constructor(connectionSelector) {
         this.connectionSelector = connectionSelector;
         this.defineModel = (tableName) => {
@@ -144,7 +144,7 @@ class DatabaseUserInterface_mySQL {
         };
     }
 }
-exports.DatabaseUserInterface_mySQL = DatabaseUserInterface_mySQL;
+exports.DatabaseUserPortal_mySQL = DatabaseUserPortal_mySQL;
 class Type {
     constructor() {
         this.string = sequelize_1.DataTypes.STRING;

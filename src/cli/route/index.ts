@@ -65,10 +65,10 @@ export async function newRoute(name:string){
     }
     let fileName = "";
     let fileName_withUnderscore = "";
-    let routeDirPath = "main-module/rest";
+    let routeDirPath = "main-module/routes";
     if(moduleVarName != "mainModule"){
         let moduleDirName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+"-module"
-        routeDirPath = moduleDirName+"/rest"
+        routeDirPath = moduleDirName+"/routes"
     }
     while(args.length > 0){
         let e = args.shift();
