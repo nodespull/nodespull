@@ -4,9 +4,9 @@ import express from "express";
 import { DatabaseConnectionController } from "./database/connection";
 import { DatabaseUserInterfaceController } from "./database/user-interface";
 import { Route } from "./route/controller"
-import {parseJSON, writeJSON} from "./etc/system-tools/json"
-import {cmd} from "./cli/exe/exe.log"
-import {deploy} from "./cli/deploy/deploy"
+import { parseJSON, writeJSON } from "./etc/system-tools/json"
+import { cmd } from "./cli/exe/exe.log"
+import { deploy } from "./cli/deploy/deploy"
 import { npModuleController } from "./module/controllers/npModuleController"
 import { npRouteController } from "./module/controllers/npRouteController"
 import { npServiceController } from "./module/controllers/npServiceController"
@@ -37,7 +37,7 @@ export const appEnv = AppEnv.storedVars
 
 
 
-const packageJson =  parseJSON(PathVar.packageJson)
+const packageJson =  parseJSON(PathVar.getPackageJson())
 
 
 export let PORT = 8888;
@@ -141,29 +141,31 @@ class Server {
                     test: "pull test",//"mocha "+appModule+"/**/*.spec.js || true"
                     e2e: "pull e2e"
                 }
-                writeJSON(PathVar.packageJson,packageJson);
+                writeJSON(PathVar.getPackageJson(),packageJson);
             }else if (cliFlag){
                 new Database_FilesLoader()
                 cli.start();
             }else if (doFlag){
                 cli.getCmd(process.argv[3], false)
             }else if (testFlag){
-                cmd("npm",["test"]);
+                new App_FilesLoader()
+                //  app.module/**/*.spec.js || true
+                cmd("mocha",["./**/*.spec.js"]);
             }else if (run_all_images){
                 cmd('docker', [ "stop","nodespull_server.js_1"], false);
                 cmd('docker', ["rm","nodespull_server.js_1"], false);
-                cmd('docker-compose', ["-f",PathVar.etc_os_dir+"/docker-compose-all.yml","up","--build"],true);
+                cmd('docker-compose', ["-f",PathVar.getEtc_os_dir()+"/docker-compose-all.yml","up","--build"],true);
             }else if (stop_all_images){
-                cmd('docker-compose', ["-f",PathVar.etc_os_dir+"/docker-compose-all.yml","down"],true);
+                cmd('docker-compose', ["-f",PathVar.getEtc_os_dir()+"/docker-compose-all.yml","down"],true);
             }else if(buildFlag){
-                cmd('docker-compose', ["-f", PathVar.etc_os_dir + "/docker-compose-all.yml", "build"], false)
+                cmd('docker-compose', ["-f", PathVar.getEtc_os_dir() + "/docker-compose-all.yml", "build"], false)
             }else if(run_dbImages_only){
                 console.log("\n\n Wait until no new event, then open a new terminal to run your app.\n\n\n")
-                cmd('docker-compose', ["-f",PathVar.etc_os_dir+"/docker-compose-db.yml","up",], true);
+                cmd('docker-compose', ["-f",PathVar.getEtc_os_dir()+"/docker-compose-db.yml","up",], true);
             }else if(stop_dbImages_only){
-                cmd('docker-compose', ["-f",PathVar.etc_os_dir+"/docker-compose-db.yml","down"], true);
+                cmd('docker-compose', ["-f",PathVar.getEtc_os_dir()+"/docker-compose-db.yml","down"], true);
             }else if (status){
-                cmd('docker-compose', ["-f",PathVar.etc_os_dir+"/docker-compose-all.yml","ps"], true);
+                cmd('docker-compose', ["-f",PathVar.getEtc_os_dir()+"/docker-compose-all.yml","ps"], true);
             }else if(runFlag || runFlag_fromContainer){
                 // Server.isRunning = true;
                 new App_FilesLoader() // now that sequelize obj is initialized, load routes, tables, and relations
@@ -351,3 +353,4 @@ export const npAuthProfile = {
     oauth2: AuthController.oauth2
 }
 
+if(PathVar.isProcessFromMocha) new App_FilesLoader()

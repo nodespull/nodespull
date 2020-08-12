@@ -11,28 +11,28 @@ const docsURL = "/swagger"
 let mainSwagger:any = {};
 
 export default function(app:any){
-    if(!fs.existsSync(PathVar.etc_var_dir+"/swagger.json")){
-        cmd("mkdir", ["-p",PathVar.etc_var_dir]);
-        cmd("touch", [PathVar.etc_var_dir+"/swagger.json"]);
-        writeJSON(PathVar.etc_var_dir+"/swagger.json", swagger_defaultContent());
+    if(!fs.existsSync(PathVar.getEtc_var_dir()+"/swagger.json")){
+        cmd("mkdir", ["-p",PathVar.getEtc_var_dir()]);
+        cmd("touch", [PathVar.getEtc_var_dir()+"/swagger.json"]);
+        writeJSON(PathVar.getEtc_var_dir()+"/swagger.json", swagger_defaultContent());
     }
     try{
         let docs:any;
-        docs = parseJSON(PathVar.etc_var_dir+"/swagger.json");
+        docs = parseJSON(PathVar.getEtc_var_dir()+"/swagger.json");
         //build swager file
-        recursiveBuild(PathVar.appModule);
+        recursiveBuild(PathVar.getAppModule());
         if(JSON.stringify(docs) != JSON.stringify({...swagger_defaultContent(), ...mainSwagger})){
-            writeJSON(PathVar.etc_var_dir+"/swagger.json", {...swagger_defaultContent(), ...mainSwagger});
+            writeJSON(PathVar.getEtc_var_dir()+"/swagger.json", {...swagger_defaultContent(), ...mainSwagger});
         }
         //load swagger file
-        docs = parseJSON(PathVar.etc_var_dir+"/swagger.json");
+        docs = parseJSON(PathVar.getEtc_var_dir()+"/swagger.json");
         app.use(docsURL, function(req:any, res:any, next:any){
             docs.host = req.get('host');
             req["swaggerDoc"] = docs;
             next();
         }, swaggerUi.serve, swaggerUi.setup());
     }catch{
-        console.log(`swagger file has invalid format. Please delete file at "${PathVar.etc_var_dir}/swagger.json" and try again`)
+        console.log(`swagger file has invalid format. Please delete file at "${PathVar.getEtc_var_dir()}/swagger.json" and try again`)
     }
 }
 

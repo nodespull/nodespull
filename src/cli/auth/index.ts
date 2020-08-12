@@ -20,13 +20,13 @@ export async function newAuthProfile(args:string[]){
 
 
 function newJWTAuthProfile(name:string){
-    let path = PathVar.src+"/auth/jwt/"+name+".jwt.js"
+    let path = PathVar.getSrc()+"/auth/jwt/"+name+".jwt.js"
     cmd("touch",[path]); // create module file
     fs.writeFile(path, getJwtTemplate(name),()=>{}) // populate module file with template
 }
 
 function newOauth2AuthProfile(name:string){
-    let path = PathVar.src+"/auth/oauth2/"+name+".oauth2.js"
+    let path = PathVar.getSrc()+"/auth/oauth2/"+name+".oauth2.js"
     cmd("touch",[path]); // create module file
     fs.writeFile(path, getOauth2Template(name),()=>{}) // populate module file with template
 }

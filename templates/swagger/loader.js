@@ -12,21 +12,21 @@ const swaggerUi = require('swagger-ui-express');
 const docsURL = "/swagger";
 let mainSwagger = {};
 function default_1(app) {
-    if (!fs_1.default.existsSync(paths_1.PathVar.etc_var_dir + "/swagger.json")) {
-        exe_log_1.cmd("mkdir", ["-p", paths_1.PathVar.etc_var_dir]);
-        exe_log_1.cmd("touch", [paths_1.PathVar.etc_var_dir + "/swagger.json"]);
-        json_1.writeJSON(paths_1.PathVar.etc_var_dir + "/swagger.json", default_content_1.default());
+    if (!fs_1.default.existsSync(paths_1.PathVar.getEtc_var_dir() + "/swagger.json")) {
+        exe_log_1.cmd("mkdir", ["-p", paths_1.PathVar.getEtc_var_dir()]);
+        exe_log_1.cmd("touch", [paths_1.PathVar.getEtc_var_dir() + "/swagger.json"]);
+        json_1.writeJSON(paths_1.PathVar.getEtc_var_dir() + "/swagger.json", default_content_1.default());
     }
     try {
         let docs;
-        docs = json_1.parseJSON(paths_1.PathVar.etc_var_dir + "/swagger.json");
+        docs = json_1.parseJSON(paths_1.PathVar.getEtc_var_dir() + "/swagger.json");
         //build swager file
-        recursiveBuild(paths_1.PathVar.appModule);
+        recursiveBuild(paths_1.PathVar.getAppModule());
         if (JSON.stringify(docs) != JSON.stringify(Object.assign(Object.assign({}, default_content_1.default()), mainSwagger))) {
-            json_1.writeJSON(paths_1.PathVar.etc_var_dir + "/swagger.json", Object.assign(Object.assign({}, default_content_1.default()), mainSwagger));
+            json_1.writeJSON(paths_1.PathVar.getEtc_var_dir() + "/swagger.json", Object.assign(Object.assign({}, default_content_1.default()), mainSwagger));
         }
         //load swagger file
-        docs = json_1.parseJSON(paths_1.PathVar.etc_var_dir + "/swagger.json");
+        docs = json_1.parseJSON(paths_1.PathVar.getEtc_var_dir() + "/swagger.json");
         app.use(docsURL, function (req, res, next) {
             docs.host = req.get('host');
             req["swaggerDoc"] = docs;
@@ -34,7 +34,7 @@ function default_1(app) {
         }, swaggerUi.serve, swaggerUi.setup());
     }
     catch (_a) {
-        console.log(`swagger file has invalid format. Please delete file at "${paths_1.PathVar.etc_var_dir}/swagger.json" and try again`);
+        console.log(`swagger file has invalid format. Please delete file at "${paths_1.PathVar.getEtc_var_dir()}/swagger.json" and try again`);
     }
 }
 exports.default = default_1;

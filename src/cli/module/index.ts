@@ -4,7 +4,7 @@ import {PathVar} from "../../etc/other/paths"
 
 import getModuleTemplate from "./templates/module.template"
 
-const root = PathVar.appModule;
+const root = PathVar.getAppModule();
 
 export async function newModule(moduleName:string){
     let moduleVarName = moduleName.toLowerCase()

@@ -6,7 +6,7 @@ const paths_1 = require("../etc/other/paths");
 class Database_FilesLoader extends common_1.FilesEngine {
     constructor() {
         super();
-        super.recursiveSearch(paths_1.PathVar.dbModule, "database.js", { runFiles: true });
+        super.recursiveSearch(paths_1.PathVar.getDbModule(), "database.js", { runFiles: true });
     }
 }
 exports.Database_FilesLoader = Database_FilesLoader;

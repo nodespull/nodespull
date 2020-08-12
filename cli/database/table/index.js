@@ -37,10 +37,10 @@ function newTable(arg) {
             throw __1.error.wrongUsage;
         connection_1.DatabaseConnectionController.throwIfNotRegistered(dbConnectionSelector);
         let currVersion = common_1.getCurrentDBVersion(dbConnectionSelector);
-        yield exe_1.default("mkdir", ["-p", paths_1.PathVar.dbModule + `/${dbConnectionSelector}-db/stage.v${currVersion + 1}/` + tableName + ".model"], false);
-        yield exe_1.default("mkdir", ["-p", paths_1.PathVar.dbModule + `/${dbConnectionSelector}-db/archives`], false);
+        yield exe_1.default("mkdir", ["-p", paths_1.PathVar.getDbModule() + `/${dbConnectionSelector}-db/stage.v${currVersion + 1}/` + tableName + ".model"], false);
+        yield exe_1.default("mkdir", ["-p", paths_1.PathVar.getDbModule() + `/${dbConnectionSelector}-db/archives`], false);
         for (let template of Object.keys(templates)) {
-            let path = paths_1.PathVar.dbModule + `/${dbConnectionSelector}-db/stage.v${currVersion + 1}/` + tableName + ".model/" + tableName + "." + template + ".js";
+            let path = paths_1.PathVar.getDbModule() + `/${dbConnectionSelector}-db/stage.v${currVersion + 1}/` + tableName + ".model/" + tableName + "." + template + ".js";
             yield exe_1.default("touch", [path]), false;
             yield fs_1.default.writeFile(path, getTemplate(template, tableName, dbConnectionSelector), () => { });
         }

@@ -6,7 +6,7 @@ import {writeJSON, parseJSON} from "../../etc/system-tools/json"
 import {userInput} from "../../etc/system-tools/stdin";
 import {PathVar} from "../../etc/other/paths"
 
-let packageJson = parseJSON(PathVar.packageJson);
+let packageJson = parseJSON(PathVar.getPackageJson());
 const rootFile = process.argv[1] //fs.readFileSync("./"+packageJson.main,"utf8");
 
 //log into heroku

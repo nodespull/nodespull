@@ -6,8 +6,8 @@ const paths_1 = require("../etc/other/paths");
 class Auth_FilesLoader extends common_1.FilesEngine {
     constructor() {
         super();
-        super.recursiveSearch(paths_1.PathVar.src + "/auth", "jwt.js", { runFiles: true });
-        super.recursiveSearch(paths_1.PathVar.src + "/auth", "oauth2.js", { runFiles: true });
+        super.recursiveSearch(paths_1.PathVar.getSrc() + "/auth", "jwt.js", { runFiles: true });
+        super.recursiveSearch(paths_1.PathVar.getSrc() + "/auth", "oauth2.js", { runFiles: true });
     }
 }
 exports.Auth_FilesLoader = Auth_FilesLoader;

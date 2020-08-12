@@ -65,7 +65,7 @@ exports.npEnv = {
 new env_files_1.Env_FilesLoader();
 exports.sysEnv = process.env;
 exports.appEnv = environment_1.AppEnv.storedVars;
-const packageJson = json_1.parseJSON(paths_1.PathVar.packageJson);
+const packageJson = json_1.parseJSON(paths_1.PathVar.getPackageJson());
 exports.PORT = 8888;
 exports.DB_PORT_TEST = 3332;
 const app = express_1.default();
@@ -163,7 +163,7 @@ let Server = /** @class */ (() => {
                             test: "pull test",
                             e2e: "pull e2e"
                         };
-                        json_1.writeJSON(paths_1.PathVar.packageJson, packageJson);
+                        json_1.writeJSON(paths_1.PathVar.getPackageJson(), packageJson);
                     }
                     else if (cliFlag) {
                         new database_files_1.Database_FilesLoader();
@@ -173,28 +173,30 @@ let Server = /** @class */ (() => {
                         cli.getCmd(process.argv[3], false);
                     }
                     else if (testFlag) {
-                        exe_log_1.cmd("npm", ["test"]);
+                        new files_runner_1.App_FilesLoader();
+                        //  app.module/**/*.spec.js || true
+                        exe_log_1.cmd("mocha", ["./**/*.spec.js"]);
                     }
                     else if (run_all_images) {
                         exe_log_1.cmd('docker', ["stop", "nodespull_server.js_1"], false);
                         exe_log_1.cmd('docker', ["rm", "nodespull_server.js_1"], false);
-                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-all.yml", "up", "--build"], true);
+                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.getEtc_os_dir() + "/docker-compose-all.yml", "up", "--build"], true);
                     }
                     else if (stop_all_images) {
-                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-all.yml", "down"], true);
+                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.getEtc_os_dir() + "/docker-compose-all.yml", "down"], true);
                     }
                     else if (buildFlag) {
-                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-all.yml", "build"], false);
+                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.getEtc_os_dir() + "/docker-compose-all.yml", "build"], false);
                     }
                     else if (run_dbImages_only) {
                         console.log("\n\n Wait until no new event, then open a new terminal to run your app.\n\n\n");
-                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-db.yml", "up",], true);
+                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.getEtc_os_dir() + "/docker-compose-db.yml", "up",], true);
                     }
                     else if (stop_dbImages_only) {
-                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-db.yml", "down"], true);
+                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.getEtc_os_dir() + "/docker-compose-db.yml", "down"], true);
                     }
                     else if (status) {
-                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.etc_os_dir + "/docker-compose-all.yml", "ps"], true);
+                        exe_log_1.cmd('docker-compose', ["-f", paths_1.PathVar.getEtc_os_dir() + "/docker-compose-all.yml", "ps"], true);
                     }
                     else if (runFlag || runFlag_fromContainer) {
                         // Server.isRunning = true;
@@ -367,3 +369,5 @@ exports.npAuthProfile = {
      */
     oauth2: crypt_1.AuthController.oauth2
 };
+if (paths_1.PathVar.isProcessFromMocha)
+    new files_runner_1.App_FilesLoader();

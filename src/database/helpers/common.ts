@@ -5,8 +5,8 @@ import { Log } from "../../etc/log"
 
 export function getCurrentDBVersion(dbName:string):number{
     const dbPath = dbName+"-db"
-    if(!fs.existsSync(PathVar.dbModule+"/"+dbPath)) return 0
-    const dbDirents = fs.readdirSync(PathVar.dbModule+"/"+dbPath, { withFileTypes: true });
+    if(!fs.existsSync(PathVar.getDbModule()+"/"+dbPath)) return 0
+    const dbDirents = fs.readdirSync(PathVar.getDbModule()+"/"+dbPath, { withFileTypes: true });
     for(let dirName of getDirNames(dbDirents)) if(dirName.slice(0,4) == "at.v") return Number(dirName.slice(4))
     return 0
 }

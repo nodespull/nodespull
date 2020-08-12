@@ -40,7 +40,7 @@ function newService(args) {
             serviceVarName = serviceParts[0];
             moduleVarName = null;
         }
-        if (moduleVarName == "main.module" || !moduleVarName)
+        if ((moduleVarName && ["main.module", "main.mod"].includes(moduleVarName)) || !moduleVarName)
             moduleVarName = "mainModule";
         if (moduleVarName.toLowerCase().includes(".module"))
             moduleVarName = moduleVarName.toLowerCase().split(".")[0] + "Module";
@@ -51,20 +51,20 @@ function newService(args) {
         let moduleDirName = moduleVarName.substr(0, moduleVarName.length - 1 * "Module".length) + "-module";
         // let servicePath = root+"/main-module/services"
         // if(moduleVarName != "mainModule") servicePath = root+"/"+moduleVarName+"/services"
-        let servicePath = paths_1.PathVar.appModule + "/" + moduleDirName + "/services";
+        let servicePath = paths_1.PathVar.getAppModule() + "/" + moduleDirName + "/services";
         // populate service file with appropriate template
         let serviceFileRef = "";
         switch (option) {
             case "--boot":
             case "-b": {
-                serviceFileRef = servicePath + "/self-boot/" + serviceVarName + ".service.js";
+                serviceFileRef = servicePath + "/self-boot/" + serviceVarName + ".srv.js";
                 exe_log_1.cmd("touch", [serviceFileRef]);
                 fs_1.default.writeFile(serviceFileRef, service_boot_template_1.default(serviceVarName, moduleVarName), () => { });
                 break;
             }
             case "--pipe":
             case "-p": {
-                serviceFileRef = servicePath + "/pipe-usable/" + serviceVarName + ".service.js";
+                serviceFileRef = servicePath + "/pipe-usable/" + serviceVarName + ".srv.js";
                 exe_log_1.cmd("touch", [serviceFileRef]);
                 fs_1.default.writeFile(serviceFileRef, service_pipe_template_1.default(serviceVarName, moduleVarName), () => { });
                 break;
@@ -77,14 +77,14 @@ function newService(args) {
             //     break
             // }
             default: {
-                serviceFileRef = servicePath + "/generic/" + serviceVarName + ".service.js";
+                serviceFileRef = servicePath + "/generic/" + serviceVarName + ".srv.js";
                 exe_log_1.cmd("touch", [serviceFileRef]);
                 fs_1.default.writeFile(serviceFileRef, service_template_1.default(serviceVarName, moduleVarName), () => { });
                 break;
             }
         }
         if (moduleVarName == "mainModule")
-            exe_log_1.cmd("mkdir", ["-p", paths_1.PathVar.appModule + "/main-module/services"]);
+            exe_log_1.cmd("mkdir", ["-p", paths_1.PathVar.getAppModule() + "/main-module/services"]);
     });
 }
 exports.newService = newService;

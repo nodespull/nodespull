@@ -76,12 +76,12 @@ function newRoute(name) {
             fileName = fileName != "" ? (fileName + "." + e) : e;
             fileName_withUnderscore = fileName_withUnderscore != "" ? (fileName_withUnderscore + "." + e) : "_" + e;
             routeDirPath = routeDirPath + "/" + fileName_withUnderscore;
-            yield exe_log_1.cmd("mkdir", ["-p", paths_1.PathVar.appModule + "/" + routeDirPath], false);
+            yield exe_log_1.cmd("mkdir", ["-p", paths_1.PathVar.getAppModule() + "/" + routeDirPath], false);
         }
         setTimeout(() => {
             for (let templGroupKey of Object.keys(templateList)) {
                 let templDirPath = routeDirPath + "/" + fileName + "." + templGroupKey;
-                exe_log_1.cmd("mkdir", ["-p", paths_1.PathVar.appModule + "/" + templDirPath]);
+                exe_log_1.cmd("mkdir", ["-p", paths_1.PathVar.getAppModule() + "/" + templDirPath]);
                 for (let templateKey of Object.keys(templateList[templGroupKey])) {
                     let templFilePath = templDirPath + "/" + (fileName + "." + templGroupKey);
                     let extCount = 2;
@@ -95,8 +95,8 @@ function newRoute(name) {
                     }
                     else
                         templFilePath += ".js";
-                    exe_log_1.cmd("touch", [paths_1.PathVar.appModule + "/" + templFilePath]);
-                    fs_1.default.writeFile(paths_1.PathVar.appModule + "/" + templFilePath, getTemplate(moduleVarName, templDirPath + "/" + fileName, //remove initial underscore
+                    exe_log_1.cmd("touch", [paths_1.PathVar.getAppModule() + "/" + templFilePath]);
+                    fs_1.default.writeFile(paths_1.PathVar.getAppModule() + "/" + templFilePath, getTemplate(moduleVarName, templDirPath + "/" + fileName, //remove initial underscore
                     templateList[templGroupKey][templateKey], templFilePath, extCount), () => { });
                 }
             }

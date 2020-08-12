@@ -38,12 +38,12 @@ function newAuthProfile(args) {
 }
 exports.newAuthProfile = newAuthProfile;
 function newJWTAuthProfile(name) {
-    let path = paths_1.PathVar.src + "/auth/jwt/" + name + ".jwt.js";
+    let path = paths_1.PathVar.getSrc() + "/auth/jwt/" + name + ".jwt.js";
     exe_log_1.cmd("touch", [path]); // create module file
     fs_1.default.writeFile(path, jwt_template_1.default(name), () => { }); // populate module file with template
 }
 function newOauth2AuthProfile(name) {
-    let path = paths_1.PathVar.src + "/auth/oauth2/" + name + ".oauth2.js";
+    let path = paths_1.PathVar.getSrc() + "/auth/oauth2/" + name + ".oauth2.js";
     exe_log_1.cmd("touch", [path]); // create module file
     fs_1.default.writeFile(path, oauth2_template_1.default(name), () => { }); // populate module file with template
 }

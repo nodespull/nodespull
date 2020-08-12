@@ -28,7 +28,7 @@ export async function newService(args:string[]){
         serviceVarName = serviceParts[0]
         moduleVarName = null
     }
-    if(moduleVarName == "main.module" || !moduleVarName) moduleVarName = "mainModule"
+    if( (moduleVarName && ["main.module", "main.mod"].includes(moduleVarName)) || !moduleVarName) moduleVarName = "mainModule"
     if(moduleVarName.toLowerCase().includes(".module")) moduleVarName = moduleVarName.toLowerCase().split(".")[0]+"Module"
     else if (moduleVarName != "mainModule") throw error.wrongUsage
 
@@ -38,21 +38,21 @@ export async function newService(args:string[]){
 
     // let servicePath = root+"/main-module/services"
     // if(moduleVarName != "mainModule") servicePath = root+"/"+moduleVarName+"/services"
-    let servicePath = PathVar.appModule+"/"+moduleDirName+"/services"
+    let servicePath = PathVar.getAppModule()+"/"+moduleDirName+"/services"
 
     // populate service file with appropriate template
     let serviceFileRef = ""
     switch(option) {
         case "--boot":
         case "-b": {
-            serviceFileRef = servicePath+"/self-boot/"+serviceVarName+".service.js"
+            serviceFileRef = servicePath+"/self-boot/"+serviceVarName+".srv.js"
             cmd("touch",[serviceFileRef])
             fs.writeFile(serviceFileRef, getBootTemplate(serviceVarName, moduleVarName), ()=>{})
             break
         }
         case "--pipe":
         case "-p": {
-            serviceFileRef = servicePath+"/pipe-usable/"+serviceVarName+".service.js"
+            serviceFileRef = servicePath+"/pipe-usable/"+serviceVarName+".srv.js"
             cmd("touch",[serviceFileRef])
             fs.writeFile(serviceFileRef, getPipeTemplate(serviceVarName, moduleVarName), ()=>{})
             break
@@ -65,13 +65,13 @@ export async function newService(args:string[]){
         //     break
         // }
         default:{
-            serviceFileRef = servicePath+"/generic/"+serviceVarName+".service.js"
+            serviceFileRef = servicePath+"/generic/"+serviceVarName+".srv.js"
             cmd("touch",[serviceFileRef])
             fs.writeFile(serviceFileRef, getDefaultTemplate(serviceVarName, moduleVarName), ()=>{})
             break
         }
     }
 
-    if(moduleVarName == "mainModule") cmd("mkdir", ["-p", PathVar.appModule+"/main-module/services"]);
+    if(moduleVarName == "mainModule") cmd("mkdir", ["-p", PathVar.getAppModule()+"/main-module/services"]);
 
 }
