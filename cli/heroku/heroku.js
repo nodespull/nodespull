@@ -79,7 +79,7 @@ function uploadImage(path, dockerfile, appName) {
     console.log("\n\nThis might take a while. Please take a drink and relax..\n\n");
     exe_log_1.cmd("heroku", ["container:push", "web", "-a", appName]);
     exe_log_1.cmd("heroku", ["container:release", "web", "-a", appName]);
-    console.log("preparing url... (20s)");
+    console.log("terminating tasks... (this might take up to a min)");
     setTimeout(() => {
         exe_log_1.cmd("heroku", ["open", "-a", appName]);
         exe_log_1.cmd("rm", ["./", path]);

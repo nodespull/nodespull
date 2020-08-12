@@ -11,7 +11,7 @@ COPY package*.json ./
 
 RUN npm install --quiet
 
-CMD ["node","${rootFile_name}","run"]
+CMD ["node","src/${rootFile_name}","run","--dev"]
 
 COPY . .
 `;
