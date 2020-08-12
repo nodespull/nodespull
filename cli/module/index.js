@@ -17,7 +17,7 @@ const exe_log_1 = require("../exe/exe.log");
 const fs_1 = __importDefault(require("fs"));
 const paths_1 = require("../../etc/other/paths");
 const module_template_1 = __importDefault(require("./templates/module.template"));
-const root = paths_1.PathVar.appModule;
+const root = paths_1.PathVar.getAppModule();
 function newModule(moduleName) {
     return __awaiter(this, void 0, void 0, function* () {
         let moduleVarName = moduleName.toLowerCase();

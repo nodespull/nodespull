@@ -19,7 +19,7 @@ const paths_1 = require("../../../etc/other/paths");
 const database_template_1 = __importDefault(require("./templates/database.template"));
 const string_validator_1 = require("../../../etc/system-tools/string-validator");
 const log_1 = require("../../../etc/log");
-const root = paths_1.PathVar.dbModule;
+const root = paths_1.PathVar.getDbModule();
 function newDatabase(dbSelector) {
     return __awaiter(this, void 0, void 0, function* () {
         if (!string_validator_1.StringParser.isExtendedAlphaNum(dbSelector))

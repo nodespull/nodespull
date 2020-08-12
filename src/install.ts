@@ -33,25 +33,25 @@ export async function install(projectName:string, serverPort:number, pull_all:bo
 
 async function install_core(){
     // installs for os (docker files) and np's npm dependencies
-    await run("sys config", "mkdir", ["-p",PathVar.etc_os_dir],(ok:boolean,data?:any)=>{})
+    await run("sys config", "mkdir", ["-p",PathVar.getEtc_os_dir()],(ok:boolean,data?:any)=>{})
     await run("MySQL2 setup", "sudo", ["npm", "i","mysql2"],(ok:boolean,data?:any)=>{})
     //database
-    await run("config database MS", "mkdir", ["-p", PathVar.dbModule],(ok:boolean,data?:any)=>{})
+    await run("config database MS", "mkdir", ["-p", PathVar.getDbModule()],(ok:boolean,data?:any)=>{})
     // await run("database", "mkdir", ["-p", PathVar.dbModule+"/noSQL"],(ok:boolean,data?:any)=>{})
     //app env
-    await run("setup np appEnvir", "mkdir", ["-p", PathVar.appEnvModule],(ok:boolean,data?:any)=>{
-        run("app local env", "touch", [PathVar.appEnvModule+"/app.local.env.js"],(ok:boolean,data?:any)=>{
-            if(ok)fs.writeFile(PathVar.appEnvModule+"/app.local.env.js", getAppEnvTemplate("local"),()=>{})
+    await run("setup np appEnvir", "mkdir", ["-p", PathVar.getAppEnvModule()],(ok:boolean,data?:any)=>{
+        run("app local env", "touch", [PathVar.getAppEnvModule()+"/app.local.env.js"],(ok:boolean,data?:any)=>{
+            if(ok)fs.writeFile(PathVar.getAppEnvModule()+"/app.local.env.js", getAppEnvTemplate("local"),()=>{})
         })
-        run("app prod env", "touch", [PathVar.appEnvModule+"/app.prod.env.js"],(ok:boolean,data?:any)=>{
-            if(ok)fs.writeFile(PathVar.appEnvModule+"/app.prod.env.js", getAppEnvTemplate("prod"),()=>{})
+        run("app prod env", "touch", [PathVar.getAppEnvModule()+"/app.prod.env.js"],(ok:boolean,data?:any)=>{
+            if(ok)fs.writeFile(PathVar.getAppEnvModule()+"/app.prod.env.js", getAppEnvTemplate("prod"),()=>{})
         })
     })
-    await run("config jwt auth profile", "mkdir", ["-p", PathVar.root+"/auth/jwt"],(ok:boolean,data?:any)=>{})
-    await run("config oauth auth profile", "mkdir", ["-p", PathVar.root+"/auth/oauth2"],(ok:boolean,data?:any)=>{})
+    await run("config jwt auth profile", "mkdir", ["-p", PathVar.getRoot()+"/auth/jwt"],(ok:boolean,data?:any)=>{})
+    await run("config oauth auth profile", "mkdir", ["-p", PathVar.getRoot()+"/auth/oauth2"],(ok:boolean,data?:any)=>{})
 
     // main module
-    await run("create app files", "mkdir", ["-p", PathVar.appModule],(ok:boolean,data?:any)=>{})
+    await run("create app files", "mkdir", ["-p", PathVar.getAppModule()],(ok:boolean,data?:any)=>{})
     cliCmd("c module main", false)
 }
 
@@ -71,31 +71,31 @@ async function install_others(serverPort:number){
         else console.log("Error: README.md");
     }, {serverPort,dbConsoleport,rootFile_name});
 
-    await run("Dockerfile", "touch", [PathVar.etc_os_dir+'/Dockerfile'], (ok:boolean, data?:any)=>{
-        if(ok) fs.writeFile(PathVar.etc_os_dir+"/Dockerfile",dockerfile(data)
+    await run("Dockerfile", "touch", [PathVar.getEtc_os_dir()+'/Dockerfile'], (ok:boolean, data?:any)=>{
+        if(ok) fs.writeFile(PathVar.getEtc_os_dir()+"/Dockerfile",dockerfile(data)
         ,(err:any)=>{});
         else console.log("Error: Dockerfile");
     }, {serverPort,rootFile_name});
 
-    await run("docker-compose-all", "touch", [PathVar.etc_os_dir+'/docker-compose-all.yml'], (ok:boolean, data?:any)=>{
-        if(ok) fs.writeFile(PathVar.etc_os_dir+"/docker-compose-all.yml",dockerComposeAll(data)
+    await run("docker-compose-all", "touch", [PathVar.getEtc_os_dir()+'/docker-compose-all.yml'], (ok:boolean, data?:any)=>{
+        if(ok) fs.writeFile(PathVar.getEtc_os_dir()+"/docker-compose-all.yml",dockerComposeAll(data)
         ,(err:any)=>{});
         else console.log("Error: docker-compose-all.yml");
     }, {serverPort, dbPort, dbConsoleport, rootFile_name, serverWaitTime_forDB, dbPortTest});
 
-    await run("docker-compose-db", "touch", [PathVar.etc_os_dir+'/docker-compose-db.yml'], (ok:boolean, data?:any)=>{
-        if(ok) fs.writeFile(PathVar.etc_os_dir+"/docker-compose-db.yml",dockerComposeDB(data)
+    await run("docker-compose-db", "touch", [PathVar.getEtc_os_dir()+'/docker-compose-db.yml'], (ok:boolean, data?:any)=>{
+        if(ok) fs.writeFile(PathVar.getEtc_os_dir()+"/docker-compose-db.yml",dockerComposeDB(data)
         ,(err:any)=>{});
         else console.log("Error: docker-compose-db.yml");
     }, {serverPort, dbPort, dbConsoleport, rootFile_name, serverWaitTime_forDB, dbPortTest});
 
-    await run("wait-for-it", "touch", [PathVar.etc_os_dir+"/wait-for-it.sh"], (ok:boolean, data?:any)=>{
+    await run("wait-for-it", "touch", [PathVar.getEtc_os_dir()+"/wait-for-it.sh"], (ok:boolean, data?:any)=>{
         if(ok){
-            fs.writeFile(PathVar.etc_os_dir+"/wait-for-it.sh", waitForIt(),(err:any)=>{})
+            fs.writeFile(PathVar.getEtc_os_dir()+"/wait-for-it.sh", waitForIt(),(err:any)=>{})
         }
     })
 
-    await run("wait-for-it chmod write", "sudo", ["chmod", "+x",PathVar.etc_os_dir+"/wait-for-it.sh"],(ok:boolean,data?:any)=>{})
+    await run("wait-for-it chmod write", "sudo", ["chmod", "+x",PathVar.getEtc_os_dir()+"/wait-for-it.sh"],(ok:boolean,data?:any)=>{})
     // await run("npm","install",["-g","nodemon"], (ok:boolean, data?:any)=>{});
     // await run("npm","install",["-g","heroku"], (ok:boolean, data?:any)=>{});
    // await run("npm","install",["-g","sequelize-cli"], (ok:boolean, data?:any)=>{});

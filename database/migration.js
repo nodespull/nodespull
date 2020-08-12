@@ -83,38 +83,38 @@ class Migration extends common_2.FilesEngine {
     update_FileStructure_onUp() {
         if (this.currDBVersion >= 2)
             exe_1.default("mv", [
-                paths_1.PathVar.dbModule + "/" + this.dbPath + "/archives/last.v" + (this.currDBVersion - 1),
-                paths_1.PathVar.dbModule + "/" + this.dbPath + "/archives/v" + (this.currDBVersion - 1)
+                paths_1.PathVar.getDbModule() + "/" + this.dbPath + "/archives/last.v" + (this.currDBVersion - 1),
+                paths_1.PathVar.getDbModule() + "/" + this.dbPath + "/archives/v" + (this.currDBVersion - 1)
             ], true); // mv last.vx to vx
         if (this.currDBVersion >= 1)
             exe_1.default("mv", [
-                paths_1.PathVar.dbModule + "/" + this.dbPath + "/at.v" + (this.currDBVersion),
-                paths_1.PathVar.dbModule + "/" + this.dbPath + "/archives/last.v" + (this.currDBVersion)
+                paths_1.PathVar.getDbModule() + "/" + this.dbPath + "/at.v" + (this.currDBVersion),
+                paths_1.PathVar.getDbModule() + "/" + this.dbPath + "/archives/last.v" + (this.currDBVersion)
             ], true); // mv at.vx to last.vx
         exe_1.default("cp", [
-            "-r", paths_1.PathVar.dbModule + "/" + this.dbPath + "/stage.v" + (this.currDBVersion + 1),
-            paths_1.PathVar.dbModule + "/" + this.dbPath + "/at.v" + (this.currDBVersion + 1)
+            "-r", paths_1.PathVar.getDbModule() + "/" + this.dbPath + "/stage.v" + (this.currDBVersion + 1),
+            paths_1.PathVar.getDbModule() + "/" + this.dbPath + "/at.v" + (this.currDBVersion + 1)
         ], true); // cp stage.vx to at.vx
         exe_1.default("mv", [
-            paths_1.PathVar.dbModule + "/" + this.dbPath + "/stage.v" + (this.currDBVersion + 1),
-            paths_1.PathVar.dbModule + "/" + this.dbPath + "/stage.v" + (this.currDBVersion + 2)
+            paths_1.PathVar.getDbModule() + "/" + this.dbPath + "/stage.v" + (this.currDBVersion + 1),
+            paths_1.PathVar.getDbModule() + "/" + this.dbPath + "/stage.v" + (this.currDBVersion + 2)
         ], true); // mv stage.vx to stage.v(x+1)
         new db_model_rel_files_1.DB_Model_Rel_FilesLoader({ overwrite_newStageScripts: true, dbConnectionSelector: this.dbConnectionSelector });
     }
     update_FileStructure_onDown() {
-        exe_1.default("rm", ["-rf", paths_1.PathVar.dbModule + "/" + this.dbPath + "/stage.v" + (this.currDBVersion + 1)], true); // rm stage.vx
+        exe_1.default("rm", ["-rf", paths_1.PathVar.getDbModule() + "/" + this.dbPath + "/stage.v" + (this.currDBVersion + 1)], true); // rm stage.vx
         exe_1.default("mv", [
-            paths_1.PathVar.dbModule + "/" + this.dbPath + "/at.v" + (this.currDBVersion),
-            paths_1.PathVar.dbModule + "/" + this.dbPath + "/stage.v" + (this.currDBVersion)
+            paths_1.PathVar.getDbModule() + "/" + this.dbPath + "/at.v" + (this.currDBVersion),
+            paths_1.PathVar.getDbModule() + "/" + this.dbPath + "/stage.v" + (this.currDBVersion)
         ], true); // mv at.vx to stage.vx
         exe_1.default("mv", [
-            paths_1.PathVar.dbModule + "/" + this.dbPath + "/archives/last.v" + (this.currDBVersion - 1),
-            paths_1.PathVar.dbModule + "/" + this.dbPath + "/at.v" + (this.currDBVersion - 1)
+            paths_1.PathVar.getDbModule() + "/" + this.dbPath + "/archives/last.v" + (this.currDBVersion - 1),
+            paths_1.PathVar.getDbModule() + "/" + this.dbPath + "/at.v" + (this.currDBVersion - 1)
         ], true); // mv last.vx to at.vx
         if (this.currDBVersion >= 3)
             exe_1.default("mv", [
-                paths_1.PathVar.dbModule + "/" + this.dbPath + "/archives/v" + (this.currDBVersion - 2),
-                paths_1.PathVar.dbModule + "/" + this.dbPath + "/archives/last.v" + (this.currDBVersion - 2)
+                paths_1.PathVar.getDbModule() + "/" + this.dbPath + "/archives/v" + (this.currDBVersion - 2),
+                paths_1.PathVar.getDbModule() + "/" + this.dbPath + "/archives/last.v" + (this.currDBVersion - 2)
             ], true); // mv vx to last.vx
     }
 }

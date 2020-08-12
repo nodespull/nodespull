@@ -19,7 +19,7 @@ const dockerfile_1 = require("../deploy/templates/dockerfile");
 const json_1 = require("../../etc/system-tools/json");
 const stdin_1 = require("../../etc/system-tools/stdin");
 const paths_1 = require("../../etc/other/paths");
-let packageJson = json_1.parseJSON(paths_1.PathVar.packageJson);
+let packageJson = json_1.parseJSON(paths_1.PathVar.getPackageJson());
 const rootFile = process.argv[1]; //fs.readFileSync("./"+packageJson.main,"utf8");
 //log into heroku
 function herokuLogin() {

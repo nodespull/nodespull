@@ -1,44 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.res = void 0;
-class res {
+exports.npResponse = void 0;
+class npResponse {
     constructor() {
-        this.clientResponse = new Promise((resolve, reject) => {
-            this.runTest = resolve;
-        });
-    }
-    toClient() {
-        return this.clientResponse;
-    }
-    //setters
-    send(text) {
-        if (text)
-            this._sendValue = text;
-        else
-            this._sendValue = true;
-        if (this.runTest)
-            this.runTest(); // run test
-        return this;
-    }
-    json(json) {
-        this._json = json;
-        if (this.runTest)
-            this.runTest(); // run test
-        return this;
-    }
-    status(number) {
-        this._status = number;
-        return this;
-    }
-    //getters
-    getStatusVal() {
-        return this._status;
-    }
-    getJsonVal() {
-        return this._json;
-    }
-    getSendVal() {
-        return this._sendValue;
+        this._status = 200;
+        this.callback = () => { };
+        //setters
+        this.status = (number) => {
+            this._status = number;
+            return this;
+        };
     }
 }
-exports.res = res;
+exports.npResponse = npResponse;

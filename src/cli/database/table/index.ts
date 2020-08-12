@@ -28,11 +28,11 @@ export async function newTable(arg:string){
 
     let currVersion = getCurrentDBVersion(dbConnectionSelector)
     
-    await cmd("mkdir", ["-p", PathVar.dbModule+`/${dbConnectionSelector}-db/stage.v${currVersion+1}/`+tableName+".model"], false);
-    await cmd("mkdir", ["-p", PathVar.dbModule+`/${dbConnectionSelector}-db/archives`], false);
+    await cmd("mkdir", ["-p", PathVar.getDbModule()+`/${dbConnectionSelector}-db/stage.v${currVersion+1}/`+tableName+".model"], false);
+    await cmd("mkdir", ["-p", PathVar.getDbModule()+`/${dbConnectionSelector}-db/archives`], false);
 
     for(let template of Object.keys(templates)){
-        let path = PathVar.dbModule+`/${dbConnectionSelector}-db/stage.v${currVersion+1}/`+tableName+".model/"+tableName+"."+template+".js";
+        let path = PathVar.getDbModule()+`/${dbConnectionSelector}-db/stage.v${currVersion+1}/`+tableName+".model/"+tableName+"."+template+".js";
         await cmd("touch",[path]), false;
         await fs.writeFile(path,getTemplate(template, tableName, dbConnectionSelector),()=>{})
     }

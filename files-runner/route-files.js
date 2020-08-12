@@ -6,11 +6,11 @@ const paths_1 = require("../etc/other/paths");
 class RestRoute_FilesLoader extends common_1.FilesEngine {
     constructor() {
         super();
-        super.recursiveSearch(paths_1.PathVar.appModule, "delete.js", { runFiles: true });
-        super.recursiveSearch(paths_1.PathVar.appModule, "get.js", { runFiles: true });
-        super.recursiveSearch(paths_1.PathVar.appModule, "head.js", { runFiles: true });
-        super.recursiveSearch(paths_1.PathVar.appModule, "post.js", { runFiles: true });
-        super.recursiveSearch(paths_1.PathVar.appModule, "put.js", { runFiles: true });
+        super.recursiveSearch(paths_1.PathVar.getAppModule(), "delete.js", { runFiles: true });
+        super.recursiveSearch(paths_1.PathVar.getAppModule(), "get.js", { runFiles: true });
+        super.recursiveSearch(paths_1.PathVar.getAppModule(), "head.js", { runFiles: true });
+        super.recursiveSearch(paths_1.PathVar.getAppModule(), "post.js", { runFiles: true });
+        super.recursiveSearch(paths_1.PathVar.getAppModule(), "put.js", { runFiles: true });
     }
 }
 exports.RestRoute_FilesLoader = RestRoute_FilesLoader;

@@ -18,12 +18,12 @@ export class DB_Model_Rel_FilesLoader extends FilesEngine{
         if(args.dbConnectionSelector && DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRunning) {
             this.dbPath = args.dbConnectionSelector+"-db"
             let targetFolderPath:string|undefined
-            if(DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRevertMode) targetFolderPath = this.getFolderPath(PathVar.dbModule+"/"+this.dbPath, "stage.v") // migration down scripts are in this folder
-            else targetFolderPath = this.getFolderPath(PathVar.dbModule+"/"+this.dbPath, "at.v") // migration up are here
+            if(DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRevertMode) targetFolderPath = this.getFolderPath(PathVar.getDbModule()+"/"+this.dbPath, "stage.v") // migration down scripts are in this folder
+            else targetFolderPath = this.getFolderPath(PathVar.getDbModule()+"/"+this.dbPath, "at.v") // migration up are here
 
             if(!targetFolderPath) 
                 new Log(`missing folder with prefix '${DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRevertMode?
-                    "stage.v":"at.v"}' in '${PathVar.dbModule.split("/").slice(-2).join("/")}' directory tree`).throwError()
+                    "stage.v":"at.v"}' in '${PathVar.getDbModule().split("/").slice(-2).join("/")}' directory tree`).throwError()
             else{
                 super.recursiveSearch(targetFolderPath, "attribute.js", {runFiles:true});
                 super.recursiveSearch(targetFolderPath, "relation.js", {runFiles:true});
@@ -31,11 +31,11 @@ export class DB_Model_Rel_FilesLoader extends FilesEngine{
             if(args && DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRunning && args.overwrite_newStageScripts) this.updateStageFiles()
         }
         else{
-            const dbFolderPaths:string[] = fs.readdirSync(PathVar.dbModule+"/"+this.dbPath, { withFileTypes: true })
+            const dbFolderPaths:string[] = fs.readdirSync(PathVar.getDbModule()+"/"+this.dbPath, { withFileTypes: true })
                 .filter(dirent => !dirent.isFile())
                 .map(dirent => dirent.name);
             for(let dbFolderPath of dbFolderPaths){
-                let targetFolderPath = this.getFolderPath(PathVar.dbModule+"/"+this.dbPath+"/"+dbFolderPath, "at.v")
+                let targetFolderPath = this.getFolderPath(PathVar.getDbModule()+"/"+this.dbPath+"/"+dbFolderPath, "at.v")
                 if(!targetFolderPath) throw new Log("missing folder with prefix 'at.v' in "+dbFolderPath).getValue()
                 super.recursiveSearch(targetFolderPath, "attribute.js", {runFiles:true});
                 super.recursiveSearch(targetFolderPath, "relation.js", {runFiles:true});
@@ -66,8 +66,8 @@ export class DB_Model_Rel_FilesLoader extends FilesEngine{
      * update stage files with scripts from 'at.vx'
     */
     updateStageFiles(){
-        let modelPaths = super.recursiveSearch(PathVar.dbModule+"/"+this.dbPath+"/stage.v"+(getCurrentDBVersion(this.args.dbConnectionSelector!)+1)+"/","attribute.js",{runFiles:false})
-        let relPaths = super.recursiveSearch(PathVar.dbModule+"/"+this.dbPath+"/stage.v"+(getCurrentDBVersion(this.args.dbConnectionSelector!)+1)+"/","relation.js",{runFiles:false})
+        let modelPaths = super.recursiveSearch(PathVar.getDbModule()+"/"+this.dbPath+"/stage.v"+(getCurrentDBVersion(this.args.dbConnectionSelector!)+1)+"/","attribute.js",{runFiles:false})
+        let relPaths = super.recursiveSearch(PathVar.getDbModule()+"/"+this.dbPath+"/stage.v"+(getCurrentDBVersion(this.args.dbConnectionSelector!)+1)+"/","relation.js",{runFiles:false})
         for(let path of modelPaths){
             let tableName = path.split("/").splice(-1)[0].split(".")[0]
             let modelFile = fs.readFileSync(path,'utf8')

@@ -21,17 +21,6 @@ export class npModule {
                         this._service[serviceName] = module._service[serviceName]
         }
 
-    /**
-     * forward http request to another route
-     * @param {Request} req request object
-     * @param {Response} res response object
-     * @return {npRouteForward} routing object
-     * example: ``` forward(req, res).to(http.GET, "/home")```
-     */
-    _forward(req: Request, res: Response):npRouteForward{
-        return new npRouteForward(req, res, this)
-    }
-
 
     //add a route to module
     _addAndLoadRoute(route: npRouteInterface) {
@@ -121,17 +110,28 @@ export class npModule {
         return {
             name: this._name,
             imports: this._importedModules,
-            forward: this._forward,
+            forward: this.forward,
             service: this.service,
             route: this._route
         }
     }
 
+    /**
+     * forward http request to another route
+     * @param {Request} req request object
+     * @param {Response} res response object
+     * @return {npRouteForward} routing object
+     * example: ``` forward(req, res).to(http.GET, "/home")```
+     */
+    forward(req: Request):npRouteForward{
+        return new npRouteForward(req, {}, this)
+    }
+
 }
 
 
-class npRouteForward {
-    constructor(private req:Request, private res:Response, private module:any){}
+export class npRouteForward {
+    constructor(private req:Request, private res:any, private module:any){}
     // module type will be npModuleSelfObjectInterface
 
     /**
@@ -144,19 +144,35 @@ class npRouteForward {
      * })
      * ```
      */
-    to(method: Function, path: string, callback?:Function): void {
-        let route = this.module.route[method.name + ":" + path]
-        if(!route && this.module.imports.length > 0) 
-            for(let module of this.module.imports) module.getSelfObject().forward(this.req,this.res).to(method,path,callback)
-        else if (!route) new Log(`route forwarding: "${method.name}:${path}" not found"`).throwError()
-        else { // route found
-            if(callback){
-                let clonedRes:any = cloneObject(this.res) // json, send functions are modified to return to original endpoint
-                clonedRes['json'] = (data:any)=>{ callback(Number(clonedRes.status) || 200, data) }
-                clonedRes['send'] = (str:string)=>{ callback(Number(clonedRes.status) || 200, str) }
-                route.handler(this.req, clonedRes);
+    async to(method: Function, path: string):Promise<Array<any|null>>{ 
+        let promise:Promise<Array<any|null>> = Promise.resolve([null,null])
+        let _useParent = false;
+        let attemptParent:Promise<any[]> = new Promise((resolve, reject) => {
+            this.module.route = this.module.route || this.module._route
+            this.module.imports = this.module.imports || this.module._importedModules
+            let route = this.module.route[method.name + ":" + path]
+
+            if(!route && this.module.imports.length > 0) 
+                for(let module of this.module.imports) {
+                    let attemptChild = module.forward(this.req,this.res).to(method,path)
+                    if(attemptChild instanceof Promise) promise = attemptChild
+                    break
+                }
+            //else if (!route) new Log(`route forwarding: "${this.method.name}:${this.path}" not found"`).throwError()
+            else if(route){ // route found
+                _useParent = true
+                // let clonedRes:any = cloneObject(this.res) // json, send functions are modified to return to original endpoint
+                // let status:number = clonedRes.status || 200
+                this.res["_status"] = 200
+                this.res["status"] = (val:number)=>{this.res["_status"] = val; return this.res}
+                this.res["json"] = (data:any)=>resolve([this.res["_status"], data])
+                this.res["send"] = (str:string)=>resolve([this.res["_status"], str])
+                route.handler(this.req, this.res);
             }
-            else route.handler(this.req, this.res);
-        }
+        })
+        if(_useParent) promise = attemptParent 
+        return promise
     }
+
+ 
 }

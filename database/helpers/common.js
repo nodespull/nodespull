@@ -8,9 +8,9 @@ const fs_1 = __importDefault(require("fs"));
 const paths_1 = require("../../etc/other/paths");
 function getCurrentDBVersion(dbName) {
     const dbPath = dbName + "-db";
-    if (!fs_1.default.existsSync(paths_1.PathVar.dbModule + "/" + dbPath))
+    if (!fs_1.default.existsSync(paths_1.PathVar.getDbModule() + "/" + dbPath))
         return 0;
-    const dbDirents = fs_1.default.readdirSync(paths_1.PathVar.dbModule + "/" + dbPath, { withFileTypes: true });
+    const dbDirents = fs_1.default.readdirSync(paths_1.PathVar.getDbModule() + "/" + dbPath, { withFileTypes: true });
     for (let dirName of getDirNames(dbDirents))
         if (dirName.slice(0, 4) == "at.v")
             return Number(dirName.slice(4));

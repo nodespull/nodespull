@@ -6,7 +6,7 @@ const paths_1 = require("../etc/other/paths");
 class Service_FilesLoader extends common_1.FilesEngine {
     constructor() {
         super();
-        super.recursiveSearch(paths_1.PathVar.appModule, "service.js", { runFiles: true });
+        super.recursiveSearch(paths_1.PathVar.getAppModule(), "srv.js", { runFiles: true });
     }
 }
 exports.Service_FilesLoader = Service_FilesLoader;

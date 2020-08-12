@@ -6,7 +6,7 @@ import getDatabaseTemplate from "./templates/database.template"
 import { StringParser } from "../../../etc/system-tools/string-validator";
 import { Log } from "../../../etc/log";
 
-const root = PathVar.dbModule;
+const root = PathVar.getDbModule();
 
 export async function newDatabase(dbSelector:string){
     if(!StringParser.isExtendedAlphaNum(dbSelector)) throw new Log("ERR: expected alphanumeric for db selector").FgRed().getValue()
