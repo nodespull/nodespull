@@ -1,6 +1,8 @@
 *
+!public/
 !public/*
-!src/*
+!src/
+!src/**
 !.gitignore
 !.npmignore
 !LICENSE

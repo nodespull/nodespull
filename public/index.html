@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+    $(document).ready(function(){
+        $("#1").fadeIn(500);
+        $("#2").delay(500).fadeIn(500);
+        $("#holder").fadeOut(500);
+        $("img").fadeIn(500).css("display","block");
+    });
+    </script>
+    <style>
+        h1  {
+            color: #222;
+            margin-top: 200px;
+            width: 100%;
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        img{
+            margin-top: 30px;
+            display:none;
+            margin-left: auto;
+            margin-right: auto;
+            width: 300px;
+        }
+        #running{
+            display:none;
+            margin-left: auto;
+            margin-right: auto;
+            width: 80px;
+        }
+        span{
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+            display:none;
+        }
+    </style>
+    </head>
+
+
+    <body style="width: 100%;">
+
+    <h1><span id="1">nodespull</span></h1>
+    <span id="2" style="font-size: .8em;">* Running API Server *</span>
+    <span id="holder"  style="display: block;font-size: .8em;">&nbsp;</span>
+    <img id="running" src="./running.gif" alt="nodespull image">
+
+    <!-- <img src="./img.png" alt="nodespull image"> -->
+    
+
+    </body>
+</html>
