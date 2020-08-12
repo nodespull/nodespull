@@ -22,7 +22,7 @@ async function main(){
 }
 
 
-export async function getCmd(input:string, loop:boolean){
+export async function getCmd(input:string, loop:boolean, options?:CliCmdOptions_interface){
     if(input != cliStack[cliStack.length-1] && input.length > 0) cliStack.push(input)
     if(input == "clear"){
         stdinInterface.interface.removeAllListeners()
@@ -48,6 +48,7 @@ export async function getCmd(input:string, loop:boolean){
             case "module": 
                 if(createCmd.includes(userCmd)) await newModule(name);
                 else throw error.falseCmd;
+                if(options && options.silent) break
                 new Log("\nModudle \""+ name+"\" successfully created").FgGreen().printValue()
                 break;
             case "route": 
@@ -132,4 +133,9 @@ export const error = {
     falseCmd: new Log("ERR: Command not recognized. Enter `help` for info").FgRed().getValue(),
     falseNameFormat: new Log("ERR: Name format incorrect").FgRed().getValue(),
     wrongUsage: new Log("ERR: command usage incorrect").FgRed().getValue()
+}
+
+
+interface CliCmdOptions_interface{
+    silent:boolean
 }

@@ -9,6 +9,14 @@ import { PathVar } from "../etc/other/paths"
 
 export class DB_Model_Rel_FilesLoader extends FilesEngine{
 
+    static isLoaded:boolean = false
+    static load(){
+        if(DB_Model_Rel_FilesLoader.isLoaded) return
+        new DB_Model_Rel_FilesLoader({dbConnectionSelector:null})
+        DB_Model_Rel_FilesLoader.isLoaded = true
+    }
+
+
     tableNames_definitions_map:{[tableName:string]:any} = {} // used to store the "at.vx" definitions and update "stage.vx" files
     tableNames_relations_map:{[tableName:string]:any} = {}
     dbPath:string = ""

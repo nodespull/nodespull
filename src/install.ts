@@ -2,8 +2,6 @@
 const execa = require('execa');
 const fs = require("fs");
 
-import {userInput} from "./etc/system-tools/stdin"
-import {DB_PORT_TEST} from "./server"
 import {getCmd as cliCmd} from "./cli"
 
 // files list
@@ -14,19 +12,26 @@ import nodespullReadme from "./etc/developer-op-files/nodespull-README";
 import waitForIt from "./etc/developer-op-files/wait-for-it";
 import getAppEnvTemplate from "./templates/app-env"
 import { PathVar } from "./etc/other/paths"
+import { Log } from "./etc/log";
+import bootconfStore from "./bootstrap/bootconf/bootconf-store";
+
 
 export const rootFile_name:string = "server.js"
 export let project_name:string = ""
 
 
-export async function install(projectName:string, serverPort:number, pull_all:boolean, /*setupDb:Function, dbTools:any/*, dbConstroller:any*/){
+export async function initializeNodespull(){
+    let projectName:string|null = process.argv[3] || null
+    if(!projectName){
+        new Log("Project name required for creation").FgRed().printValue()
+        process.exit(1)
+    }
     project_name = projectName
     console.log("\n** nodespull setup **\n");
     await install_core();
-    if(pull_all) await install_others(serverPort);
+    await install_others(bootconfStore.server.PORT);
     console.log("\n.. 100% - complete.\n")
     // await run("readme", "open", ["-a", "TextEdit", "nodespull-README.md"],(ok:boolean,data?:any)=>{})
-
     //setupDb(dbConstroller);
 }
 
@@ -47,18 +52,18 @@ async function install_core(){
             if(ok)fs.writeFile(PathVar.getAppEnvModule()+"/app.prod.env.js", getAppEnvTemplate("prod"),()=>{})
         })
     })
-    await run("config jwt auth profile", "mkdir", ["-p", PathVar.getRoot()+"/auth/jwt"],(ok:boolean,data?:any)=>{})
-    await run("config oauth auth profile", "mkdir", ["-p", PathVar.getRoot()+"/auth/oauth2"],(ok:boolean,data?:any)=>{})
+    await run("config jwt auth profile", "mkdir", ["-p", PathVar.getSrc()+"/auth/jwt"],(ok:boolean,data?:any)=>{})
+    await run("config oauth auth profile", "mkdir", ["-p", PathVar.getSrc()+"/auth/oauth2"],(ok:boolean,data?:any)=>{})
 
     // main module
     await run("create app files", "mkdir", ["-p", PathVar.getAppModule()],(ok:boolean,data?:any)=>{})
-    cliCmd("c module main", false)
+    cliCmd("c module main", false, {silent:true})
 }
 
 async function install_others(serverPort:number){
 
     let dbPort = 3333;
-    let dbPortTest = DB_PORT_TEST;
+    let dbPortTest = 9001;
     let dbConsoleport=8889;
     let serverWaitTime_forDB = 300; //sec
 
@@ -95,7 +100,7 @@ async function install_others(serverPort:number){
         }
     })
 
-    await run("wait-for-it chmod write", "sudo", ["chmod", "+x",PathVar.getEtc_os_dir()+"/wait-for-it.sh"],(ok:boolean,data?:any)=>{})
+    await run("wait-for-it", "sudo", ["chmod", "+x",PathVar.getEtc_os_dir()+"/wait-for-it.sh"],(ok:boolean,data?:any)=>{})
     // await run("npm","install",["-g","nodemon"], (ok:boolean, data?:any)=>{});
     // await run("npm","install",["-g","heroku"], (ok:boolean, data?:any)=>{});
    // await run("npm","install",["-g","sequelize-cli"], (ok:boolean, data?:any)=>{});
@@ -104,7 +109,7 @@ async function install_others(serverPort:number){
 
 async function run(name:string, cmd:string, options:string[], callback?:Function, data?:any){
     //if(cmd=="touch" && fs.existsSync("./"+options[0])) return callback?callback(true,data):null;
-    if(cmd=="sudo") console.log("\n. \""+name+"\" uses admin level permission")
+    if(cmd=="sudo") console.log("\n. \""+name+"\" uses admin level permission .. ")
     await (async () => {
         try {
             const {stdout} = await execa(cmd, options);

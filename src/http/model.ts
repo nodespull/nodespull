@@ -1,7 +1,7 @@
 import { npJWT } from "../crypt/models/jwt";
 
 
-export interface routeHandlerArg_interface {
+export interface npHttpInterfaceArg_interface {
     handler:Function, 
     isRouteActive:boolean, 
     urlParams:string[], 

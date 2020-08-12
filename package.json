@@ -2,9 +2,9 @@
   "name": "@nodespull/core",
   "version": "0.3.14",
   "description": "Node.js server framework from Sodium Servers",
-  "main": "server.js",
+  "main": "entrypoint.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node entrypoint.js"
   },
   "keywords": [
     "route",
@@ -29,6 +29,7 @@
     "@types/cross-spawn": "^6.0.1",
     "@types/express": "^4.17.4",
     "@types/jsonwebtoken": "^8.3.9",
+    "@types/morgan": "^1.9.1",
     "@types/node": "^13.11.0",
     "@types/sequelize": "^4.28.8",
     "@types/validator": "^13.0.0",

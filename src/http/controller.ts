@@ -1,23 +1,24 @@
 import express from "express"
 import {Application} from "express"
 import { npJWT } from "../crypt/models/jwt";
-import { routeHandlerArg_interface } from "./model";
+import { npHttpInterfaceArg_interface } from "./model";
+import { NpServer } from "../bootstrap";
 
 
-export class Route {
+export class npHttpInterface {
     // auth:Authentication;
-    static is_homePath_fromUser:boolean = false;
 
-    constructor(private app:Application){}
+    constructor(){
+    }
 
     /**
      * For auto-generated routes
      */
-    HEAD(args: routeHandlerArg_interface){
+    static HEAD(args: npHttpInterfaceArg_interface){
         if(!args.isRouteActive) return;
         let params = "";
         if(args.urlParams[0]) for(let param of args.urlParams) params += "/:"+param;
-        this.app.head(args.path+params,(req:any, res:any,)=>{
+        NpServer.expressApp.head(args.path+params,(req:any, res:any,)=>{
             if(args.jwtProfile){
                 args.jwtProfile.verifyToken(req,res,()=>{
                     args.handler(req,res);
@@ -30,29 +31,11 @@ export class Route {
     /**
      * For auto-generated routes
      */
-    GET(args: routeHandlerArg_interface){
+    static GET(args: npHttpInterfaceArg_interface){
         if(!args.isRouteActive) return;
         let params = "";
         if(args.urlParams[0]) for(let param of args.urlParams) params += "/:"+param;
-        this.app.get(args.path+params,(req:any, res:any,)=>{
-            if(args.jwtProfile){
-                args.jwtProfile.verifyToken(req,res,()=>{
-                    args.handler(req,res);
-                })
-            } else args.handler(req, res);
-        })
-        if(args.path == "/" || args.path=="") Route.is_homePath_fromUser = true;
-    }
-
-
-    /**
-     * For auto-generated routes
-     */
-    POST(args: routeHandlerArg_interface){
-        if(!args.isRouteActive) return;
-        let params = "";
-        if(args.urlParams[0]) for(let param of args.urlParams) params += "/:"+param;
-        this.app.post(args.path+params,(req:any, res:any,)=>{
+        else NpServer.expressApp.get(args.path+params,(req:any, res:any,)=>{
             if(args.jwtProfile){
                 args.jwtProfile.verifyToken(req,res,()=>{
                     args.handler(req,res);
@@ -65,11 +48,11 @@ export class Route {
     /**
      * For auto-generated routes
      */
-    PUT(args: routeHandlerArg_interface){
+    static POST(args: npHttpInterfaceArg_interface){
         if(!args.isRouteActive) return;
         let params = "";
         if(args.urlParams[0]) for(let param of args.urlParams) params += "/:"+param;
-        this.app.put(args.path+params,(req:any, res:any,)=>{
+        NpServer.expressApp.post(args.path+params,(req:any, res:any,)=>{
             if(args.jwtProfile){
                 args.jwtProfile.verifyToken(req,res,()=>{
                     args.handler(req,res);
@@ -82,11 +65,28 @@ export class Route {
     /**
      * For auto-generated routes
      */
-    DELETE(args: routeHandlerArg_interface){
+    static PUT(args: npHttpInterfaceArg_interface){
         if(!args.isRouteActive) return;
         let params = "";
         if(args.urlParams[0]) for(let param of args.urlParams) params += "/:"+param;
-        this.app.delete(args.path+params,(req:any, res:any,)=>{
+        NpServer.expressApp.put(args.path+params,(req:any, res:any,)=>{
+            if(args.jwtProfile){
+                args.jwtProfile.verifyToken(req,res,()=>{
+                    args.handler(req,res);
+                })
+            } else args.handler(req, res);
+        })
+    }
+
+
+    /**
+     * For auto-generated routes
+     */
+    static DELETE(args: npHttpInterfaceArg_interface){
+        if(!args.isRouteActive) return;
+        let params = "";
+        if(args.urlParams[0]) for(let param of args.urlParams) params += "/:"+param;
+        NpServer.expressApp.delete(args.path+params,(req:any, res:any,)=>{
             if(args.jwtProfile){
                 args.jwtProfile.verifyToken(req,res,()=>{
                     args.handler(req,res);

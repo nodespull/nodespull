@@ -1,9 +1,8 @@
 import { npServiceInterface, npModuleUserInterface, npRouteInterface, npModuleSelfObjectInterface } from "./models"
-import { http } from "../server"
+import { http } from "../entrypoint"
 import { Log } from "../etc/log"
-import cloneObject from "../etc/system-tools/clone-object"
 import { npJWT } from "../crypt/models/jwt"
-import { routeHandlerArg_interface } from "../route/model"
+import { npHttpInterfaceArg_interface } from "../http/model"
 
 export class npModule {
     public _route: { [selector: string]: npRouteInterface } = {}
@@ -28,7 +27,7 @@ export class npModule {
         this._route[route.method.name + ":" + route.path] = route
         // load route into nodespull router
         route.isRouteActive = route.isRouteActive!=undefined?route.isRouteActive:(this._loadRoutes!=undefined?this._loadRoutes:false)
-        let routeArgs: routeHandlerArg_interface = {
+        let routeArgs: npHttpInterfaceArg_interface = {
             handler: route.handler, 
             isRouteActive: route.isRouteActive, 
             urlParams: route.urlParams, 
