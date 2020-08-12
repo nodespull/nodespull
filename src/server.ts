@@ -27,6 +27,12 @@ import { Env_FilesLoader } from "./files-runner/env-files";
 /**
  * user's environment variables setup
  */
+
+if(process.argv[2] == "init") {
+    initialSetup()
+    process.exit(1)
+}
+
 export const npEnv = {
     process: new EnvCollector(EnvType.process),
     app: new EnvCollector(EnvType.app)
@@ -130,18 +136,7 @@ class Server {
             //DB_Controller.setup(isModeInstall, db);
     
             if (run_setup){
-                let projectName:string|null = process.argv[3] || null
-                if(!projectName){
-                    new Log("Project name required for creation").FgRed().printValue()
-                    process.exit(1)
-                }
-                install(projectName,PORT, true/*, setup_db, DatabaseUserInterfaceController, DB_Controller*/); // install sql db image, db adminer, and dockerfile, + criticals
-                packageJson["scripts"] = {
-                    start: "pull serve",//"node "+rootFile_name+" run",
-                    test: "pull test",//"mocha "+appModule+"/**/*.spec.js || true"
-                    e2e: "pull e2e"
-                }
-                writeJSON(PathVar.getPackageJson(),packageJson);
+                initialSetup()
             }else if (cliFlag){
                 new Database_FilesLoader()
                 cli.start();
@@ -354,3 +349,19 @@ export const npAuthProfile = {
 }
 
 if(PathVar.isProcessFromMocha) new App_FilesLoader()
+
+
+function initialSetup(){
+    let projectName:string|null = process.argv[3] || null
+    if(!projectName){
+        new Log("Project name required for creation").FgRed().printValue()
+        process.exit(1)
+    }
+    install(projectName,PORT, true/*, setup_db, DatabaseUserInterfaceController, DB_Controller*/); // install sql db image, db adminer, and dockerfile, + criticals
+    packageJson["scripts"] = {
+        start: "pull serve",//"node "+rootFile_name+" run",
+        test: "pull test",//"mocha "+appModule+"/**/*.spec.js || true"
+        e2e: "pull e2e"
+    }
+    writeJSON(PathVar.getPackageJson(),packageJson);
+}
