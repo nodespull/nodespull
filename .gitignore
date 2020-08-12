@@ -8,3 +8,4 @@
 !package-lock.json
 !Readme.md
 !tsconfig.json
+!*.ts
