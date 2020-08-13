@@ -57,6 +57,6 @@ export const npAuthProfile = {
 
 
 /**
- * nodespull started by mocha as a child process
+ * nodespull started within the mocha process
  */
 if(process.argv[1].split("/").pop() == "mocha") FilesLoader.All()

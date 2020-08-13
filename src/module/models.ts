@@ -33,6 +33,7 @@ export interface npRouteInterface {
     urlParams: string[],
     isRouteActive: boolean|undefined,
     jwtProfile: null|npJWT
+    useGuard: npJWT|null, //interchangeable with jwtProfile, value is eventually copied to it
 }
 
 

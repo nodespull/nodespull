@@ -1,5 +1,5 @@
 import express from "express";
-import swaggerLoader from "../templates/swagger/loader"
+import swaggerLoader from "../swagger/loader"
 import bootconf_Message from "./bootconf/bootconf-message";
 import bootconf_Store from "./bootconf/bootconf-store"
 import bodyParser from "body-parser"
@@ -23,12 +23,11 @@ export class NpServer {
         NpServer.expressApp.use(morgan("dev"))
         NpServer.expressApp.use(bodyParser.json());
         NpServer.expressApp.use(bodyParser.urlencoded({ extended: true }));
-        swaggerLoader(NpServer.expressApp);
         NpServer.isExpressAppConfigured = true
         setTimeout(() => {
             //delay while user rootfile is being parsed for homeroute injection
             if(!NpServer.isHomeRouteProvided)
-            NpServer.expressApp.use("/",express.static(__dirname + '/../public'))
+            NpServer.expressApp.use("/",express.static(__dirname + '/../static'))
         }, 1000);
     }
 
@@ -37,6 +36,7 @@ export class NpServer {
      * starts express app listening
      */
     static listen(){
+        swaggerLoader(NpServer.expressApp);
         if(NpLifecycle.beforeServe) NpLifecycle.beforeServe()
         if(!NpUserConfig.isCorsPolicySet) bootconf_Message.cors.missing()
         NpServer.expressApp.listen( bootconf_Store.server.PORT, ()=>{

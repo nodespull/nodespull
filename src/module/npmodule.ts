@@ -4,6 +4,7 @@ import { Log } from "../etc/log"
 import { npJWT } from "../crypt/models/jwt"
 import { npHttpInterfaceArg_interface } from "../http/model"
 
+
 export class npModule {
     public _route: { [selector: string]: npRouteInterface } = {}
     public _service: { [name: string]: any } = {}
@@ -24,6 +25,7 @@ export class npModule {
     //add a route to module
     _addAndLoadRoute(route: npRouteInterface) {
         // load route into nodespull module
+        route.jwtProfile = route.jwtProfile || this._jwtProfile
         this._route[route.method.name + ":" + route.path] = route
         // load route into nodespull router
         route.isRouteActive = route.isRouteActive!=undefined?route.isRouteActive:(this._loadRoutes!=undefined?this._loadRoutes:false)
@@ -32,7 +34,7 @@ export class npModule {
             isRouteActive: route.isRouteActive, 
             urlParams: route.urlParams, 
             path: route.path, 
-            jwtProfile: route.jwtProfile || this._jwtProfile
+            jwtProfile: route.jwtProfile
         }
         if (route.method.name == "HEAD") http.HEAD(routeArgs)
         if (route.method.name == "GET") http.GET(routeArgs)

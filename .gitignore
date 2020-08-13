@@ -1,6 +1,6 @@
 *
-!public/
-!public/*
+!static/
+!static/**
 !src/
 !src/**
 !.gitignore
@@ -8,6 +8,6 @@
 !LICENSE
 !package.json
 !package-lock.json
-!Readme.md
+!readme.md
 !tsconfig.json
 !*.ts

@@ -10,7 +10,7 @@ import dockerComposeAll from "./etc/developer-op-files/docker-compose-all";
 import dockerComposeDB from "./etc/developer-op-files/docker-compose-db";
 import nodespullReadme from "./etc/developer-op-files/nodespull-README";
 import waitForIt from "./etc/developer-op-files/wait-for-it";
-import getAppEnvTemplate from "./templates/app-env"
+import getAppEnvTemplate from "./env/templates"
 import { PathVar } from "./etc/other/paths"
 import { Log } from "./etc/log";
 import bootconfStore from "./bootstrap/bootconf/bootconf-store";
@@ -31,8 +31,6 @@ export async function initializeNodespull(){
     await install_core();
     await install_others(bootconfStore.server.PORT);
     console.log("\n.. 100% - complete.\n")
-    // await run("readme", "open", ["-a", "TextEdit", "nodespull-README.md"],(ok:boolean,data?:any)=>{})
-    //setupDb(dbConstroller);
 }
 
 
@@ -42,7 +40,6 @@ async function install_core(){
     await run("MySQL2 setup", "sudo", ["npm", "i","mysql2"],(ok:boolean,data?:any)=>{})
     //database
     await run("config database MS", "mkdir", ["-p", PathVar.getDbModule()],(ok:boolean,data?:any)=>{})
-    // await run("database", "mkdir", ["-p", PathVar.dbModule+"/noSQL"],(ok:boolean,data?:any)=>{})
     //app env
     await run("setup np appEnvir", "mkdir", ["-p", PathVar.getAppEnvModule()],(ok:boolean,data?:any)=>{
         run("app local env", "touch", [PathVar.getAppEnvModule()+"/app.local.env.js"],(ok:boolean,data?:any)=>{
@@ -67,9 +64,7 @@ async function install_others(serverPort:number){
     let dbConsoleport=8889;
     let serverWaitTime_forDB = 300; //sec
 
-    // serverPort = parseInt(await userInput(". Specify Local Port from which to launch node.js (Enter to skip): > ")).promise || serverPort;
-    // dbConsoleport = parseInt(await userInput(". Port for nodespull local Database Portal (Enter to skip): > ")).promise || dbConsoleport;
-    //dbPort = parseInt(await userInput(". Port for the nodespull local SQL Database  (Enter to skip): > ")).promise || dbPort;
+
     await run("README.md", "touch", ['./README.md'], (ok:boolean, data?:any)=>{
         if(ok) fs.writeFile("README.md",nodespullReadme(data)
         ,(err:any)=>{});
@@ -101,20 +96,15 @@ async function install_others(serverPort:number){
     })
 
     await run("wait-for-it", "sudo", ["chmod", "+x",PathVar.getEtc_os_dir()+"/wait-for-it.sh"],(ok:boolean,data?:any)=>{})
-    // await run("npm","install",["-g","nodemon"], (ok:boolean, data?:any)=>{});
-    // await run("npm","install",["-g","heroku"], (ok:boolean, data?:any)=>{});
-   // await run("npm","install",["-g","sequelize-cli"], (ok:boolean, data?:any)=>{});
+
 }
 
 
 async function run(name:string, cmd:string, options:string[], callback?:Function, data?:any){
-    //if(cmd=="touch" && fs.existsSync("./"+options[0])) return callback?callback(true,data):null;
     if(cmd=="sudo") console.log("\n. \""+name+"\" uses admin level permission .. ")
     await (async () => {
         try {
             const {stdout} = await execa(cmd, options);
-            //console.log(stdout);
-            //console.log(". "+name);
             if(callback) callback(true, data);
         } catch (error) {
             console.log("- failed to configure "+name+" with exitCode: "+error.exitCode);
