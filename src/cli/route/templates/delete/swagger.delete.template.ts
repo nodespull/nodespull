@@ -6,6 +6,7 @@ export default function del(path:string):string{
             "summary": "no summary",
             "description":"no description",
             "parameters":[],
+            "tags":["${path.slice(1)}"],
             "responses":{
                 "204":{
                     "description":"success",

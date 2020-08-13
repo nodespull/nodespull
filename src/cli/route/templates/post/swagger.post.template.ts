@@ -20,6 +20,7 @@ export default function post(path:string):string{
                     }
                 }
             ],
+            "tags":["${path.slice(1)}"],
             "responses":{
                 "200":{
                     "description":"success",

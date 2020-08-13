@@ -6,6 +6,7 @@ export default function get(path:string):string{
             "summary": "no summary",
             "description":"no description",
             "parameters":[],
+            "tags":["${path.slice(1)}"],
             "responses":{
                 "200":{
                     "description":"success",
