@@ -35,7 +35,7 @@ export class npHttpInterface {
         if(!args.isRouteActive) return;
         let params = "";
         if(args.urlParams[0]) for(let param of args.urlParams) params += "/:"+param;
-        else NpServer.expressApp.get(args.path+params,(req:any, res:any,)=>{
+        NpServer.expressApp.get(args.path+params,(req:any, res:any,)=>{
             if(args.jwtProfile){
                 args.jwtProfile.verifyToken(req,res,()=>{
                     args.handler(req,res);

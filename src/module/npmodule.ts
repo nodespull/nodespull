@@ -34,7 +34,7 @@ export class npModule {
             isRouteActive: route.isRouteActive, 
             urlParams: route.urlParams, 
             path: route.path, 
-            jwtProfile: route.jwtProfile
+            jwtProfile: route.jwtProfile,
         }
         if (route.method.name == "HEAD") http.HEAD(routeArgs)
         if (route.method.name == "GET") http.GET(routeArgs)
