@@ -1,5 +1,5 @@
 import express from "express";
-import swaggerLoader from "../swagger/loader"
+import { SwaggerController } from "../swagger/loader"
 import bootconf_Message from "./bootconf/bootconf-message";
 import bootconf_Store from "./bootconf/bootconf-store"
 import bodyParser from "body-parser"
@@ -36,7 +36,8 @@ export class NpServer {
      * starts express app listening
      */
     static listen(){
-        swaggerLoader(NpServer.expressApp);
+        console.log(SwaggerController.path)
+        SwaggerController.buildMaster()
         if(NpLifecycle.beforeServe) NpLifecycle.beforeServe()
         if(!NpUserConfig.isCorsPolicySet) bootconf_Message.cors.missing()
         NpServer.expressApp.listen( bootconf_Store.server.PORT, ()=>{
