@@ -58,7 +58,6 @@ export async function getCmd(input:string, loop:boolean, options?:CliCmdOptions_
                 new Log("restart cli to use new module").FgBlue().printValue()
                 break;
             case "route": 
-            console.log("was here")
                 let path = input.split(":")[0].split(" ")[2].toLowerCase()
                 let methods = input.split(":")[1]?input.split(":")[1].split(" "):null
                 if(!path || !StringParser.isValidCLIFormat(path)) throw error.wrongUsage

@@ -17,7 +17,7 @@ export async function deploy(){
     else switch(target){
         case("heroku"):{
             new Log("\nPreparing for dev deployment to Heroku.").FgGreen().printValue()
-            new Log("\nNote: visit 'https://nodespull/prod' to learn about nodespull prod deploy\n").FgYellow().printValue()
+            new Log("\nNote: visit 'https://nodespull.com/deploy' to learn about nodespull prod deploy\n").FgYellow().printValue()
             await herokuLogin();
             await herokuPush();
             break
