@@ -3,6 +3,8 @@ import fs from "fs"
 import {PathVar} from "../../etc/other/paths"
 
 import getModuleTemplate from "./templates/module.template"
+import { npModuleController } from "../../module/controllers/npModuleController";
+import { Log } from "../../etc/log";
 
 const root = PathVar.getAppModule();
 
@@ -11,6 +13,9 @@ export async function newModule(moduleName:string){
     if(moduleName.slice(-1*"Module".length) != "Module") moduleVarName = moduleVarName.toLowerCase()+"Module"
     let moduleFileName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+".mod.js"
     let moduleDirName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+"-module"
+
+    if(npModuleController.registeredModules.map((mod => mod._name)).includes(moduleVarName))
+        throw new Log(`module '${moduleVarName.substr(0, moduleVarName.length-1*"Module".length)}' already exists`).FgRed().getValue()
 
     cmd("mkdir", ["-p", root+"/"+moduleDirName]);
     cmd("mkdir", ["-p", root+"/"+moduleDirName+"/services"]);

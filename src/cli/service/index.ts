@@ -29,7 +29,7 @@ export async function newService(args:string[]){
         moduleVarName = null
     }
     if( (moduleVarName && ["main.module", "main.mod"].includes(moduleVarName)) || !moduleVarName) moduleVarName = "mainModule"
-    if(moduleVarName.toLowerCase().includes(".module")) moduleVarName = moduleVarName.toLowerCase().split(".")[0]+"Module"
+    if(moduleVarName.toLowerCase().includes(".mod")) moduleVarName = moduleVarName.toLowerCase().split(".")[0]+"Module"
     else if (moduleVarName != "mainModule") throw error.wrongUsage
 
     // create service file

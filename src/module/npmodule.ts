@@ -25,7 +25,7 @@ export class npModule {
     //add a route to module
     _addAndLoadRoute(route: npRouteInterface) {
         // load route into nodespull module
-        route.jwtProfile = route.jwtProfile || this._jwtProfile
+        if (route.jwtProfile !== null) route.jwtProfile = route.jwtProfile || this._jwtProfile
         this._route[route.method.name + ":" + route.path] = route
         // load route into nodespull router
         route.isRouteActive = route.isRouteActive!=undefined?route.isRouteActive:(this._loadRoutes!=undefined?this._loadRoutes:false)

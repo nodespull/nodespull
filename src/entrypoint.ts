@@ -16,7 +16,6 @@ import { DatabaseUserInterfaceController } from "./database/user-interface"
 import { npAdapterUserInterface } from "./cloud-adapter"
 import { AuthController } from "./crypt"
 import { FilesLoader } from "./files-runner"
-import { SwaggerController } from "./swagger/loader"
 
 
 
@@ -54,9 +53,6 @@ export const npEnv = { //env loaders
 export const npAuthProfile = {
     jwt: AuthController.jwt,
     oauth2: AuthController.oauth2
-}
-export const docs = {
-    swaggerPath: SwaggerController.path
 }
 
 

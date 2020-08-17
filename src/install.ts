@@ -27,17 +27,18 @@ export async function initializeNodespull(){
         process.exit(1)
     }
     project_name = projectName
-    console.log("\n** nodespull setup **\n");
+    // console.log("\n** nodespull setup **\n");
     await install_core();
     await install_others(bootconfStore.server.PORT);
-    console.log("\n.. 100% - complete.\n")
+    // console.log("\n.. 100% - complete.\n")
 }
 
 
 async function install_core(){
     // installs for os (docker files) and np's npm dependencies
     await run("sys config", "mkdir", ["-p",PathVar.getEtc_os_dir()],(ok:boolean,data?:any)=>{})
-    await run("MySQL2 setup", "sudo", ["npm", "i","mysql2"],(ok:boolean,data?:any)=>{})
+    await run("mysql setup", "sudo", ["npm", "i","mysql2"],(ok:boolean,data?:any)=>{})
+    await run("chai tools", "npm", ["i","chai"],(ok:boolean,data?:any)=>{})
     //database
     await run("config database MS", "mkdir", ["-p", PathVar.getDbModule()],(ok:boolean,data?:any)=>{})
     //app env
@@ -77,31 +78,31 @@ async function install_others(serverPort:number){
         else console.log("Error: Dockerfile");
     }, {serverPort,rootFile_name});
 
-    await run("docker-compose-all", "touch", [PathVar.getEtc_os_dir()+'/docker-compose-all.yml'], (ok:boolean, data?:any)=>{
-        if(ok) fs.writeFile(PathVar.getEtc_os_dir()+"/docker-compose-all.yml",dockerComposeAll(data)
-        ,(err:any)=>{});
-        else console.log("Error: docker-compose-all.yml");
-    }, {serverPort, dbPort, dbConsoleport, rootFile_name, serverWaitTime_forDB, dbPortTest});
+    // await run("docker-compose-all", "touch", [PathVar.getEtc_os_dir()+'/docker-compose-all.yml'], (ok:boolean, data?:any)=>{
+    //     if(ok) fs.writeFile(PathVar.getEtc_os_dir()+"/docker-compose-all.yml",dockerComposeAll(data)
+    //     ,(err:any)=>{});
+    //     else console.log("Error: docker-compose-all.yml");
+    // }, {serverPort, dbPort, dbConsoleport, rootFile_name, serverWaitTime_forDB, dbPortTest});
 
-    await run("docker-compose-db", "touch", [PathVar.getEtc_os_dir()+'/docker-compose-db.yml'], (ok:boolean, data?:any)=>{
-        if(ok) fs.writeFile(PathVar.getEtc_os_dir()+"/docker-compose-db.yml",dockerComposeDB(data)
-        ,(err:any)=>{});
-        else console.log("Error: docker-compose-db.yml");
-    }, {serverPort, dbPort, dbConsoleport, rootFile_name, serverWaitTime_forDB, dbPortTest});
+    // await run("docker-compose-db", "touch", [PathVar.getEtc_os_dir()+'/docker-compose-db.yml'], (ok:boolean, data?:any)=>{
+    //     if(ok) fs.writeFile(PathVar.getEtc_os_dir()+"/docker-compose-db.yml",dockerComposeDB(data)
+    //     ,(err:any)=>{});
+    //     else console.log("Error: docker-compose-db.yml");
+    // }, {serverPort, dbPort, dbConsoleport, rootFile_name, serverWaitTime_forDB, dbPortTest});
 
-    await run("wait-for-it", "touch", [PathVar.getEtc_os_dir()+"/wait-for-it.sh"], (ok:boolean, data?:any)=>{
-        if(ok){
-            fs.writeFile(PathVar.getEtc_os_dir()+"/wait-for-it.sh", waitForIt(),(err:any)=>{})
-        }
-    })
+    // await run("wait-for-it", "touch", [PathVar.getEtc_os_dir()+"/wait-for-it.sh"], (ok:boolean, data?:any)=>{
+    //     if(ok){
+    //         fs.writeFile(PathVar.getEtc_os_dir()+"/wait-for-it.sh", waitForIt(),(err:any)=>{})
+    //     }
+    // })
 
-    await run("wait-for-it", "sudo", ["chmod", "+x",PathVar.getEtc_os_dir()+"/wait-for-it.sh"],(ok:boolean,data?:any)=>{})
+    // await run("wait-for-it", "sudo", ["chmod", "+x",PathVar.getEtc_os_dir()+"/wait-for-it.sh"],(ok:boolean,data?:any)=>{})
 
 }
 
 
 async function run(name:string, cmd:string, options:string[], callback?:Function, data?:any){
-    if(cmd=="sudo") console.log("\n. \""+name+"\" uses admin level permission .. ")
+    if(cmd=="sudo") console.log(name+" uses admin level permission..")
     await (async () => {
         try {
             const {stdout} = await execa(cmd, options);

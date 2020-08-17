@@ -8,6 +8,8 @@ import { deploy } from "../../../cli/deploy/deploy"
 import { Migration } from "../../../database/migration"
 import { Log } from "../../../etc/log"
 import { initializeNodespull } from "../../../install"
+import { npModuleController } from "../../../module/controllers/npModuleController"
+import { DatabaseConnectionController } from "../../../database/connection"
 
 export class NpUserActionSwitch {
 
@@ -22,6 +24,7 @@ export class NpUserActionSwitch {
                 break
             case(UserActions.cli):
                 FilesLoader.Database()//used to perform user cmd checks
+                FilesLoader.Module()
                 cli.start()
                 break
             case(UserActions.test):
@@ -32,6 +35,7 @@ export class NpUserActionSwitch {
                 deploy()
                 break
             case(UserActions.migrate):
+                FilesLoader.Env()
                 FilesLoader.Database()
                 new Migration(process.argv[3], process.argv[4])
                 break
@@ -42,8 +46,8 @@ export class NpUserActionSwitch {
                 console.log("\n"+new Log("Action invalid. See options below:").FgRed().getValue()+" \n\
                 \n  init        initialize nodespull app\
                 \n  cli         open nodespull cli\
-                \n  serve       start node.js server\
-                \n  migrate     use with (up | down | freeze\
+                \n  serve       start nodespull server\
+                \n  migrate     use with (up | down | freeze) to update db schema\
                 \n  deploy      deploy your app and get a url\n");
         }
 

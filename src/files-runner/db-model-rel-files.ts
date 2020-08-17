@@ -44,7 +44,7 @@ export class DB_Model_Rel_FilesLoader extends FilesEngine{
                 .map(dirent => dirent.name);
             for(let dbFolderPath of dbFolderPaths){
                 let targetFolderPath = this.getFolderPath(PathVar.getDbModule()+"/"+this.dbPath+"/"+dbFolderPath, "at.v")
-                if(!targetFolderPath) throw new Log("missing folder with prefix 'at.v' in "+dbFolderPath).getValue()
+                if(!targetFolderPath) return //throw new Log("missing folder with prefix 'at.v' in "+dbFolderPath).getValue()
                 super.recursiveSearch(targetFolderPath, "attribute.js", {runFiles:true});
                 super.recursiveSearch(targetFolderPath, "relation.js", {runFiles:true});
             }

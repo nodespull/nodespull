@@ -11,7 +11,8 @@ export class NpUserConfig {
     static isCorsPolicySet:boolean = false // used at npBoot.listen to check that user set cors configs
 
     static server(args:NpUserConfigServer_interface){
-        bootconfStore.server.PORT = bootconfStore.server.PORT || Number(args.port)
+        bootconfStore.server.PORT = Number(args.port) || bootconfStore.server.PORT
+        bootconfStore.server.IS_SWAGGER_ACTIVE = args.useSwagger || bootconfStore.server.IS_SWAGGER_ACTIVE
     }
     static security(args:NpUserConfigSecurity_interface){
         if(args.cors)NpUserConfig_helper.setCorsPolicy(args.cors)

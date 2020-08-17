@@ -1,6 +1,7 @@
 
 export interface NpUserConfigServer_interface {
-    port:number|string
+    port:number|string,
+    useSwagger: boolean
 }
 
 export interface NpUserConfigSecurity_interface {

@@ -7,6 +7,7 @@ import { cmd } from "../cli/exe/exe.log"
 import { PathVar } from "../etc/other/paths"
 import { npModuleController } from "../module/controllers/npModuleController"
 import { NpServer } from "../bootstrap"
+import bootconfStore from "../bootstrap/bootconf/bootconf-store"
 
 
 export class SwaggerController {
@@ -29,7 +30,7 @@ export class SwaggerController {
             }
             //load swagger file
             docs = parseJSON(PathVar.getEtc_var_dir() + "/swagger.json");
-            NpServer.expressApp.use(SwaggerController.path, function (req: any, res: any, next: any) {
+            if(bootconfStore.server.IS_SWAGGER_ACTIVE) NpServer.expressApp.use(SwaggerController.path, function (req: any, res: any, next: any) {
                 docs.host = req.get('host');
                 req["swaggerDoc"] = docs;
                 next();
