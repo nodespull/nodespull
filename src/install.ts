@@ -67,7 +67,7 @@ async function install_others(serverPort:number){
 
 
     await run("README.md", "touch", ['./README.md'], (ok:boolean, data?:any)=>{
-        if(ok) fs.writeFile("README.md",nodespullReadme(data)
+        if(ok) fs.writeFile("README.md",nodespullReadme(project_name[0].toUpperCase()+project_name.substr(1).toLowerCase())
         ,(err:any)=>{});
         else console.log("Error: README.md");
     }, {serverPort,dbConsoleport,rootFile_name});

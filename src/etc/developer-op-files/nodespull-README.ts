@@ -1,34 +1,33 @@
 
-export default function file(data:any){
-    return `# Nodespull Initialized
+export default function file(projectName:string){
+    return `# ${projectName}
 
-## How to Run Project using the \`pull\` command
-* From the project root folder, run in terminal:  \`pull run\`
-* use \`pull help\` in a terminal window to see available \`pull\` commands
+This project was generated with [Nodespull CLI](https://github.com/nodespull/nodespull-cli) version 1.0.0
 
-------------------------------------------------
+## Development server
 
-## How to Run Project using the \`node\` command
-* From the project root folder, run in terminal:  \`node ${data.rootFile_name} <tag>\`
-where \`<tag>\` can be:
-    * \`init\`        initialize nodespull app
-    * \`cli\`         open nodespull cli
-    * \`boot\`        start nodespull servers: database, db_portal
-    * \`run\`         run ${data.rootFile_name} with nodespull
-    * \`stop\`        stop nodespull servers: database, db_portal
-    * \`boot -c\`     containerize and run your nodespull app with nodespull servers
-    * \`stop -c\`     stop your app container and nodespull dependencies
-    * \`build\`       build a docker image for the app
-    * \`deploy\`      deploy your app and get a url
-    * \`status\`      show the status of servers 
+Run \`pull serve\` for a dev server. Navigate to \`http://localhost:3000/\`. The app will automatically reload if you change any of the source files.
 
-## Access
-* ${data.rootFile_name}: http://localhost:${data.serverPort}
-* nodespull Database Portal, available after \`boot\`: http://localhost:${data.dbConsoleport}
-    * System: MySQL
-    * Server: nodespull-db-server
-    * Username: root
-    * Password: nodespull-db-password
-    * Database: nodespull-db-database
+## Code scaffolding
+
+Run \`pull i\` to open the interactive cli. Then you can use \`create route|service|profile|module|database|table\`. 
+You can also run \`pull i docker\` to access the npdocker interactive cli. Use \`create/remove mysql|adminer\` to scafold ready-to-use containers.
+
+## Build
+
+Run \`pull build\` to build a docker image of the project. The build artifact will be accessible via the docker cli. Use the \`--prod\` flag for a production build.
+
+## Running unit tests
+
+Run \`pull test\` to execute the unit tests via [Mocha](https://mochajs.org/).
+
+## Running end-to-end tests
+
+No native support. Run e2e with custom implementation.
+
+## Further help
+
+To get more help on the Nodespull CLI use \`pull help\` or go check out the [Nodespull CLI README](https://github.com/nodespull/nodespull-cli/blob/master/README.md).
+
 `
 }
