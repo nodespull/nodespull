@@ -11,6 +11,7 @@ import { StringParser } from "../etc/system-tools/string-validator";
 import { Module_FilesLoader } from "../files-runner/module-files";
 import { Database_FilesLoader } from "../files-runner/database-files";
 import { FilesLoader } from "../files-runner";
+import { npModuleController } from "../module/controllers/npModuleController";
 
 let stdinInterface:customStdinResponse
 
@@ -20,6 +21,7 @@ export function start(){
 }
 
 async function main(){
+    FilesLoader.All()
     stdinInterface = userInput("\n>> ");
     let input = await stdinInterface.getPromise()
     getCmd(input, true);
@@ -90,8 +92,10 @@ export async function getCmd(input:string, loop:boolean, options?:CliCmdOptions_
             default:
                 throw error.falseCmd;
         }
-
-        if(loop) main()
+        console.log("updating "+args[1]+" tree..")
+        setTimeout(() => {
+            if(loop) main()
+        }, 1000);
     }catch(e){
         console.log(e);
         if(loop) main();

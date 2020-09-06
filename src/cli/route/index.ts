@@ -84,20 +84,35 @@ export async function newRoute(name:string, methods:any|string[]){
         let moduleDirName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+"-module"
         routeDirPath = moduleDirName+"/routes"
     }
+
+
+    //check if module exists
     if(!npModuleController.registeredModules.map((mod => mod._name)).includes(moduleVarName))
         throw new Log(`module '${moduleVarName.substr(0, moduleVarName.length-1*"Module".length)}' not found`).FgRed().getValue()
+
 
     while(args.length > 0){
         let e = args.shift();
         fileName = fileName!=""?(fileName+"."+e):e!;
         fileName_withUnderscore = fileName_withUnderscore!=""?(fileName_withUnderscore+"."+e):"_"+e!;
         routeDirPath = routeDirPath+"/"+fileName_withUnderscore;
-        await cmd("mkdir", ["-p", PathVar.getAppModule()+"/"+routeDirPath], false);
+        await cmd("mkdir", ["-p", PathVar.getAppModule()+"/"+routeDirPath], true);
     }
-    setTimeout(() => {
+
+    //check if a method-route already exists
+    let mod = npModuleController.registeredModules.filter(m=>m._name == moduleVarName)[0]
+    let requestedRoutesKeys = []
+    for(let m of Object.keys(templateList))
+        requestedRoutesKeys.push(m.toUpperCase()+":/"+fileName.split(".").join("/"))
+    for(let rrk of requestedRoutesKeys)
+        if(Object.keys(mod._route).includes(rrk))
+            throw new Log(`route '${rrk.split(":")[0]}:${fileName.split(".").join("/")}' already exists`).FgRed().getValue()
+
+
+    // setTimeout(() => {
         for(let templGroupKey of Object.keys(templateList)){
             let templDirPath:string = routeDirPath +"/"+fileName+"."+templGroupKey;
-            cmd("mkdir", ["-p", PathVar.getAppModule()+"/"+ templDirPath]);
+            cmd("mkdir", ["-p", PathVar.getAppModule()+"/"+ templDirPath], true);
             for(let templateKey of Object.keys(templateList[templGroupKey])){
                 let templFilePath:string = templDirPath+"/"+(fileName+"."+templGroupKey);
                 let extCount = 2;
@@ -110,8 +125,8 @@ export async function newRoute(name:string, methods:any|string[]){
                     extCount = 1;
                 }
                 else templFilePath += ".js";
-                cmd("touch",[PathVar.getAppModule()+"/"+templFilePath]);
-                fs.writeFile(PathVar.getAppModule()+"/"+templFilePath,getTemplate(
+                cmd("touch",[PathVar.getAppModule()+"/"+templFilePath], true);
+                await fs.writeFile(PathVar.getAppModule()+"/"+templFilePath,getTemplate(
                     moduleVarName,
                     templDirPath+"/"+fileName, //remove initial underscore
                     templateList[templGroupKey][templateKey], 
@@ -119,5 +134,5 @@ export async function newRoute(name:string, methods:any|string[]){
             }
         }
         rebuildTemplateList()
-    }, 2000);
+    // }, 2000);
 }
