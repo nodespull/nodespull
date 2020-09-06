@@ -10,4 +10,5 @@
 !package-lock.json
 !readme.md
 !tsconfig.json
+!.github
 !*.ts

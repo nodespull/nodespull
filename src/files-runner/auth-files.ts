@@ -7,7 +7,7 @@ export class Auth_FilesLoader extends FilesEngine{
     static load(){
         if(Auth_FilesLoader.isLoaded) return
         new Auth_FilesLoader()
-        Auth_FilesLoader.isLoaded = true
+        // Auth_FilesLoader.isLoaded = true
     }
 
     constructor(){

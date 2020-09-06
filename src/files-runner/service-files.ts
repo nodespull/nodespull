@@ -7,7 +7,7 @@ export class Service_FilesLoader extends FilesEngine{
     static load(){
         if(Service_FilesLoader.isLoaded) return
         new Service_FilesLoader()
-        Service_FilesLoader.isLoaded = true
+        // Service_FilesLoader.isLoaded = true
     }
     constructor(){
         super()

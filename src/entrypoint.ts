@@ -16,11 +16,21 @@ import { DatabaseUserInterfaceController } from "./database/user-interface"
 import { npAdapterUserInterface } from "./cloud-adapter"
 import { AuthController } from "./crypt"
 import { FilesLoader } from "./files-runner"
+import express from "express"
+import { UserActions } from "./bootstrap/bootconf/bootconf-action-switch/interfaces"
 
+
+
+// extends external express server
+export function use(app:express.Application){
+    NpServer.expressApp = app
+    process.argv[2] = UserActions.serve
+    ready() // possible bug: already ran when the user imported 'server.js'
+}
 
 
 Boot_Env.ensureInstanceRunning() // load process and app variables to np
-NpServer.ensureExpressAppConfigs() // set express app basic configs
+// NpServer.ensureExpressAppConfigs() // set express app basic configs
 
 
 // trigger serve operations
@@ -54,6 +64,9 @@ export const npAuthProfile = {
     jwt: AuthController.jwt,
     oauth2: AuthController.oauth2
 }
+
+
+
 
 
 /**

@@ -100,7 +100,8 @@ export class npModule {
 
     get service(){
         // add imported services to local array with low priority
-        for(let module of this._importedModules) for(let serviceName of Object.keys(module._service)){
+        // use 'reverse' in order to give precedence to head of list via overwritting
+        for(let module of this._importedModules.reverse()) for(let serviceName of Object.keys(module._service)){
             if(!Object.keys(this._service).includes(serviceName)) this._service[serviceName] = module._service[serviceName]
         }
         return this._service

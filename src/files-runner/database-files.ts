@@ -6,7 +6,7 @@ export class Database_FilesLoader extends FilesEngine{
     static load(){
         if(Database_FilesLoader.isLoaded) return
         new Database_FilesLoader()
-        Database_FilesLoader.isLoaded = true
+        // Database_FilesLoader.isLoaded = true
     }
     constructor(){
         super()

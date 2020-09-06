@@ -39,6 +39,7 @@ export class NpServer {
         SwaggerController.buildMaster()
         if(NpLifecycle.beforeServe) NpLifecycle.beforeServe()
         if(!NpUserConfig.isCorsPolicySet) bootconf_Message.cors.missing()
+        NpServer.ensureExpressAppConfigs()
         NpServer.expressApp.listen( bootconfStore.server.PORT, ()=>{
             bootconf_Message.express.serverStarted()
             if(NpLifecycle.afterServe) NpLifecycle.afterServe();
@@ -58,6 +59,7 @@ export class NpServer {
 
     /**
      * user action is serve
+     * start connections to databases
      * configure and lunch express server along with np dependencies
      */
     static userRequestedServe(){

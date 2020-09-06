@@ -10,6 +10,7 @@ import { newAuthProfile } from "./auth";
 import { StringParser } from "../etc/system-tools/string-validator";
 import { Module_FilesLoader } from "../files-runner/module-files";
 import { Database_FilesLoader } from "../files-runner/database-files";
+import { FilesLoader } from "../files-runner";
 
 let stdinInterface:customStdinResponse
 
@@ -44,7 +45,7 @@ export async function getCmd(input:string, loop:boolean, options?:CliCmdOptions_
         if(["q","quit","exit"].includes(userCmd)) return exit();
         if(userCmd.trim() == "") return !loop?null:main();
 
-        let name = args[2]? args[2].toLowerCase():undefined;
+        let name = args[2]? args[2]:undefined;
         if(!name) throw error.falseNameFormat
         for(let arg of args.slice())
             if(args[1]!="route" && !StringParser.isValidCLIFormat(arg)) throw error.falseNameFormat
@@ -55,7 +56,7 @@ export async function getCmd(input:string, loop:boolean, options?:CliCmdOptions_
                 else throw error.falseCmd;
                 if(options && options.silent) break
                 new Log("\nModudle \""+ name+"\" successfully created").FgGreen().printValue()
-                new Log("restart cli to use new module").FgBlue().printValue()
+                // new Log("restart cli to use new module").FgBlue().printValue()
                 break;
             case "route": 
                 let path = input.split(":")[0].split(" ")[2].toLowerCase()
@@ -68,7 +69,7 @@ export async function getCmd(input:string, loop:boolean, options?:CliCmdOptions_
             case "service": 
                 if(createCmd.includes(userCmd)) await newService(args.slice(2));
                 else throw error.falseCmd;
-                new Log("\nService \""+ args[3]+"\" successfully created").FgGreen().printValue()
+                new Log("\nService \""+ (args[3]?args[3]:args[2])+"\" successfully created").FgGreen().printValue()
                 break;
             case "profile": 
                 if(createCmd.includes(userCmd)) await newAuthProfile(args.slice(2));
@@ -79,7 +80,7 @@ export async function getCmd(input:string, loop:boolean, options?:CliCmdOptions_
                 if(createCmd.includes(userCmd)) await newDatabase(name);
                 else throw error.falseCmd;
                 new Log("\nDatabase \""+ name+"\" successfully created").FgGreen().printValue()
-                new Log("restart cli to use new database").FgBlue().printValue()
+                // new Log("restart cli to use new database").FgBlue().printValue()
                 break;
             case "table": 
                 if(createCmd.includes(userCmd)) await newTable(args[2]);

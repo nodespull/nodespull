@@ -7,6 +7,8 @@ import getDefaultTemplate from "./templates/service.template"
 import getBootTemplate from "./templates/service.boot.template"
 import getPipeTemplate from "./templates/service.pipe.template"
 import getSocketTemplate from "./templates/service.socket.template"
+import { npModuleController } from "../../module/controllers/npModuleController"
+import { Log } from "../../etc/log"
 
 const validOptions:string[] = ["--boot","-b", "--pipe","-p", "--socket","-s", "--default"]
 
@@ -29,11 +31,17 @@ export async function newService(args:string[]){
         moduleVarName = null
     }
     if( (moduleVarName && ["main.module", "main.mod"].includes(moduleVarName)) || !moduleVarName) moduleVarName = "mainModule"
-    if(moduleVarName.toLowerCase().includes(".mod")) moduleVarName = moduleVarName.toLowerCase().split(".")[0]+"Module"
+    if(moduleVarName.toLowerCase().includes(".mod")) moduleVarName = moduleVarName.split(".")[0]+"Module"
     else if (moduleVarName != "mainModule") throw error.wrongUsage
 
+    //check if service already exists
+    let mod = npModuleController.registeredModules.filter(m=>m._name == moduleVarName)[0]
+    if(Object.keys(mod.service).includes(serviceVarName))
+        throw new Log(`service '${serviceName}' already exists`).FgRed().getValue()
+        
+
     // create service file
-    serviceVarName = serviceVarName.toLowerCase()// lint: lowercase service name
+    serviceVarName = serviceVarName// lint: lowercase service name
     let moduleDirName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+"-module"
 
     // let servicePath = root+"/main-module/services"

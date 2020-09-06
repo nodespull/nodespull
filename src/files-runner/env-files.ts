@@ -6,7 +6,7 @@ export class Env_FilesLoader extends FilesEngine{
     static load(){
         if(Env_FilesLoader.isLoaded) return
         new Env_FilesLoader()
-        Env_FilesLoader.isLoaded = true
+        // Env_FilesLoader.isLoaded = true
     }
     constructor(){
         super()

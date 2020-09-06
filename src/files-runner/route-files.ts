@@ -7,7 +7,7 @@ export class RestRoute_FilesLoader extends FilesEngine{
     static load(){
         if(RestRoute_FilesLoader.isLoaded) return
         new RestRoute_FilesLoader()
-        RestRoute_FilesLoader.isLoaded = true
+        // RestRoute_FilesLoader.isLoaded = true
     }
     constructor(){
         super()

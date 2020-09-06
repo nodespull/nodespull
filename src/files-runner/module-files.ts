@@ -6,7 +6,7 @@ export class Module_FilesLoader extends FilesEngine{
     static load(){
        if(Module_FilesLoader.isLoaded) return
         new Module_FilesLoader()
-        Module_FilesLoader.isLoaded = true
+        // Module_FilesLoader.isLoaded = true
     }
     constructor(){
         super()

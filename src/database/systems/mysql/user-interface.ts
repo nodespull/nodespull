@@ -43,7 +43,7 @@ export class DatabaseUserPortal_mySQL implements DatabaseUserPortalInterface{
      *  })
      * ```
      */
-    op = sequelize.Op;
+    op = sequelize.Op
 
 
     /**

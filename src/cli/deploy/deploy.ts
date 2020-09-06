@@ -16,8 +16,8 @@ export async function deploy(){
     if(!target || target == "undefined") new Log("Err: target cloud vendor not provided").FgRed().printValue()
     else switch(target){
         case("heroku"):{
-            new Log("\nPreparing for dev deployment to Heroku.").FgGreen().printValue()
-            new Log("\nNote: visit 'https://nodespull.com/deploy' to learn about nodespull prod deploy\n").FgYellow().printValue()
+            new Log("\nPreparing for deployment to Heroku.").FgGreen().printValue()
+            new Log("\nNote: visit 'https://nodespull.org/learn?at=docsWorkflowDeployment' to learn about nodespull deployment\n").FgYellow().printValue()
             await herokuLogin();
             await herokuPush();
             break

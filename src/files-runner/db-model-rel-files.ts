@@ -13,7 +13,7 @@ export class DB_Model_Rel_FilesLoader extends FilesEngine{
     static load(){
         if(DB_Model_Rel_FilesLoader.isLoaded) return
         new DB_Model_Rel_FilesLoader({dbConnectionSelector:null})
-        DB_Model_Rel_FilesLoader.isLoaded = true
+        // DB_Model_Rel_FilesLoader.isLoaded = true
     }
 
 

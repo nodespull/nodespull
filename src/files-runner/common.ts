@@ -26,7 +26,10 @@ export abstract class FilesEngine {
             for(let folderName of folderNames) paths = [...paths, ...this.recursiveSearch(path+"/"+folderName, extension, options)];
             for(let fileName of fileNames) {
                 if(fileName.slice(-1*(extension.length+1)).toLowerCase() === "."+extension.toLowerCase()){
-                    if(options.runFiles) require(path+"/"+fileName);
+                    if(options.runFiles){
+                        require(path+"/"+fileName);
+                        delete require.cache[require.resolve(path+"/"+fileName)]
+                    }
                     paths.push(path+"/"+fileName)
                 }
             }

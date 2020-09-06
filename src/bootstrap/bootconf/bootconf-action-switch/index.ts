@@ -23,8 +23,7 @@ export class NpUserActionSwitch {
                 NpServer.userRequestedServe()
                 break
             case(UserActions.cli):
-                FilesLoader.Database()//used to perform user cmd checks
-                FilesLoader.Module()
+                FilesLoader.All()//used to perform user cmd checks
                 cli.start()
                 break
             case(UserActions.test):
