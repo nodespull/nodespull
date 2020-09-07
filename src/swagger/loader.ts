@@ -104,14 +104,12 @@ export class SwaggerController {
         let registeredRouteKey = Object.keys(swaggerObject[pathName])[0].toUpperCase() + ":/" + pathName.split("/").slice(1).join("/")
         let route = null
         let hasJwt = false
-        let isActive = false
         for (let module of npModuleController.registeredModules) route = module._route[registeredRouteKey] || route
         if (!route) throw "swagger failed to find registered route " + pathName
         hasJwt = route.jwtProfile != null
-        isActive = route.isRouteActive || false
         let params = ""
         for (let param of route.urlParams) params += "/{" + param + "}"
-        return [params, route.urlParams, isActive, hasJwt]
+        return [params, route.urlParams, hasJwt]
     }
 }
 
