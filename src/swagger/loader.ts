@@ -57,15 +57,13 @@ export class SwaggerController {
             const folderNames: string[] = dirents
                 .filter(dirent => !dirent.isFile())
                 .map(dirent => dirent.name);
-
             for (let folderName of folderNames) SwaggerController.recursiveBuild(path + "/" + folderName);
             for (let fileName of fileNames) {
                 if (fileName != "swagger.json") continue;
                 let swaggerFile = parseJSON(path + "/" + fileName);
                 let pathName = Object.keys(swaggerFile)[0];
                 let method = swaggerFile[pathName][0]
-                let [paramsStringified, paramsList, isRouteActive, hasJwt] = SwaggerController.getRouteStatus(swaggerFile, pathName)
-                if (!isRouteActive) continue
+                let [paramsStringified, paramsList, hasJwt] = SwaggerController.getRouteStatus(swaggerFile, pathName)
                 let pathName_withParams = pathName + paramsStringified
                 if (pathName_withParams != pathName) {
                     swaggerFile[pathName_withParams] = swaggerFile[pathName]
@@ -103,7 +101,7 @@ export class SwaggerController {
 
 
     static getRouteStatus(swaggerObject: any, pathName: string) {
-        let registeredRouteKey = Object.keys(swaggerObject[pathName])[0].toUpperCase() + ":/" + pathName.split("/")[1]
+        let registeredRouteKey = Object.keys(swaggerObject[pathName])[0].toUpperCase() + ":/" + pathName.split("/").slice(1).join("/")
         let route = null
         let hasJwt = false
         let isActive = false

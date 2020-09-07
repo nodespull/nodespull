@@ -8,6 +8,7 @@ import { npHttpInterfaceArg_interface } from "../http/model"
 export class npModule {
     public _route: { [selector: string]: npRouteInterface } = {}
     public _service: { [name: string]: any } = {}
+    public _selfBootedServices: npServiceInterface[] = []
 
     constructor(
         public _name: string,
@@ -61,9 +62,10 @@ export class npModule {
         val = service.default || val // set value of service to default if exist
         if(service.bootstrap){ // selector returns promise(s) if bootstrap is true
             let jobRes:Promise<any>|{[name:string]:Promise<any>}
-            if(service.default) jobRes = this.__addService_selfBootCheck(service, service.default)
-            else jobRes = this.__addService_selfBootCheck(service, service.functions)
-            this._service[service.selector] = jobRes // selector.func call returns a promise 
+            this._selfBootedServices.push(service) // will be booted in boostrap switch
+            // if(service.default) jobRes = this.__addService_selfBootCheck(service, service.default)
+            // else jobRes = this.__addService_selfBootCheck(service, service.functions)
+            // this._service[service.selector] = jobRes // selector.func call returns a promise 
         }
         else this._service[service.selector] = val // selector returns either default or funcs + fields
     }

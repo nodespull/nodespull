@@ -6,7 +6,8 @@ export default function getTemplate(serviceVarName:string, moduleVarName:string)
 const { ${moduleVarName} } = require("../../${moduleFileName}")
 
 
-const $ = npService({
+const $ = mainModule
+npService({
     loader: ${moduleVarName},
     selector: "${serviceVarName}",
     bootstrap: true,

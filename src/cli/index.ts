@@ -92,7 +92,7 @@ export async function getCmd(input:string, loop:boolean, options?:CliCmdOptions_
             default:
                 throw error.falseCmd;
         }
-        console.log("updating "+args[1]+" tree..")
+        new Log("updating "+args[1]+" tree..").FgGreen().printValue()
         setTimeout(() => {
             if(loop) main()
         }, 1000);

@@ -20,6 +20,14 @@ export class NpUserActionSwitch {
         switch(action){
             case(UserActions.serve):
                 FilesLoader.All()
+                for(let mod of npModuleController.registeredModules){ //boot self-booted services
+                    for(let srv of mod._selfBootedServices){
+                        let jobRes
+                        if(srv.default) jobRes = mod.__addService_selfBootCheck(srv, srv.default)
+                        else jobRes = mod.__addService_selfBootCheck(srv, srv.functions)
+                        mod._service[srv.selector] = jobRes // selector.func call returns a promise 
+                    }
+                }
                 NpServer.userRequestedServe()
                 break
             case(UserActions.cli):

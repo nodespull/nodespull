@@ -6,7 +6,7 @@ This project was generated with [Nodespull CLI](https://github.com/nodespull/nod
 
 ## Local server
 
-Run \`pull serve\` for a local server. Navigate to \`http://localhost:3000/\`. The app will automatically reload if you change any of the source files.
+Run \`pull serve\` for a local server. Navigate to \`http://localhost:3000/\`. The server will automatically reload if you change any of the source files.
 
 ## Code scaffolding
 

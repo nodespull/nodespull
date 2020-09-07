@@ -100,13 +100,13 @@ export async function newRoute(name:string, methods:any|string[]){
     }
 
     //check if a method-route already exists
-    let mod = npModuleController.registeredModules.filter(m=>m._name == moduleVarName)[0]
     let requestedRoutesKeys = []
     for(let m of Object.keys(templateList))
         requestedRoutesKeys.push(m.toUpperCase()+":/"+fileName.split(".").join("/"))
     for(let rrk of requestedRoutesKeys)
-        if(Object.keys(mod._route).includes(rrk))
-            throw new Log(`route '${rrk.split(":")[0]}:${fileName.split(".").join("/")}' already exists`).FgRed().getValue()
+        for(let mod of npModuleController.registeredModules)
+            if(Object.keys(mod._route).includes(rrk))
+                throw new Log(`route '${rrk.split(":")[0]}:${fileName.split(".").join("/")}' already exists in '${mod._name}'`).FgRed().getValue()
 
 
     // setTimeout(() => {
