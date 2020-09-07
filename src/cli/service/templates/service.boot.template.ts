@@ -20,7 +20,6 @@ npService({
 /**
  * description
  * @param  {undefined} undefined no_description
- * @return {Promise|undefined}
  */
 async function placeholder() {
 

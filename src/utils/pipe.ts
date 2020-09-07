@@ -22,7 +22,7 @@ export class npPipe{
     static forwardFlow(pipeChannel:PipeChannel, data:any, error?:Error|any|null){
         if(error){
             if(!pipeChannel._ignoreExceptions){
-                if(pipeChannel._forwardOnly) pipeChannel._callback(data, error)
+                if(pipeChannel._forwardOnly) pipeChannel._callback([data, error])
                 else npPipe.backwardFlow(pipeChannel, data, error)
             }
         }
@@ -30,11 +30,10 @@ export class npPipe{
             let pipeFunction = pipeChannel._pipeFunctions.shift()
             if(pipeFunction){
                 pipeChannel._consumed.push(pipeFunction)
-                pipeFunction.forward(data, (funcData:any, error?:Error|any|null)=>{npPipe.forwardFlow(pipeChannel, funcData, error)}, //next
-                )
+                pipeFunction.forward(data,(funcData:any, error?:Error|any|null)=>{npPipe.forwardFlow(pipeChannel, funcData, error)})
             }
             else {
-                pipeChannel._callback(data, error)
+                pipeChannel._callback([data, error])
                 delete npPipe.channels[pipeChannel.id]
             }
         }
@@ -42,12 +41,9 @@ export class npPipe{
 
     static backwardFlow(pipeChannel:PipeChannel, data:any, error:Error|any){
         let pipeFunction = pipeChannel._consumed.pop()
-        if(pipeFunction) pipeFunction.backward(
-            data,
-            (funcData:any, funcError?:Error|any|null)=>{npPipe.backwardFlow(pipeChannel, funcData, funcError)}, //next
-            error)
+        if(pipeFunction) pipeFunction.backward(data, error, (funcData:any, funcError?:Error|any|null)=>{npPipe.backwardFlow(pipeChannel, funcData, funcError)})
         else {
-            pipeChannel._callback(data, error)
+            pipeChannel._callback([data, error])
             delete npPipe.channels[pipeChannel.id]
         }
     }
@@ -69,10 +65,10 @@ class PipeChannel {
     }
 
     /**
-     * list Pipe usable services to alter data
+     * params set of Pipe usable services through which the data flows
      * @param services
      */
-    useServices(...services: npServicePipeFunction[]):PipeChannel{
+    in(...services: npServicePipeFunction[]):Promise<any[]>{
         for(let serviceFunctions of services) {
             if(!serviceFunctions.forward || !serviceFunctions.backward){
                 new Log(`pipe service missisng 'forward' or 'backward' function`).throwError()
@@ -80,7 +76,12 @@ class PipeChannel {
             }
         }
         this._pipeFunctions = services
-        return this
+        let resolver:Function
+        return new Promise((resolve, reject)=>{
+            resolver = resolve
+            this._callback = resolver
+            npPipe.registerChannel(this)
+        })
     }
 
     /**
@@ -100,8 +101,7 @@ class PipeChannel {
     /**
      * runs req and res objects through a list of pipe services
      */
-    run(callback:Function){
-        this._callback = callback
-        npPipe.registerChannel(this)
-    }
+    // async run(){
+        
+    // }
 }

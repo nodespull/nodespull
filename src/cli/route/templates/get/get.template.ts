@@ -25,7 +25,7 @@ const $ = npRoute({
  * @param {Request}  req request contains client data
  * @param {Response} res response contains http methods
  */
-function ${name}Handler(req, res) {
+async function ${name}Handler(req, res) {
     
     res.send("get:${path} works")
 
