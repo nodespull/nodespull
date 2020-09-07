@@ -1,7 +1,7 @@
 import { customStdinResponse, userInput } from "../etc/system-tools/stdin"
 import { newRoute } from "./route"
-import { newDatabase } from "./database/db";
-import { newTable } from "./database/table"
+import { newLink } from "./link";
+import { newTable } from "./link/database/table"
 import { newModule } from "./module";
 import { newService } from "./service";
 import { Log } from "../etc/log";
@@ -78,10 +78,10 @@ export async function getCmd(input:string, loop:boolean, options?:CliCmdOptions_
                 else throw error.falseCmd;
                 new Log("\nAuth Profile \""+ args[3]+"\" successfully created").FgGreen().printValue()
                 break;
-            case "database": 
-                if(createCmd.includes(userCmd)) await newDatabase(name);
+            case "link": 
+                if(createCmd.includes(userCmd)) await newLink(args.slice(2));
                 else throw error.falseCmd;
-                new Log("\nDatabase \""+ name+"\" successfully created").FgGreen().printValue()
+                new Log("\nlink \""+ args[3]+"\" successfully created").FgGreen().printValue()
                 // new Log("restart cli to use new database").FgBlue().printValue()
                 break;
             case "table": 
@@ -111,7 +111,7 @@ ________________________________________________________________
 Commands     Arguments                 Descriptions                
 ________________________________________________________________
 c module     <name>                    module
-c database   <name>                    database configs
+c link       <flag> <name>                    link to an external server
 c table      <dbname.'db'/name>        table in specified db
 c route      <path/path?> : <methods?> route at path <path/path>
 c service    <flag> <name>             service
@@ -125,6 +125,9 @@ ${new Log("Service Flag").FgGreen().getValue()} options
 ${new Log("Profile Flag").FgGreen().getValue()} options
 --jwt           : jwt auth profile
 --oauth2        : oauth2 auth profile
+
+${new Log("Link Flag").FgGreen().getValue()} options
+--db            : database link
 
 ${new Log("Targeting modules").FgGreen().getValue()} for Service and Route
 c service    <flag> <modname.'mod'/name>

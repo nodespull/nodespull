@@ -52,10 +52,11 @@ export const npRoute = npRouteController.handler
 export const npService = npServiceController.handler
 export const pipe = npPipe.handler
 export const http = npHttpInterface
-export const npDB = npDatabaseConnectionLoader
-export const Database = DatabaseUserInterfaceController.interfaces
 export const CloudAdapter = npAdapterUserInterface
 export const setHomeRoute = NpServer.setHomeRoute
+export const npLink = {
+    database: npDatabaseConnectionLoader.register
+}
 export const npEnv = { //env loaders
     process: Boot_Env.npEnv.process,
     app: Boot_Env.npEnv.app
@@ -64,7 +65,11 @@ export const npAuthProfile = {
     jwt: AuthController.jwt,
     oauth2: AuthController.oauth2
 }
-
+export const link = {
+    get: (dbLinkSelector:string)=>{ // could be generalized later-on
+        return DatabaseUserInterfaceController.interfaces[dbLinkSelector]
+    }
+}
 
 
 

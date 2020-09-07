@@ -106,10 +106,16 @@ export class DatabaseUserPortal_mySQL implements DatabaseUserPortalInterface{
         actions()
     }
 
-    runRawQuery = async (query?:string):Promise<RawQueryResponse|null> => {
+    runRawQuery = async (query?:string):Promise<Array<RawQueryResponse|Error|null>|null> => {
         if(!query) return Promise.resolve(null)
-        let [results, metadata] = await DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.query(query!)
-        return Promise.resolve({results, metadata})
+        try {
+            let [result, metadata] = await DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.query(query!)
+            return Promise.resolve([{...result}, null])
+        }
+        catch(e){
+            return Promise.resolve([null, e.original])
+        }
+        
     }
     // only loads it into the migration obj -- will be ran migration.ts
     rawQuery = (query:string):void =>{

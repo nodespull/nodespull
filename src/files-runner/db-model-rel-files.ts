@@ -3,8 +3,8 @@ import { FilesEngine } from "./common" ;
 import {DatabaseConnectionController} from "../database/connection";
 import { Log } from "../etc/log";
 import { getCurrentDBVersion } from "../database/helpers/common";
-import stageModelTemplate from "../cli/database/table/templates/stage.attribute";
-import stageRelationTemplate from "../cli/database/table/templates/stage.relation";
+import stageModelTemplate from "../cli/link/database/table/templates/stage.attribute";
+import stageRelationTemplate from "../cli/link/database/table/templates/stage.relation";
 import { PathVar } from "../etc/other/paths"
 
 export class DB_Model_Rel_FilesLoader extends FilesEngine{

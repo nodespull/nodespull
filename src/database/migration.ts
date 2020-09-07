@@ -16,10 +16,14 @@ export class Migration extends FilesEngine{
 
     dbPath:string;
 
-    constructor(action:string, dbConnectionSelector:string){
+    constructor(action:string, dbConnectionSelector:string, public readonly:boolean){
         super()
         this.dbConnectionSelector = dbConnectionSelector
-        DatabaseConnectionController.throwIfNotRegistered(dbConnectionSelector)
+        if(!Object.keys(DatabaseConnectionController.connections).includes(dbConnectionSelector)) {
+            new Log(`link '${dbConnectionSelector}' not found`).FgRed().printValue()
+            process.exit(1)
+        }
+            
         this.dbPath = this.dbConnectionSelector+"-db"
         this.currDBVersion = getCurrentDBVersion(this.dbConnectionSelector)
         if(action == "up") this.up()
@@ -29,28 +33,41 @@ export class Migration extends FilesEngine{
     }
 
     inplace(){
-        console.log(`start database update using schema 'at.v${this.currDBVersion+1}' ..`)
+        console.log(`\nstart database update using schema 'at.v${this.currDBVersion+1}' ..`)
         DatabaseConnectionController.connections[this.dbConnectionSelector].migration.isRunning = true // pseudo migration
         new DB_Model_Rel_FilesLoader({dbConnectionSelector:this.dbConnectionSelector})
-        DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.sync({alter:true}).then((res:any, err:any)=>{
+        if(this.readonly) DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.authenticate().then((res:any, err:any)=>{
             if(err) return console.log(err)
             for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries) 
             DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
-            new Log(`job ran for database '${res.config.database}' with selector '${this.dbConnectionSelector}'`).FgGreen().printValue()
+            new Log(`updated models for link '${this.dbConnectionSelector}' with no change to database`).FgGreen().printValue()
+            console.log("closing migration job ..\n")
+        })
+        else DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.sync({alter:true}).then((res:any, err:any)=>{
+            for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries) 
+            DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
+            new Log(`job ran for database '${res.config.database}' with link '${this.dbConnectionSelector}'`).FgGreen().printValue()
             console.log("closing migration job ..\n")
         })
     }
 
     up(){
-        console.log(`start database migration toward schema 'stage.v${this.currDBVersion+1}' ..`)
+        console.log(`\nstart database migration toward schema 'stage.v${this.currDBVersion+1}' ..`)
         DatabaseConnectionController.connections[this.dbConnectionSelector].migration.isRunning = true
         this.update_FileStructure_onUp()
         new DB_Model_Rel_FilesLoader({dbConnectionSelector:this.dbConnectionSelector})
-        DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.sync({alter:true}).then((res:any, err:any)=>{
+        if(this.readonly) DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.authenticate().then((res:any, err:any)=>{
             if(err) return console.log(err)
             for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries) 
             DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
-            new Log(`job ran for database '${res.config.database}' with selector '${this.dbConnectionSelector}'`).FgGreen().printValue()
+            new Log(`updated models for link '${this.dbConnectionSelector}' with no change to database`).FgGreen().printValue()
+            console.log("closing migration job ..\n")
+        })
+        else DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.sync({alter:true}).then((res:any, err:any)=>{
+            if(err) return console.log(err)
+            for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries) 
+            DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
+            new Log(`job ran for database '${res.config.database}' with link '${this.dbConnectionSelector}'`).FgGreen().printValue()
             console.log("closing migration job ..\n")
         })
     }
@@ -64,16 +81,23 @@ export class Migration extends FilesEngine{
             new Log("database already at initial version").throwWarn()
             process.exit(1)
         }
-        console.log(`start database revert towards schema 'archives/last.v${this.currDBVersion-1}' ..`)
+        console.log(`\nstart database revert towards schema 'archives/last.v${this.currDBVersion-1}' ..`)
         DatabaseConnectionController.connections[this.dbConnectionSelector].migration.isRunning = true
         DatabaseConnectionController.connections[this.dbConnectionSelector].migration.isRevertMode = true
         this.update_FileStructure_onDown()
         new DB_Model_Rel_FilesLoader({dbConnectionSelector:this.dbConnectionSelector})
-        DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.sync({alter:true}).then((res:any, err:any)=>{
+        if(this.readonly) DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.authenticate().then((res:any, err:any)=>{
             if(err) return console.log(err)
             for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries)
                 DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
-            new Log(`job ran for database '${res.config.database}' with selector '${this.dbConnectionSelector}'`).FgGreen().printValue()
+            new Log(`updated models for link '${this.dbConnectionSelector}' with no change to database`).FgGreen().printValue()
+            console.log("closing migration job ..\n")
+        })
+        else DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.sync({alter:true}).then((res:any, err:any)=>{
+            if(err) return console.log(err)
+            for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries)
+                DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
+            new Log(`job ran for database '${res.config.database}' with link '${this.dbConnectionSelector}'`).FgGreen().printValue()
             console.log("closing migration job ..\n")
         })
     }

@@ -22,7 +22,7 @@ export class DB_MySQL_Connection implements DB_Connection{
     start(){
         this.ORM.interface.sync({alter:true}).then(()=>{
             if(this.migration.isRunning) new Log(`migrated database '${this.conf.database}' using DAO '${this.conf.selector}'`).FgGreen().printValue()
-            else console.log("- "+new Log("connected DAO ").FgGreen().getValue()+"'"+this.conf.selector+"' "+new Log("to database ").FgGreen().getValue()+"'"+this.conf.database+"'")
+            else console.log("- "+new Log("created link ").FgGreen().getValue()+"'"+this.conf.selector+"' "+new Log("to database ").FgGreen().getValue()+"'"+this.conf.database+"'")
         })
     }
 }

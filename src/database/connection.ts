@@ -55,7 +55,7 @@ export class DatabaseConnectionController {
 
     static throwIfNotRegistered(dbConnectionSelector:string){
         if(!Object.keys(DatabaseConnectionController.connections).includes(dbConnectionSelector)) 
-            throw new Log(`database '${dbConnectionSelector}' not found`).FgRed().getValue()
+            throw new Log(`link '${dbConnectionSelector}' not found`).FgRed().getValue()
     }
 }
 

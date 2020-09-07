@@ -1,13 +1,13 @@
-import cmd from "../../exe/exe"
+import cmd from "../../../exe/exe"
 import fs from "fs"
-import {PathVar} from "../../../etc/other/paths"
+import {PathVar} from "../../../../etc/other/paths"
 
 import attribute from "./templates/attribute"
 import relation from "./templates/relation"
-import { getCurrentDBVersion } from "../../../database/helpers/common"
-import { DatabaseConnectionController } from "../../../database/connection"
-import { Log } from "../../../etc/log"
-import { error } from "../.."
+import { getCurrentDBVersion } from "../../../../database/helpers/common"
+import { DatabaseConnectionController } from "../../../../database/connection"
+import { Log } from "../../../../etc/log"
+import { error } from "../../.."
 
 const templates: {[_:string]:any} = { attribute, relation};
 
@@ -19,7 +19,7 @@ function getTemplate(template:string, tableName:string, dbConnectionSelector:str
 
 export async function newTable(arg:string){
     let dbConnectionSelector = arg.split("/")[0]
-    if(!["database","db"].includes(dbConnectionSelector.split(".")[1])) throw error.wrongUsage
+    if(!["link"].includes(dbConnectionSelector.split(".")[1])) throw error.wrongUsage
     else dbConnectionSelector = dbConnectionSelector.split(".")[0]
     let tableName = arg.split("/")[1]
     if(!tableName) throw error.wrongUsage

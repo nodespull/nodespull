@@ -20,7 +20,9 @@ export class NpServer {
     static isExpressAppConfigured:boolean=false
     static ensureExpressAppConfigs(){
         if(NpServer.isExpressAppConfigured) return
-        NpServer.expressApp.use(morgan("dev"))
+        setTimeout(() => {
+            NpServer.expressApp.use(morgan("tiny"))
+        }, 4000);
         NpServer.expressApp.use(bodyParser.json());
         NpServer.expressApp.use(bodyParser.urlencoded({ extended: true }));
         NpServer.isExpressAppConfigured = true
