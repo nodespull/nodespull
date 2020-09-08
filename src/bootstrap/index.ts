@@ -42,7 +42,8 @@ export class NpServer {
         if(NpLifecycle.beforeServe) NpLifecycle.beforeServe()
         if(!NpUserConfig.isCorsPolicySet) bootconf_Message.cors.missing()
         NpServer.ensureExpressAppConfigs()
-        if(!NpServer.isExtension)NpServer.expressApp.listen( bootconfStore.server.PORT, ()=>{
+        bootconfStore.server.PORT = parseInt(process.env.PORT?process.env.PORT:"", 10) || bootconfStore.server.PORT
+        if(!NpServer.isExtension)NpServer.expressApp.listen(bootconfStore.server.PORT, ()=>{
             bootconf_Message.express.serverStarted()
             if(NpLifecycle.afterServe) NpLifecycle.afterServe();
         });
