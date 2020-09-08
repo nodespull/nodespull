@@ -13,7 +13,7 @@ COPY package*.json ./
 
 RUN npm install --quiet
 
-CMD ["node","src/${rootFile_name}","run","--dev"]
+CMD ["node","src/${rootFile_name}","serve","--prod"]
 
 COPY . .
 `

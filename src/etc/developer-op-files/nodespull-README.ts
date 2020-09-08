@@ -23,7 +23,7 @@ No native support. Run e2e with custom implementation.
 
 ## Further help
 
-To get more help on the Nodespull CLI use \`pull help\` or go check out the [Nodespull CLI documentation](http://nodespull.org/learn?at=docsCliOverview).
+To get more help on the Nodespull CLI use \`pull help\` or go check out the [Nodespull CLI documentation](http://js.nodespull.org/learn?at=docsCliOverview).
 
 `
 }
