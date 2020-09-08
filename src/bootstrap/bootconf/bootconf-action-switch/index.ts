@@ -16,7 +16,6 @@ export class NpUserActionSwitch {
     static dispatch(){
 
         let action = process.argv[2]
-
         switch(action){
             case(UserActions.serve):
                 FilesLoader.All()

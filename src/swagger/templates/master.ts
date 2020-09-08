@@ -1,9 +1,10 @@
 import {parseJSON} from "../../etc/system-tools/json"
 import {PathVar} from "../../etc/other/paths"
 
-const packageJSON = parseJSON(PathVar.getPackageJson());
 
 export default function(){
+    const packageJSON = parseJSON(PathVar.getPackageJson());
+
     return {
         "swagger": "2.0",
         "info": {

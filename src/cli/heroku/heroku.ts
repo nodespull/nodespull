@@ -6,8 +6,7 @@ import {writeJSON, parseJSON} from "../../etc/system-tools/json"
 import {userInput} from "../../etc/system-tools/stdin";
 import {PathVar} from "../../etc/other/paths"
 
-let packageJson = parseJSON(PathVar.getPackageJson());
-const rootFile = process.argv[1] //fs.readFileSync("./"+packageJson.main,"utf8");
+// const rootFile = process.argv[1] //fs.readFileSync("./"+packageJson.main,"utf8");
 
 //log into heroku
 export async function herokuLogin(){
@@ -18,6 +17,7 @@ export async function herokuLogin(){
 
 //create app
 export function herokuCreateApp(){
+    let packageJson = parseJSON(PathVar.getPackageJson());
     let appName = packageJson.name+"-"+getRandNumber();
     cmd("heroku", ["create", "-a", appName], false);
     //cmd("heroku", ["create", "-a", appName+"-db"], false);
@@ -40,24 +40,24 @@ export async function herokuPush(){
     })
 }
 
-function add_dbSettings_toRootFile(appName:string){
-    let config = `
-        $.config.database({
-            username: "root",
-            passsord: "nodespull-db-password",
-            host: "https://${appName}-db.herokuapp.com/",
-            database: "nodespull-db-database",
-            port: "3306"
-        })
-    `
-    let rootFileParts = rootFile.split("$.server.ready");
-    if(rootFile.includes("db.config") || rootFile.includes("Database.config") || rootFile.includes("config.db")) return;
-    fs.writeFileSync("./"+packageJson.main, rootFileParts[0]+config+"\n$.server.ready"+rootFileParts[1]);
-}
+// function add_dbSettings_toRootFile(appName:string){
+//     let config = `
+//         $.config.database({
+//             username: "root",
+//             passsord: "nodespull-db-password",
+//             host: "https://${appName}-db.herokuapp.com/",
+//             database: "nodespull-db-database",
+//             port: "3306"
+//         })
+//     `
+//     let rootFileParts = rootFile.split("$.server.ready");
+//     if(rootFile.includes("db.config") || rootFile.includes("Database.config") || rootFile.includes("config.db")) return;
+//     fs.writeFileSync("./"+packageJson.main, rootFileParts[0]+config+"\n$.server.ready"+rootFileParts[1]);
+// }
 
-function remove_dbSettings_fromRootFile(){
-    fs.writeFileSync("./"+packageJson.main, rootFile, "utf8");
-}
+// function remove_dbSettings_fromRootFile(){
+//     fs.writeFileSync("./"+packageJson.main, rootFile, "utf8");
+// }
 
 
 function uploadImage(path:string, dockerfile:string, appName:string){

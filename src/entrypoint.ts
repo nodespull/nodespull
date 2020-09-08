@@ -24,6 +24,7 @@ import sequelize from "sequelize"
 
 // extends external express server
 export function use(app:express.Application){
+    NpServer.isExtension = true
     NpServer.expressApp = app
     process.argv[2] = UserActions.serve
     ready() // possible bug: already ran when the user imported 'server.js'

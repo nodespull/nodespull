@@ -13,6 +13,8 @@ import { NpUserConfig } from "./bootconf/bootconf-user-config";
 
 
 export class NpServer {
+
+    static isExtension:boolean = false
     
     static expressApp:express.Application = express()
     
@@ -20,9 +22,7 @@ export class NpServer {
     static isExpressAppConfigured:boolean=false
     static ensureExpressAppConfigs(){
         if(NpServer.isExpressAppConfigured) return
-        setTimeout(() => {
-            NpServer.expressApp.use(morgan("tiny"))
-        }, 4000);
+        NpServer.expressApp.use(morgan("tiny"))
         NpServer.expressApp.use(bodyParser.json());
         NpServer.expressApp.use(bodyParser.urlencoded({ extended: true }));
         NpServer.isExpressAppConfigured = true
@@ -42,7 +42,7 @@ export class NpServer {
         if(NpLifecycle.beforeServe) NpLifecycle.beforeServe()
         if(!NpUserConfig.isCorsPolicySet) bootconf_Message.cors.missing()
         NpServer.ensureExpressAppConfigs()
-        NpServer.expressApp.listen( bootconfStore.server.PORT, ()=>{
+        if(!NpServer.isExtension)NpServer.expressApp.listen( bootconfStore.server.PORT, ()=>{
             bootconf_Message.express.serverStarted()
             if(NpLifecycle.afterServe) NpLifecycle.afterServe();
         });
