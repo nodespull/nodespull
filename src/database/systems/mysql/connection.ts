@@ -23,6 +23,9 @@ export class DB_MySQL_Connection implements DB_Connection{
         this.ORM.interface.sync({alter:true}).then(()=>{
             if(this.migration.isRunning) new Log(`migrated database '${this.conf.database}' using DAO '${this.conf.selector}'`).FgGreen().printValue()
             else console.log("- "+new Log("created link ").FgGreen().getValue()+"'"+this.conf.selector+"' "+new Log("to database ").FgGreen().getValue()+"'"+this.conf.database+"'")
+        }).catch((e:any)=>{
+            console.log("- "+new Log(`Error: failed to connect link '${this.conf.selector}' to database '${this.conf.database}'`).FgRed().getValue())
+            if(e.original) new Log("  message: "+e.original.message).FgRed().printValue()
         })
     }
 }
