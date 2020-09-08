@@ -6,22 +6,6 @@
   "scripts": {
     "start": "node entrypoint.js"
   },
-  "keywords": [
-    "route",
-    "model",
-    "database",
-    "authentication",
-    "server",
-    "express",
-    "ORM",
-    "jwt",
-    "hash",
-    "docs",
-    "swagger",
-    "test",
-    "mocha",
-    "chai"
-  ],
   "author": "Isaac Kabuika",
   "license": "MIT",
   "dependencies": {
