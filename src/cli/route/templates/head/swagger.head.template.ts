@@ -5,18 +5,8 @@ export default function head(path:string):string{
         "head":{
             "summary": "no summary",
             "description":"no description",
-            "security": [ {"jwt":["admin"]} ],
-            "parameters":[
-                {
-                    "name":"Authorization",
-                    "in":"header",
-                    "required":true,
-                    "description":"JWT token - Bearer",
-                    "type":"string"
-                }
-
-                
-            ],
+            "parameters":[],
+            "tags":["${path.slice(1)}"],
             "responses":{
                 "200":{
                     "description":"success"

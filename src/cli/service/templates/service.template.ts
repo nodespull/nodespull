@@ -9,8 +9,6 @@ const { ${moduleVarName} } = require("../../${moduleFileName}")
 const $ = npService({
     loader: ${moduleVarName},
     selector: "${serviceVarName}",
-    bootstrap: false,
-    default: null,
     functions: {},
     fields: {}
 })
@@ -19,7 +17,6 @@ const $ = npService({
 /**
  * description
  * @param  {undefined} undefined no_description
- * @return {undefined}
  */
 function placeholder() {
 

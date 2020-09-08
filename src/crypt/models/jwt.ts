@@ -26,12 +26,20 @@ export class npJWT{
     createWith = (userData:object):string => {
         let token:string
         switch(this._args.algorithm){
-            case(JwtAlg.HS256): token = JWTAlgModel.HS256.sign(userData, this._args)
+            case(JwtAlg.HS256): 
+                token = JWTAlgModel.HS256.sign(userData, this._args)
+                break
             default: token = JWTAlgModel.HS256.sign(userData, this._args)
         }
         return token
     }
 
+    decrypt = (token:string):Array<string|null|Error> => {
+        switch(this._args.algorithm){
+            case(JwtAlg.HS256): return JWTAlgModel.HS256.verifySync(token, this._args)
+            default: return JWTAlgModel.HS256.verifySync(token, this._args)
+        }
+    }
 
     /**
      * verify that a jwt is provided and is valid
@@ -83,6 +91,14 @@ class JWTAlgModel {
         verify: (token:string, args:JwtAuthProfileInterface, callback:Function):void=>{
             JWTAlgModel.HS256.beforeAll(args)
             jwt.verify(token, args.secret!, (err:any, decoded:any) => callback(err, decoded))
+        },
+        verifySync: (token:string, args:JwtAuthProfileInterface):Array<string|null|Error>=>{
+            try {
+                let tok:string = jwt.verify(token, args.secret!) as string
+                return [tok, null]
+              } catch(err) {
+                return [null, new Error("invalid token")]
+              }
         }
     }
 

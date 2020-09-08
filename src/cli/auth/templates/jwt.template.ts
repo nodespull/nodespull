@@ -2,6 +2,7 @@
 export default function getJwtTemplate(authSelector:string):string{
     return `const { npAuthProfile } = require("@nodespull/core")
 const { JwtAlg, Duration } = require("@nodespull/core/crypt")
+const { sysEnv } = require("@nodespull/core/env")
 
 
 npAuthProfile.jwt({

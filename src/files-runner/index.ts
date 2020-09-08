@@ -8,13 +8,24 @@ import { Auth_FilesLoader } from "./auth-files"
 
 
 // load and complete runners in following order
-export class App_FilesLoader{
-    constructor(){
-        new Database_FilesLoader()
-        new Auth_FilesLoader()
-        new DB_Model_Rel_FilesLoader({dbConnectionSelector:null})
-        new Module_FilesLoader()
-        new Service_FilesLoader()
-        new RestRoute_FilesLoader()
+export class FilesLoader{
+
+    static All(){
+        Env_FilesLoader.load()
+        Database_FilesLoader.load()
+        Auth_FilesLoader.load()
+        DB_Model_Rel_FilesLoader.load()
+        Module_FilesLoader.load()
+        Service_FilesLoader.load()
+        RestRoute_FilesLoader.load()
     }
+
+    static Env(){Env_FilesLoader.load()}
+    static Database(){Database_FilesLoader.load()}
+    static Auth(){Auth_FilesLoader.load()}
+    static DB_AttrRel(){DB_Model_Rel_FilesLoader.load()}
+    static Module(){Module_FilesLoader.load()}
+    static Service(){Service_FilesLoader.load()}
+    static RestRoute(){RestRoute_FilesLoader.load()}
+
 }

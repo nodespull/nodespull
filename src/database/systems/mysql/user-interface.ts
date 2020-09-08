@@ -43,7 +43,7 @@ export class DatabaseUserPortal_mySQL implements DatabaseUserPortalInterface{
      *  })
      * ```
      */
-    op = sequelize.Op;
+    op = sequelize.Op
 
 
     /**
@@ -106,10 +106,16 @@ export class DatabaseUserPortal_mySQL implements DatabaseUserPortalInterface{
         actions()
     }
 
-    runRawQuery = async (query?:string):Promise<RawQueryResponse|null> => {
+    runRawQuery = async (query?:string):Promise<Array<RawQueryResponse|Error|null>|null> => {
         if(!query) return Promise.resolve(null)
-        let [results, metadata] = await DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.query(query!)
-        return Promise.resolve({results, metadata})
+        try {
+            let [result, metadata] = await DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.query(query!)
+            return Promise.resolve([{...result}, null])
+        }
+        catch(e){
+            return Promise.resolve([null, e.original])
+        }
+        
     }
     // only loads it into the migration obj -- will be ran migration.ts
     rawQuery = (query:string):void =>{
@@ -120,7 +126,7 @@ export class DatabaseUserPortal_mySQL implements DatabaseUserPortalInterface{
         return DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.getQueryInterface()
     }
 
-    Relations = {
+    relations = {
         set: (rootTable:string, args:any)=>{
             if(args.one_to_one){
                 for(let target of args.one_to_one.has) new TableRelation(rootTable, this.connectionSelector).has_one(target);

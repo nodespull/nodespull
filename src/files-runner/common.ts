@@ -1,11 +1,8 @@
 import fs from "fs"
-import { PathVar } from "../etc/other/paths"
 
 // runner template
 export abstract class FilesEngine {
 
-    // static appRootPath = PathVar.appModule //`${process.argv[1].split("/").slice(0,-1).join("/")}/../${appModule}`
-    // static dbRootPath = PathVar.dbModule //`${process.argv[1].split("/").slice(0,-1).join("/")}/../${dbModule}`
 
     constructor(){}
 
@@ -29,7 +26,10 @@ export abstract class FilesEngine {
             for(let folderName of folderNames) paths = [...paths, ...this.recursiveSearch(path+"/"+folderName, extension, options)];
             for(let fileName of fileNames) {
                 if(fileName.slice(-1*(extension.length+1)).toLowerCase() === "."+extension.toLowerCase()){
-                    if(options.runFiles) require(path+"/"+fileName);
+                    if(options.runFiles){
+                        require(path+"/"+fileName);
+                        if(options.deleteImportCache !== false) delete require.cache[require.resolve(path+"/"+fileName)]
+                    }
                     paths.push(path+"/"+fileName)
                 }
             }
@@ -44,5 +44,6 @@ export abstract class FilesEngine {
 }
 
 interface RecursiveSearchOptions {
-    runFiles: boolean
+    runFiles: boolean,
+    deleteImportCache?:boolean
 }

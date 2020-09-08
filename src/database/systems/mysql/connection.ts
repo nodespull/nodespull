@@ -3,6 +3,7 @@ import functions_placeholders from "../../helpers/functions-placeholders"
 import { db_mySQLConnectionArg } from "./model";
 import { Table } from "./Table";
 import { DB_Connection } from "../../models/db-connection";
+import { Log } from "../../../etc/log";
 
 
 export class DB_MySQL_Connection implements DB_Connection{
@@ -20,8 +21,11 @@ export class DB_MySQL_Connection implements DB_Connection{
 
     start(){
         this.ORM.interface.sync({alter:true}).then(()=>{
-            if(this.migration.isRunning) console.log(`migration complete for database '${this.conf.selector}'`)
-            else console.log(`connection established with database '${this.conf.selector}'`);
+            if(this.migration.isRunning) new Log(`migrated database '${this.conf.database}' using DAO '${this.conf.selector}'`).FgGreen().printValue()
+            else console.log("- "+new Log("created link ").FgGreen().getValue()+"'"+this.conf.selector+"' "+new Log("to database ").FgGreen().getValue()+"'"+this.conf.database+"'")
+        }).catch((e:any)=>{
+            console.log("- "+new Log(`Error: failed to connect link '${this.conf.selector}' to database '${this.conf.database}'`).FgRed().getValue())
+            if(e.original) new Log("  message: "+e.original.message).FgRed().printValue()
         })
     }
 }

@@ -1,29 +1,12 @@
 
 export default function del(path:string):string{
     return `{
-    "${path}/{uuid}":{
+    "${path}":{
         "delete":{
             "summary": "no summary",
             "description":"no description",
-            "security": [ {"jwt":["admin"]} ],
-            "parameters":[
-                {
-                    "name":"Authorization",
-                    "in":"header",
-                    "required":true,
-                    "description":"JWT token - Bearer",
-                    "type":"string"
-                },
-                {
-                    "name":"uuid",
-                    "in":"path",
-                    "required":true,
-                    "description":"no description",
-                    "type":"integer"
-                }
-
-
-            ],
+            "parameters":[],
+            "tags":["${path.slice(1)}"],
             "responses":{
                 "204":{
                     "description":"success",

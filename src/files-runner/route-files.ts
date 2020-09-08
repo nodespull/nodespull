@@ -3,6 +3,12 @@ import { PathVar } from "../etc/other/paths"
 
 
 export class RestRoute_FilesLoader extends FilesEngine{
+    static isLoaded:boolean = false
+    static load(){
+        if(RestRoute_FilesLoader.isLoaded) return
+        new RestRoute_FilesLoader()
+        // RestRoute_FilesLoader.isLoaded = true
+    }
     constructor(){
         super()
         super.recursiveSearch(PathVar.getAppModule(), "delete.js", {runFiles:true});

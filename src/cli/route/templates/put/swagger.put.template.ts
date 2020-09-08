@@ -1,26 +1,11 @@
 
 export default function put(path:string):string{
     return `{
-    "${path}/{uuid}":{
+    "${path}":{
         "put":{
             "summary": "no summary",
             "description":"no description",
-            "security": [ {"jwt":["admin"]} ],
             "parameters":[
-                {
-                    "name":"Authorization",
-                    "in":"header",
-                    "required":true,
-                    "description":"JWT token - Bearer",
-                    "type":"string"
-                },
-                {
-                    "name":"uuid",
-                    "in":"path",
-                    "required":true,
-                    "description":"no description",
-                    "type":"integer"
-                },
                 {
                     "in": "body",
                     "name": "body",
@@ -33,10 +18,9 @@ export default function put(path:string):string{
                             
                         }
                     }
-                }
-
-                
+                }  
             ],
+            "tags":["${path.slice(1)}"],
             "responses":{
                 "200":{
                     "description":"success",

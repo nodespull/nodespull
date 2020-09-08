@@ -1,13 +1,14 @@
 import { npServiceInterface, npModuleUserInterface, npRouteInterface, npModuleSelfObjectInterface } from "./models"
-import { http } from "../server"
+import { http } from "../entrypoint"
 import { Log } from "../etc/log"
-import cloneObject from "../etc/system-tools/clone-object"
 import { npJWT } from "../crypt/models/jwt"
-import { routeHandlerArg_interface } from "../route/model"
+import { npHttpInterfaceArg_interface } from "../http/model"
+
 
 export class npModule {
     public _route: { [selector: string]: npRouteInterface } = {}
     public _service: { [name: string]: any } = {}
+    public _selfBootedServices: npServiceInterface[] = []
 
     constructor(
         public _name: string,
@@ -25,15 +26,16 @@ export class npModule {
     //add a route to module
     _addAndLoadRoute(route: npRouteInterface) {
         // load route into nodespull module
+        if (route.jwtProfile !== null) route.jwtProfile = route.jwtProfile || this._jwtProfile
         this._route[route.method.name + ":" + route.path] = route
         // load route into nodespull router
         route.isRouteActive = route.isRouteActive!=undefined?route.isRouteActive:(this._loadRoutes!=undefined?this._loadRoutes:false)
-        let routeArgs: routeHandlerArg_interface = {
+        let routeArgs: npHttpInterfaceArg_interface = {
             handler: route.handler, 
             isRouteActive: route.isRouteActive, 
             urlParams: route.urlParams, 
             path: route.path, 
-            jwtProfile: route.jwtProfile || this._jwtProfile
+            jwtProfile: route.jwtProfile,
         }
         if (route.method.name == "HEAD") http.HEAD(routeArgs)
         if (route.method.name == "GET") http.GET(routeArgs)
@@ -60,9 +62,10 @@ export class npModule {
         val = service.default || val // set value of service to default if exist
         if(service.bootstrap){ // selector returns promise(s) if bootstrap is true
             let jobRes:Promise<any>|{[name:string]:Promise<any>}
-            if(service.default) jobRes = this.__addService_selfBootCheck(service, service.default)
-            else jobRes = this.__addService_selfBootCheck(service, service.functions)
-            this._service[service.selector] = jobRes // selector.func call returns a promise 
+            this._selfBootedServices.push(service) // will be booted in boostrap switch
+            // if(service.default) jobRes = this.__addService_selfBootCheck(service, service.default)
+            // else jobRes = this.__addService_selfBootCheck(service, service.functions)
+            // this._service[service.selector] = jobRes // selector.func call returns a promise 
         }
         else this._service[service.selector] = val // selector returns either default or funcs + fields
     }
@@ -99,7 +102,8 @@ export class npModule {
 
     get service(){
         // add imported services to local array with low priority
-        for(let module of this._importedModules) for(let serviceName of Object.keys(module._service)){
+        // use 'reverse' in order to give precedence to head of list via overwritting
+        for(let module of this._importedModules.reverse()) for(let serviceName of Object.keys(module._service)){
             if(!Object.keys(this._service).includes(serviceName)) this._service[serviceName] = module._service[serviceName]
         }
         return this._service

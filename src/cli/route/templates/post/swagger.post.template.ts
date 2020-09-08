@@ -5,15 +5,7 @@ export default function post(path:string):string{
         "post":{
             "summary": "no summary",
             "description":"no description",
-            "security": [ {"jwt":["admin"]} ],
             "parameters":[
-                {
-                    "name":"Authorization",
-                    "in":"header",
-                    "required":true,
-                    "description":"JWT token - Bearer",
-                    "type":"string"
-                },
                 {
                     "in": "body",
                     "name": "body",
@@ -28,6 +20,7 @@ export default function post(path:string):string{
                     }
                 }
             ],
+            "tags":["${path.slice(1)}"],
             "responses":{
                 "200":{
                     "description":"success",

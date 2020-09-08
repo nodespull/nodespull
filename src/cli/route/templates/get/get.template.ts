@@ -7,10 +7,9 @@ export default function get(path:string, moduleVarName:string, locationDepth:num
     // if(JSReservedWords.getList().includes(name)) name = "_"+name // put underscore in front of js reserved words
     let moduleFileName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+".mod"
 
-    return `const { http, Database, npRoute, Pipe } = require("@nodespull/core")
+    return `const { http, link, npRoute, Pipe } = require("@nodespull/core")
 const { hash, jwt, oauth2 } = require("@nodespull/core/crypt")
 const { ${moduleVarName} } = require("${'../'.repeat(locationDepth)+moduleFileName}")
-
 
 
 const $ = npRoute({
@@ -25,7 +24,7 @@ const $ = npRoute({
  * @param {Request}  req request contains client data
  * @param {Response} res response contains http methods
  */
-function ${name}Handler(req, res) {
+async function ${name}Handler(req, res) {
     
     res.send("get:${path} works")
 

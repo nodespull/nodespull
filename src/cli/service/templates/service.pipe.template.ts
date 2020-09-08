@@ -18,22 +18,20 @@ const $ = npService({
 
 /**
  * runs on forward pipe flow
- * @param {Request} req 
- * @param {Response} res 
+ * @param {any} data
  */
-function forward(req, res, next, funcData) {
-    next()
+async function forward(data, next) {
+    next(data)
 }
 
 
 /**
  * runs on backward pipe flow
- * @param {Request} req 
- * @param {Response} res 
- * @param {Error} forwardException 
+ * @param {any} data 
+ * @param {any} error 
  */
-function backward(req, res, next, forwardException) {
-    next(forwardException)
+async function backward(data, error, next) {
+    next(data, error)
 }
 `
 }

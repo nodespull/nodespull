@@ -7,53 +7,44 @@ export class npPipe{
     static channels:any = {} // not used, just keeps track of running channels
 
     static registerChannel(pipeChannel:PipeChannel){
-        npPipe.channels[pipeChannel.req.pipeChannelId] = pipeChannel
-        npPipe.forwardFlow(pipeChannel, null) // start the flow
+        npPipe.channels[pipeChannel.id] = pipeChannel
+        npPipe.forwardFlow(pipeChannel, pipeChannel.injectedData, null) // start the flow
     }
 
     /** factory for client initial access */
-    static handler(req:Request, res:Response){
-        return new PipeChannel(req, res)
+    static handler(pipeData:any){
+        return new PipeChannel(pipeData)
     }
 
     /**
      * defines the flow of the pipe -- service call order
      */
-    static forwardFlow(pipeChannel:PipeChannel, data:any){
-        if(data instanceof Error){
+    static forwardFlow(pipeChannel:PipeChannel, data:any, error?:Error|any|null){
+        if(error){
             if(!pipeChannel._ignoreExceptions){
-                if(pipeChannel._forwardOnly) pipeChannel._callback(null, data)
-                else npPipe.backwardFlow(pipeChannel, data)
+                if(pipeChannel._forwardOnly) pipeChannel._callback([data, error])
+                else npPipe.backwardFlow(pipeChannel, data, error)
             }
         }
         else{
             let pipeFunction = pipeChannel._pipeFunctions.shift()
             if(pipeFunction){
                 pipeChannel._consumed.push(pipeFunction)
-                pipeFunction.forward(
-                    pipeChannel.req, 
-                    pipeChannel.res, 
-                    (funcData:any)=>{npPipe.forwardFlow(pipeChannel, funcData)}, //next
-                    data
-                )
+                pipeFunction.forward(data,(funcData:any, error?:Error|any|null)=>{npPipe.forwardFlow(pipeChannel, funcData, error)})
             }
             else {
-                pipeChannel._callback(data, null)
-                delete npPipe.channels[pipeChannel.req.pipeChannelId]
+                pipeChannel._callback([data, error])
+                delete npPipe.channels[pipeChannel.id]
             }
         }
     }
 
-    static backwardFlow(pipeChannel:PipeChannel, error:Error){
+    static backwardFlow(pipeChannel:PipeChannel, data:any, error:Error|any){
         let pipeFunction = pipeChannel._consumed.pop()
-        if(pipeFunction) pipeFunction.backward(
-            pipeChannel.req, 
-            pipeChannel.res, 
-            (funcData:Error)=>{npPipe.backwardFlow(pipeChannel, funcData)}, //next
-            error)
+        if(pipeFunction) pipeFunction.backward(data, error, (funcData:any, funcError?:Error|any|null)=>{npPipe.backwardFlow(pipeChannel, funcData, funcError)})
         else {
-            pipeChannel._callback(null, error)
-            delete npPipe.channels[pipeChannel.req.pipeChannelId]
+            pipeChannel._callback([data, error])
+            delete npPipe.channels[pipeChannel.id]
         }
     }
 }
@@ -68,15 +59,16 @@ class PipeChannel {
     public _pipeFunctions:npServicePipeFunction[] = []
     public _consumed: npServicePipeFunction[] = [] // pipe services that ran forward
     public _callback:Function = (result:any,error:Error)=>{}
-    constructor(public req:Request|any, public res:Response){
-        this.req.pipeChannelId = Date.now()
+    public id:string
+    constructor(public injectedData:any){
+        this.id = Date.now().toString()
     }
 
     /**
-     * list Pipe usable services to alter data
+     * params set of Pipe usable services through which the data flows
      * @param services
      */
-    useServices(...services: npServicePipeFunction[]):PipeChannel{
+    in(...services: npServicePipeFunction[]):Promise<any[]>{
         for(let serviceFunctions of services) {
             if(!serviceFunctions.forward || !serviceFunctions.backward){
                 new Log(`pipe service missisng 'forward' or 'backward' function`).throwError()
@@ -84,7 +76,12 @@ class PipeChannel {
             }
         }
         this._pipeFunctions = services
-        return this
+        let resolver:Function
+        return new Promise((resolve, reject)=>{
+            resolver = resolve
+            this._callback = resolver
+            npPipe.registerChannel(this)
+        })
     }
 
     /**
@@ -104,8 +101,7 @@ class PipeChannel {
     /**
      * runs req and res objects through a list of pipe services
      */
-    run(callback:Function){
-        this._callback = callback
-        npPipe.registerChannel(this)
-    }
+    // async run(){
+        
+    // }
 }

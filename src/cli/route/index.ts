@@ -19,9 +19,19 @@ import swag_get from "./templates/get/swagger.get.template"
 import swag_post from "./templates/post/swagger.post.template"
 import swag_put from "./templates/put/swagger.put.template"
 import swag_head from "./templates/head/swagger.head.template"
+import { npModuleController } from "../../module/controllers/npModuleController"
+import { Log } from "../../etc/log"
 
 
-const templateList:  {[_:string]:{[_:string]:any}} = {
+let templateList:  {[_:string]:{[_:string]:any}} = {
+    delete: {delete: del, spec_del, swag_del},
+    get: {get, spec_get, swag_get},
+    post: {post, spec_post, swag_post},
+    put: {put, spec_put, swag_put},
+    head: {head,spec_head, swag_head}
+}
+
+const rebuildTemplateList = ()=>templateList = {
     delete: {delete: del, spec_del, swag_del},
     get: {get, spec_get, swag_get},
     post: {post, spec_post, swag_post},
@@ -56,7 +66,11 @@ function getTemplate(moduleName:string, routeName:string,template:Function, file
 
 
 
-export async function newRoute(name:string){
+export async function newRoute(name:string, methods:any|string[]){
+
+    if(methods) for(let method of Object.keys(templateList)) 
+        if(!methods.map((m:string)=>m.toLowerCase()).includes(method)) delete templateList[method]
+
     let args = name.split("/");
     let moduleVarName:string = "mainModule"
     if(args[0].toLowerCase().includes(".module") || args[0].toLowerCase().includes(".mod")){
@@ -70,17 +84,35 @@ export async function newRoute(name:string){
         let moduleDirName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+"-module"
         routeDirPath = moduleDirName+"/routes"
     }
+
+
+    //check if module exists
+    if(!npModuleController.registeredModules.map((mod => mod._name)).includes(moduleVarName))
+        throw new Log(`module '${moduleVarName.substr(0, moduleVarName.length-1*"Module".length)}' not found`).FgRed().getValue()
+
+
     while(args.length > 0){
         let e = args.shift();
         fileName = fileName!=""?(fileName+"."+e):e!;
         fileName_withUnderscore = fileName_withUnderscore!=""?(fileName_withUnderscore+"."+e):"_"+e!;
         routeDirPath = routeDirPath+"/"+fileName_withUnderscore;
-        await cmd("mkdir", ["-p", PathVar.getAppModule()+"/"+routeDirPath], false);
+        await cmd("mkdir", ["-p", PathVar.getAppModule()+"/"+routeDirPath], true);
     }
-    setTimeout(() => {
+
+    //check if a method-route already exists
+    let requestedRoutesKeys = []
+    for(let m of Object.keys(templateList))
+        requestedRoutesKeys.push(m.toUpperCase()+":/"+fileName.split(".").join("/"))
+    for(let rrk of requestedRoutesKeys)
+        for(let mod of npModuleController.registeredModules)
+            if(Object.keys(mod._route).includes(rrk))
+                throw new Log(`route '${rrk.split(":")[0]}:${fileName.split(".").join("/")}' already exists in '${mod._name}'`).FgRed().getValue()
+
+
+    // setTimeout(() => {
         for(let templGroupKey of Object.keys(templateList)){
             let templDirPath:string = routeDirPath +"/"+fileName+"."+templGroupKey;
-            cmd("mkdir", ["-p", PathVar.getAppModule()+"/"+ templDirPath]);
+            cmd("mkdir", ["-p", PathVar.getAppModule()+"/"+ templDirPath], true);
             for(let templateKey of Object.keys(templateList[templGroupKey])){
                 let templFilePath:string = templDirPath+"/"+(fileName+"."+templGroupKey);
                 let extCount = 2;
@@ -93,13 +125,14 @@ export async function newRoute(name:string){
                     extCount = 1;
                 }
                 else templFilePath += ".js";
-                cmd("touch",[PathVar.getAppModule()+"/"+templFilePath]);
-                fs.writeFile(PathVar.getAppModule()+"/"+templFilePath,getTemplate(
+                cmd("touch",[PathVar.getAppModule()+"/"+templFilePath], true);
+                await fs.writeFile(PathVar.getAppModule()+"/"+templFilePath,getTemplate(
                     moduleVarName,
                     templDirPath+"/"+fileName, //remove initial underscore
                     templateList[templGroupKey][templateKey], 
                     templFilePath,extCount),()=>{})
             }
         }
-    }, 2000);
+        rebuildTemplateList()
+    // }, 2000);
 }

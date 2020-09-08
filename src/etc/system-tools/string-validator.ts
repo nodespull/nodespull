@@ -10,6 +10,11 @@ export class StringParser {
         return str.match(/^[0-9a-zA-Z_]+$/) !== null
     }
 
+    static isValidCLIFormat(str:string){
+        if(!isNaN(Number(str[0]))) return false
+        return str.match(/^[0-9a-zA-Z_\-/.]+$/) !== null
+    }
+
     /**
      * attemtps to convert "-" to "_"
      */
