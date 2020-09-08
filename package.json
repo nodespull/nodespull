@@ -1,10 +1,14 @@
 {
   "name": "@nodespull/core",
-  "version": "0.3.14",
-  "description": "Node.js server framework from Sodium Servers",
+  "version": "0.0.3",
+  "description": "A Javascript Server framework",
   "main": "entrypoint.js",
   "scripts": {
     "start": "node entrypoint.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nodespull/nodespull"
   },
   "author": "Isaac Kabuika",
   "license": "MIT",
