@@ -18,7 +18,7 @@ export async function herokuLogin(){
 //create app
 export function herokuCreateApp(){
     let packageJson = parseJSON(PathVar.getPackageJson());
-    let appName = packageJson.name+"-"+getRandNumber();
+    let appName = "np-"+packageJson.name+"-"+getRandNumber();
     cmd("heroku", ["create", "-a", appName], false);
     //cmd("heroku", ["create", "-a", appName+"-db"], false);
     return appName;

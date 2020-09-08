@@ -7,15 +7,19 @@ export function appDockerfile(){
 
     return `FROM node:10
 
+COPY ./package.json /usr/app/
+
+RUN npm install
+
+RUN npm i @nodespull/core
+
+COPY . /usr/app/
+
+RUN mkdir -p /usr/app
+
 WORKDIR /usr/app
-
-COPY package*.json ./
-
-RUN npm install --quiet
-
-CMD ["node","src/${rootFile_name}","serve","--prod"]
-
-COPY . .
+    
+CMD ["node","src/${rootFile_name}","serve"${process.argv[4]?(',"'+process.argv[4]+'"'):""}]
 `
 }
 
