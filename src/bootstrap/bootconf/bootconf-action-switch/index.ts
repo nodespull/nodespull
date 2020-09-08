@@ -44,7 +44,7 @@ export class NpUserActionSwitch {
             case(UserActions.migrate):
                 FilesLoader.Env()
                 FilesLoader.Database()
-                new Migration(process.argv[3], process.argv[4], process.argv[5] == "--readonly")
+                new Migration(process.argv[3], process.argv[4], process.argv[5] == "--readonly", process.argv[6]=="--freeze")
                 break
             case(UserActions.init):
                 initializeNodespull()

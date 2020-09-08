@@ -13,7 +13,7 @@ export class DB_Model_Rel_FilesLoader extends FilesEngine{
     static load(){
         if(DB_Model_Rel_FilesLoader.isLoaded) return
         new DB_Model_Rel_FilesLoader({dbConnectionSelector:null})
-        // DB_Model_Rel_FilesLoader.isLoaded = true
+        DB_Model_Rel_FilesLoader.isLoaded = true
     }
 
 
@@ -33,8 +33,8 @@ export class DB_Model_Rel_FilesLoader extends FilesEngine{
                 new Log(`missing folder with prefix '${DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRevertMode?
                     "stage.v":"at.v"}' in '${PathVar.getDbModule().split("/").slice(-2).join("/")}' directory tree`).throwError()
             else{
-                super.recursiveSearch(targetFolderPath, "attribute.js", {runFiles:true});
-                super.recursiveSearch(targetFolderPath, "relation.js", {runFiles:true});
+                super.recursiveSearch(targetFolderPath, "attribute.js", {runFiles:true, deleteImportCache:false});
+                super.recursiveSearch(targetFolderPath, "relation.js", {runFiles:true, deleteImportCache:false});
             }
             if(args && DatabaseConnectionController.connections[args.dbConnectionSelector].migration.isRunning && args.overwrite_newStageScripts) this.updateStageFiles()
         }
@@ -45,8 +45,8 @@ export class DB_Model_Rel_FilesLoader extends FilesEngine{
             for(let dbFolderPath of dbFolderPaths){
                 let targetFolderPath = this.getFolderPath(PathVar.getDbModule()+"/"+this.dbPath+"/"+dbFolderPath, "at.v")
                 if(!targetFolderPath) return //throw new Log("missing folder with prefix 'at.v' in "+dbFolderPath).getValue()
-                super.recursiveSearch(targetFolderPath, "attribute.js", {runFiles:true});
-                super.recursiveSearch(targetFolderPath, "relation.js", {runFiles:true});
+                super.recursiveSearch(targetFolderPath, "attribute.js", {runFiles:true, deleteImportCache:false});
+                super.recursiveSearch(targetFolderPath, "relation.js", {runFiles:true, deleteImportCache:false});
             }
         }
     }
@@ -79,14 +79,14 @@ export class DB_Model_Rel_FilesLoader extends FilesEngine{
         for(let path of modelPaths){
             let tableName = path.split("/").splice(-1)[0].split(".")[0]
             let modelFile = fs.readFileSync(path,'utf8')
-            let tempReg = modelFile.match(/(    | )Database.defineModel\(([\s\S]*?)}\)/)
+            let tempReg = modelFile.match(/(    | )editor.defineModel\(([\s\S]*?)}\)/)
             let modelFile_extract:string|null = tempReg?tempReg[0]:null
             fs.writeFileSync(path, stageModelTemplate(modelFile_extract, this.args.dbConnectionSelector!))
         }
         for(let path of relPaths){
             let tableName = path.split("/").splice(-1)[0].split(".")[0]
             let modelFile = fs.readFileSync(path,'utf8')
-            let tempReg = modelFile.match(/(    | )Relations.set\(([\s\S]*?)}\)/)
+            let tempReg = modelFile.match(/(    | )relations.set\(([\s\S]*?)}\)/)
             let modelFile_extract:string|null = tempReg?tempReg[0]:null
             fs.writeFileSync(path, stageRelationTemplate(modelFile_extract, this.args.dbConnectionSelector!))
         }

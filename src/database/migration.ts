@@ -16,7 +16,7 @@ export class Migration extends FilesEngine{
 
     dbPath:string;
 
-    constructor(action:string, dbConnectionSelector:string, public readonly:boolean){
+    constructor(action:string, dbConnectionSelector:string, public readonly:boolean, public freeze:boolean){
         super()
         this.dbConnectionSelector = dbConnectionSelector
         if(!Object.keys(DatabaseConnectionController.connections).includes(dbConnectionSelector)) {
@@ -28,51 +28,67 @@ export class Migration extends FilesEngine{
         this.currDBVersion = getCurrentDBVersion(this.dbConnectionSelector)
         if(action == "up") this.up()
         else if(action == "down") this.down()
-        else if(action == "freeze") this.inplace()
         else new Log("migration command incorrect. use 'up', 'down', or 'update'").throwError()
     }
 
-    inplace(){
-        console.log(`\nstart database update using schema 'at.v${this.currDBVersion+1}' ..`)
-        DatabaseConnectionController.connections[this.dbConnectionSelector].migration.isRunning = true // pseudo migration
-        new DB_Model_Rel_FilesLoader({dbConnectionSelector:this.dbConnectionSelector})
-        if(this.readonly) DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.authenticate().then((res:any, err:any)=>{
-            if(err) return console.log(err)
-            for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries) 
-            DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
-            new Log(`updated models for link '${this.dbConnectionSelector}' with no change to database`).FgGreen().printValue()
-            console.log("closing migration job ..\n")
-        })
-        else DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.sync({alter:true}).then((res:any, err:any)=>{
-            for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries) 
-            DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
-            new Log(`job ran for database '${res.config.database}' with link '${this.dbConnectionSelector}'`).FgGreen().printValue()
-            console.log("closing migration job ..\n")
-        })
-    }
+    // inplace(){
+    //     console.log(`\nstart database update using schema 'at.v${this.currDBVersion+1}' ..`)
+    //     DatabaseConnectionController.connections[this.dbConnectionSelector].migration.isRunning = true // pseudo migration
+    //     new DB_Model_Rel_FilesLoader({dbConnectionSelector:this.dbConnectionSelector})
+    //     if(this.readonly) DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.authenticate().then((res:any, err:any)=>{
+    //         if(err) return console.log(err)
+    //         for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries) 
+    //         DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
+    //         new Log(`updated models for link '${this.dbConnectionSelector}' with no database ${this.freeze?"and version ":""}change`).FgGreen().printValue()
+    //         console.log("closing migration job ..\n")
+    //     })
+    //     else DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.sync({alter:true}).then((res:any, err:any)=>{
+    //         for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries) 
+    //         DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
+    //         new Log(`job ran for database '${res.config.database}' with link '${this.dbConnectionSelector}'`).FgGreen().printValue()
+    //         console.log("closing migration job ..\n")
+    //     })
+    // }
 
-    up(){
-        console.log(`\nstart database migration toward schema 'stage.v${this.currDBVersion+1}' ..`)
+    async up(){
+        this.currDBVersion = getCurrentDBVersion(this.dbConnectionSelector)
+        console.log(`\nstart migration toward schema 'stage.v${this.currDBVersion+1}' ..`)
         DatabaseConnectionController.connections[this.dbConnectionSelector].migration.isRunning = true
-        this.update_FileStructure_onUp()
+        if(!this.freeze) this.update_FileStructure_onUp()
         new DB_Model_Rel_FilesLoader({dbConnectionSelector:this.dbConnectionSelector})
+        if(this.freeze) this.update_FileStructure_frozen()
         if(this.readonly) DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.authenticate().then((res:any, err:any)=>{
-            if(err) return console.log(err)
-            for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries) 
-            DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
-            new Log(`updated models for link '${this.dbConnectionSelector}' with no change to database`).FgGreen().printValue()
+            for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries)
+                DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query).then((val:any)=>{
+                    if(val[1] == null) return
+                    new Log("Error: "+val[1].sqlMessage+" at '"+val[1].sql+"'").FgRed().printValue()
+                    new Log("\nError with raw queries: manual fix required.\n* Remove raw queries for relevant model in 'at.v"+(this.currDBVersion+1)+"', then migrate down.").FgYellow().printValue()
+                    console.log("terminating check ..")
+                })
+            new Log(`updated models for link '${this.dbConnectionSelector}' with no database ${this.freeze?"and version ":""}change`).FgGreen().printValue()
             console.log("closing migration job ..\n")
         })
-        else DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.sync({alter:true}).then((res:any, err:any)=>{
-            if(err) return console.log(err)
-            for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries) 
-            DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
-            new Log(`job ran for database '${res.config.database}' with link '${this.dbConnectionSelector}'`).FgGreen().printValue()
+        else DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.sync({alter:true}).then((res:any)=>{
+            for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries)
+                DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query).then((val:any)=>{
+                    if(val[1] == null) return
+                    new Log("Error: "+val[1].sqlMessage+" at '"+val[1].sql+"'").FgRed().printValue()
+                    new Log("\nError with raw queries: manual fix required.\n* Remove raw queries for relevant model in 'at.v"+(this.currDBVersion+1)+"', then migrate down.").FgYellow().printValue()
+                    console.log("terminating check ..")
+                })
+            new Log(`job ran for database '${res.config.database}' with link '${this.dbConnectionSelector}'${this.freeze?" with no version change":""}`).FgGreen().printValue()
+            console.log("closing migration job ..\n")
+        })
+        .catch((e:any)=>{
+            if(!this.freeze) this.update_FileStructure_onDown() //alter failed, fix file structure
+            new Log("Error: "+e.original.sqlMessage).FgRed().printValue()
+            new Log("critical Error found. migration Aborted.").FgYellow().printValue()
             console.log("closing migration job ..\n")
         })
     }
 
     down(){
+        this.currDBVersion = getCurrentDBVersion(this.dbConnectionSelector)
         if(this.currDBVersion == 0){
             new Log("No previous database version found").throwWarn()
             process.exit(1)
@@ -81,28 +97,44 @@ export class Migration extends FilesEngine{
             new Log("database already at initial version").throwWarn()
             process.exit(1)
         }
-        console.log(`\nstart database revert towards schema 'archives/last.v${this.currDBVersion-1}' ..`)
+        console.log(`\nstart revert towards schema 'archives/last.v${this.currDBVersion-1}' ..`)
         DatabaseConnectionController.connections[this.dbConnectionSelector].migration.isRunning = true
         DatabaseConnectionController.connections[this.dbConnectionSelector].migration.isRevertMode = true
-        this.update_FileStructure_onDown()
+        if(!this.freeze) this.update_FileStructure_onDown()
         new DB_Model_Rel_FilesLoader({dbConnectionSelector:this.dbConnectionSelector})
-        if(this.readonly) DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.authenticate().then((res:any, err:any)=>{
-            if(err) return console.log(err)
+        if(this.freeze) this.update_FileStructure_frozen()
+        if(this.readonly) DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.authenticate().then((res:any)=>{
             for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries)
-                DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
-            new Log(`updated models for link '${this.dbConnectionSelector}' with no change to database`).FgGreen().printValue()
+                DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query).then((val:any)=>{
+                    if(val[1] == null) return
+                    new Log("Error: "+val[1].sqlMessage+" at '"+val[1].sql+"'").FgRed().printValue()
+                    new Log("\nError with raw queries: manual fix required.\n* Repair raw queries for relevant model in 'stage.v"+(this.currDBVersion)+"'").FgYellow().printValue()
+                    console.log("terminating check ..")
+                })
+            new Log(`updated models for link '${this.dbConnectionSelector}' with no database ${this.freeze?"and version ":""}change`).FgGreen().printValue()
             console.log("closing migration job ..\n")
         })
-        else DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.sync({alter:true}).then((res:any, err:any)=>{
-            if(err) return console.log(err)
+        else DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.sync({alter:true}).then((res:any)=>{
             for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries)
-                DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query)
-            new Log(`job ran for database '${res.config.database}' with link '${this.dbConnectionSelector}'`).FgGreen().printValue()
+                DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query).then((val:any)=>{
+                    if(val[1] == null) return
+                    new Log("Error: "+val[1].sqlMessage+" at '"+val[1].sql+"'").FgRed().printValue()
+                    new Log("\nError with raw queries: manual fix required.\n* Repair raw queries for relevant model in 'stage.v"+(this.currDBVersion)+"'").FgYellow().printValue()
+                    console.log("terminating check ..")
+                })
+            new Log(`job ran for database '${res.config.database}' using link '${this.dbConnectionSelector}'${this.freeze?" with no version change":""}`).FgGreen().printValue()
+            console.log("closing migration job ..\n")
+        })
+        .catch((e:any)=>{
+            if(!this.freeze) this.update_FileStructure_onUp()//alter failed, fix file structure
+            new Log("Error: "+e.original.sqlMessage).FgRed().printValue()
+            new Log("critical Error found. migration Aborted.").FgYellow().printValue()
             console.log("closing migration job ..\n")
         })
     }
 
     private update_FileStructure_onUp(){
+        this.currDBVersion = getCurrentDBVersion(this.dbConnectionSelector)
         if(this.currDBVersion >= 2) 
             cmd("mv", [
                 PathVar.getDbModule()+"/"+this.dbPath+"/archives/last.v"+(this.currDBVersion-1), 
@@ -121,6 +153,7 @@ export class Migration extends FilesEngine{
     }
 
     private update_FileStructure_onDown(){
+        this.currDBVersion = getCurrentDBVersion(this.dbConnectionSelector)
         cmd("rm", ["-rf", PathVar.getDbModule()+"/"+this.dbPath+"/stage.v"+(this.currDBVersion+1)], true); // rm stage.vx
         cmd("mv", [
             PathVar.getDbModule()+"/"+this.dbPath+"/at.v"+(this.currDBVersion), 
@@ -135,6 +168,13 @@ export class Migration extends FilesEngine{
     }
 
 
+    private update_FileStructure_frozen(){
+        this.currDBVersion = getCurrentDBVersion(this.dbConnectionSelector)
+        cmd("rm", ["-rf", PathVar.getDbModule()+"/"+this.dbPath+"/at.v"+(this.currDBVersion)], true); // rm at.vx
+        cmd("cp", [ "-r",
+            PathVar.getDbModule()+"/"+this.dbPath+"/stage.v"+(this.currDBVersion+1),
+            PathVar.getDbModule()+"/"+this.dbPath+"/at.v"+(this.currDBVersion)], true); // cp stage into at
+    }
 }
 
 

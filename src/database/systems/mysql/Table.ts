@@ -44,18 +44,18 @@ export class Table{
      *  })
      * ```
      */
-    select(callback:Function, options?:QueryOption){
-        if(!this._utils.where) this._utils.where = {};
-        this._model.findOne({
-            where:this._utils.where, 
-            include:[{all:true}],
-            paranoid:options?(options.softDeleted?options.softDeleted==true:false):false
-        }).then((res:any)=>{
-            callback(res.dataValues, null);
-        }).catch(e=>{
-            callback(null, e)
-        })
-    }
+    // select(callback:Function, options?:QueryOption){
+    //     if(!this._utils.where) this._utils.where = {};
+    //     this._model.findOne({
+    //         where:this._utils.where, 
+    //         include:[{all:true}],
+    //         paranoid:options?(options.softDeleted?options.softDeleted==true:false):false
+    //     }).then((res:any)=>{
+    //         callback(res.dataValues, null);
+    //     }).catch(e=>{
+    //         callback(null, e)
+    //     })
+    // }
     /**
      * Get all entries that match specifications within the table. Example:
      * ```
@@ -66,17 +66,19 @@ export class Table{
      *  })
      * ```
      */
-    selectAll(callback:Function, options?:QueryOption){
+    async select(options?:QueryOption):Promise<any[]>{
+        let resolver:Function
         if(!this._utils.where) this._utils.where = {};
         this._model.findAll({
             where:this._utils.where, 
             include:[{all:true}], 
             paranoid:options?(options.softDeleted?options.softDeleted==true:false):false
         }).then((res:any)=>{
-            callback(res.map((v:any)=>v.dataValues), null);
+            resolver([res.map((v:any)=>v.dataValues), null]);
         }).catch(e=>{
-            callback(null, e);
+            resolver([null, e]);
         })
+        return new Promise((resolve, reject)=>{resolver = resolve})
     }
     /**
      * Edit one entry that matches specifications within the table. Example:
@@ -88,14 +90,16 @@ export class Table{
      *  })
      * ```
      */
-    edit(row:any, callback:Function){
+    update(row:any):Promise<any[]>{
+        let resolver:Function
         if(row.uuid) delete row.uuid
         if(!this._utils.where) error.db.missingWhere_for(this._model.name+".edit");
         this._model.update(row,{where:this._utils.where}).then((res:any)=>{
-            callback(res.dataValues, null);
+            resolver([res[0], null]);
         }).catch(e=>{
-            callback(null, e);
+            resolver([null, e]);
         })
+        return new Promise((resolve, reject)=>{resolver = resolve})
     }
     /**
      * Insert one entry to the table. Example:
@@ -107,13 +111,30 @@ export class Table{
      *  })
      * ```
      */
-    insert(row:any, callback:Function){
+    insert(row:any):Promise<any[]>{
+        if(row instanceof Array) return this.bulkInsert(row)
+        let resolver:Function
         if(row.uuid) delete row.uuid
         this._model.create(row, {include:[{all:true}]}).then((res:any)=>{
-            callback(res.dataValues, null);
+            resolver([res.dataValues, null]);
         }).catch(e=>{
-            callback(null, e);
+            resolver([null, e]);
         })
+        return new Promise((resolve, reject)=>{resolver = resolve})
+    }
+    bulkInsert(rows:any):Promise<any[]>{
+        let resolver:Function
+        let parsedRows = []
+        for(let row of rows){
+            if(row.uuid) delete row.uuid
+            parsedRows.push(row)
+        }
+        this._model.bulkCreate(rows, {individualHooks: true}).then((res:any)=>{
+            resolver([res, null]);
+        }).catch(e=>{
+            resolver([null, e]);
+        })
+        return new Promise((resolve, reject)=>{resolver = resolve})  
     }
     /**
      * Mark one entry from the table as deleted. Example:
@@ -125,13 +146,15 @@ export class Table{
      *  })
      * ```
      */
-    delete(callback:Function){
+    delete():Promise<any[]>{
+        let resolver:Function
         if(!this._utils.where) error.db.missingWhere_for(this._model.name+".delete");
         this._model.destroy({where:this._utils.where}).then((res:any)=>{
-            callback(res.dataValues, null);
+            resolver([res, null]);
         }).catch(e=>{
-            callback(null, e);
+            resolver([null, e]);
         })
+        return new Promise((resolve, reject)=>{resolver = resolve})
     }
     /**
      * Mark one entry from the table as deleted. Example:
@@ -143,8 +166,8 @@ export class Table{
      *  })
      * ```
      */
-    deleteSoft(callback:Function){
-        this.delete(callback)
+    deleteSoft():Promise<any[]>{
+        return this.delete()
     }
     /**
      * Remove one entry from the table. Example:
@@ -156,13 +179,15 @@ export class Table{
      *  })
      * ```
      */
-    deleteHard(callback:Function){
+    deleteHard():Promise<any[]>{
+        let resolver:Function
         if(!this._utils.where) error.db.missingWhere_for(this._model.name+".deleteHard");
         this._model.destroy({where:this._utils.where, force:true}).then((res:any)=>{
-            callback(res.dataValues, null);
+            resolver([res, null]);
         }).catch(e=>{
-            callback(null, e);
+            resolver([null, e]);
         })
+        return new Promise((resolve, reject)=>{resolver = resolve})
     }
     /**
      * Restore one deleted entry in the table. Example:
@@ -174,13 +199,15 @@ export class Table{
      *  })
      * ```
      */
-    restore(callback:Function){
+    restore():Promise<any[]>{
+        let resolver:Function
         if(!this._utils.where) error.db.missingWhere_for(this._model.name+".restore");
         this._model.restore({where:this._utils.where}).then((res:any)=>{
-            callback(res.dataValues, null);
+            resolver([res, null]);
         }).catch(e=>{
-            callback(null, e);
+            resolver([null, e]);
         })
+        return new Promise((resolve, reject)=>{resolver = resolve})
     }
 }
 

@@ -126,7 +126,7 @@ export class DatabaseUserPortal_mySQL implements DatabaseUserPortalInterface{
         return DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.getQueryInterface()
     }
 
-    Relations = {
+    relations = {
         set: (rootTable:string, args:any)=>{
             if(args.one_to_one){
                 for(let target of args.one_to_one.has) new TableRelation(rootTable, this.connectionSelector).has_one(target);

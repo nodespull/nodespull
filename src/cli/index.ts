@@ -111,8 +111,8 @@ ________________________________________________________________
 Commands     Arguments                 Descriptions                
 ________________________________________________________________
 c module     <name>                    module
-c link       <flag> <name>                    link to an external server
-c table      <dbname.'db'/name>        table in specified db
+c link       <flag> <name>             link to an external server
+c table      <link.'link'/name>        table in specified db
 c route      <path/path?> : <methods?> route at path <path/path>
 c service    <flag> <name>             service
 c profile    <flag> <name>             auth profile

@@ -1,7 +1,7 @@
 // depreciated
 export default function stageRelationTemplate(text:string|null, connectionSelector:string):string{
-    let val = `const { Database } = require("@nodespull/core/database")("${connectionSelector}")
-const { Relations, onUpload, onRevert, rawQuery } = Database
+    let val = `const { editor } = require("@nodespull/core/database")("${connectionSelector}")
+const { relations, onUpload, onRevert, rawQuery } = editor
 
 `
     if(!text) val += `

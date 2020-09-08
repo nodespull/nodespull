@@ -18,6 +18,7 @@ import { AuthController } from "./crypt"
 import { FilesLoader } from "./files-runner"
 import express from "express"
 import { UserActions } from "./bootstrap/bootconf/bootconf-action-switch/interfaces"
+import sequelize from "sequelize"
 
 
 
@@ -70,6 +71,7 @@ export const link = {
         return DatabaseUserInterfaceController.interfaces[dbLinkSelector]
     }
 }
+export const filter = sequelize.Op
 
 
 

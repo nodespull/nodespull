@@ -28,7 +28,7 @@ export abstract class FilesEngine {
                 if(fileName.slice(-1*(extension.length+1)).toLowerCase() === "."+extension.toLowerCase()){
                     if(options.runFiles){
                         require(path+"/"+fileName);
-                        delete require.cache[require.resolve(path+"/"+fileName)]
+                        if(options.deleteImportCache !== false) delete require.cache[require.resolve(path+"/"+fileName)]
                     }
                     paths.push(path+"/"+fileName)
                 }
@@ -44,5 +44,6 @@ export abstract class FilesEngine {
 }
 
 interface RecursiveSearchOptions {
-    runFiles: boolean
+    runFiles: boolean,
+    deleteImportCache?:boolean
 }

@@ -1,10 +1,9 @@
 
 export default function spec(path:string, moduleVarName:string, locationDepth:number):string{
     let moduleFileName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+".mod"
-    return `const { http, Database } = require("@nodespull/core")
+    return `const { http, link } = require("@nodespull/core")
 const { ${moduleVarName} } = require("${'../'.repeat(locationDepth)+moduleFileName}")
 const { expect } = require('chai')
-
 
 
 describe("PUT: ${path}", () => {

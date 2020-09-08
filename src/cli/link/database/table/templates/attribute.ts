@@ -1,11 +1,11 @@
 
 export default function model(tableName:string, connectionSelector:string):string{
-return `const { Database } = require("@nodespull/core/database")("${connectionSelector}")
-const { type, onUpload, onRevert, rawQuery } = Database
+return `const { editor } = require("@nodespull/core/database")("${connectionSelector}")
+const { type, onUpload, onRevert, rawQuery } = editor
 
 
 onUpload(() => {
-    Database.defineModel(withTable = "${tableName}").as({
+    editor.defineModel(withTable = "${tableName}").as({
         /* add attributes */
         uuid: {
             type: type.string,
