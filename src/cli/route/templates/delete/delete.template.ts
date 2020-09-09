@@ -7,7 +7,7 @@ export default function del(path:string, moduleVarName:string, locationDepth:num
     if(JSReservedWords.getList().includes(name)) name = "_"+name // put underscore in front of js reserved words
     let moduleFileName = moduleVarName.substr(0, moduleVarName.length-1*"Module".length)+".mod"
 
-    return `const { http, link, npRoute, Pipe } = require("@nodespull/core")
+    return `const { http, link, npRoute, pipe } = require("@nodespull/core")
 const { hash, oauth2, jwt } = require("@nodespull/core/crypt")
 const { ${moduleVarName} } = require("${'../'.repeat(locationDepth)+moduleFileName}")
 
