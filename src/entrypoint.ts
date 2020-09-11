@@ -32,7 +32,7 @@ export function use(app:express.Application){
 
 
 Boot_Env.ensureInstanceRunning() // load process and app variables to np
-// NpServer.ensureExpressAppConfigs() // set express app basic configs
+NpServer.ensureExpressAppConfigs() // set express app basic configs
 
 
 // trigger serve operations
