@@ -47,10 +47,10 @@ async function install_core(){
             if(ok)fs.writeFile(PathVar.getAppEnvModule()+"/app.local.env.js", getAppEnvTemplate("local"),()=>{})
         })
         run("app prod env", "touch", [PathVar.getAppEnvModule()+"/app.prod.env.js"],(ok:boolean,data?:any)=>{
-            if(ok)fs.writeFile(PathVar.getAppEnvModule()+"/app.prod.env.js", getAppEnvTemplate("prod"),()=>{})
+            if(ok)fs.writeFile(PathVar.getAppEnvModule()+"/app.prod.env.js", getAppEnvTemplate("--prod"),()=>{})
         })
         run("app unit-test env", "touch", [PathVar.getAppEnvModule()+"/app.unit-test.env.js"],(ok:boolean,data?:any)=>{
-            if(ok)fs.writeFile(PathVar.getAppEnvModule()+"/app.unit-test.env.js", getAppEnvTemplate("unit-test"),()=>{})
+            if(ok)fs.writeFile(PathVar.getAppEnvModule()+"/app.unit-test.env.js", getAppEnvTemplate("--unit-test"),()=>{})
         })
     })
     await run("config jwt auth profile", "mkdir", ["-p", PathVar.getSrc()+"/auth/jwt"],(ok:boolean,data?:any)=>{})
