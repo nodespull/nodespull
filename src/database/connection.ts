@@ -57,6 +57,11 @@ export class DatabaseConnectionController {
         if(!Object.keys(DatabaseConnectionController.connections).includes(dbConnectionSelector)) 
             throw new Log(`link '${dbConnectionSelector}' not found`).FgRed().getValue()
     }
+
+    static startConnections(){
+        for(let connSelector of Object.keys(DatabaseConnectionController.connections)) // establish links with remote database servers
+            if(DatabaseConnectionController.connections[connSelector].conf.isActive) DatabaseConnectionController.connections[connSelector].start()
+    }
 }
 
 

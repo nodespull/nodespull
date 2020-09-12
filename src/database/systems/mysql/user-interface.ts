@@ -4,6 +4,8 @@ import sequelize from "sequelize";
 import { RawQueryResponse, QueryInterface } from "../../models/query";
 import {Table, TableRelation, TableDefinition, ModelDefinition} from "./Table";
 import {DatabaseConnectionController} from "../../connection";
+import { NpUserActionSwitch } from "../../../bootstrap/bootconf/bootconf-action-switch";
+import { UserActions } from "../../../bootstrap/bootconf/bootconf-action-switch/interfaces";
 
 
 export class DatabaseUserPortal_mySQL implements DatabaseUserPortalInterface{
@@ -76,7 +78,8 @@ export class DatabaseUserPortal_mySQL implements DatabaseUserPortalInterface{
      * Database.table('users')
      * ```
      */
-    table = (name:string):Table => {
+    table = (name:string):Table|null => {
+        if(NpUserActionSwitch.action == UserActions.cli) return null
         // if(!DB_Controller.ORM)error.db.modelNotSaved();
         return new Table(DatabaseConnectionController.connections[this.connectionSelector].ORM.interface.model(name));
     }

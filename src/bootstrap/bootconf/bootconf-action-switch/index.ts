@@ -13,9 +13,12 @@ import { DatabaseConnectionController } from "../../../database/connection"
 
 export class NpUserActionSwitch {
 
+    static action:string|null = null
+
     static dispatch(){
 
         let action = process.argv[2]
+        NpUserActionSwitch.action = action
         switch(action){
             case(UserActions.serve):
                 FilesLoader.All()
@@ -27,7 +30,8 @@ export class NpUserActionSwitch {
                         mod._service[srv.selector] = jobRes // selector.func call returns a promise 
                     }
                 }
-                NpServer.userRequestedServe()
+                DatabaseConnectionController.startConnections()
+                NpServer.listen()
                 break
             case(UserActions.cli):
                 FilesLoader.All()//used to perform user cmd checks
@@ -35,6 +39,7 @@ export class NpUserActionSwitch {
                 break
             case(UserActions.test):
                 FilesLoader.All()
+                DatabaseConnectionController.startConnections()
                 cmd("mocha",["./src/**/*.spec.js"])
                 break
             case(UserActions.deploy):

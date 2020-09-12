@@ -59,18 +59,7 @@ export class NpServer {
         NpUserActionSwitch.dispatch()
     }
 
-
-    /**
-     * user action is serve
-     * start connections to databases
-     * configure and lunch express server along with np dependencies
-     */
-    static userRequestedServe(){
-        for(let connSelector of Object.keys(DatabaseConnectionController.connections)) // establish links with remote database servers
-            if(DatabaseConnectionController.connections[connSelector].conf.isActive) DatabaseConnectionController.connections[connSelector].start()
-        NpServer.listen()
-    }
-
+    
     /**
      * allows user to set custom home route handler
      */
