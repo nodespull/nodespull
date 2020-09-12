@@ -49,6 +49,9 @@ async function install_core(){
         run("app prod env", "touch", [PathVar.getAppEnvModule()+"/app.prod.env.js"],(ok:boolean,data?:any)=>{
             if(ok)fs.writeFile(PathVar.getAppEnvModule()+"/app.prod.env.js", getAppEnvTemplate("prod"),()=>{})
         })
+        run("app unit-test env", "touch", [PathVar.getAppEnvModule()+"/app.unit-test.env.js"],(ok:boolean,data?:any)=>{
+            if(ok)fs.writeFile(PathVar.getAppEnvModule()+"/app.unit-test.env.js", getAppEnvTemplate("unit-test"),()=>{})
+        })
     })
     await run("config jwt auth profile", "mkdir", ["-p", PathVar.getSrc()+"/auth/jwt"],(ok:boolean,data?:any)=>{})
     await run("config oauth auth profile", "mkdir", ["-p", PathVar.getSrc()+"/auth/oauth2"],(ok:boolean,data?:any)=>{})
