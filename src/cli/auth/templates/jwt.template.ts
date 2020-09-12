@@ -16,6 +16,7 @@ npAuthProfile.jwt({
         json: null
     },
     onFinish: (req, data, err, next) => {
+        if(!err) req['tokenData'] = data
         next()
     }
 })

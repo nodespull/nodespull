@@ -11,7 +11,12 @@ export async function newLink(args:string[]){
 
     switch(type){
         case("--db"):
-            newDB(name)
+            try {
+                newDB(name)
+            }
+            catch(e){
+                throw e
+            }
             break;
         default:
             throw error.wrongUsage

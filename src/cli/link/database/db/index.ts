@@ -9,7 +9,7 @@ import { DatabaseConnectionController } from "../../../../database/connection";
 
 const root = PathVar.getDbModule();
 
-export async function newDB(dbSelector:string){
+export function newDB(dbSelector:string){
 
     if(!StringParser.isExtendedAlphaNum(dbSelector)) throw new Log("ERR: expected alphanumeric for db selector").FgRed().getValue()
 
