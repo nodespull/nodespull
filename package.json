@@ -1,6 +1,6 @@
 {
   "name": "@nodespull/core",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "A Javascript Server framework",
   "main": "entrypoint.js",
   "scripts": {
