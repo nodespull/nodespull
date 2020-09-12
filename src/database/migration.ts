@@ -68,6 +68,12 @@ export class Migration extends FilesEngine{
             new Log(`updated models for link '${this.dbConnectionSelector}' with no database ${this.freeze?"and version ":""}change`).FgGreen().printValue()
             console.log("closing migration job ..\n")
         })
+        .catch((e:any)=>{
+            if(!this.freeze) this.update_FileStructure_onDown() //alter failed, fix file structure
+            new Log("Error: "+e.original.message).FgRed().printValue()
+            new Log("critical Error found. migration Aborted.").FgYellow().printValue()
+            console.log("closing migration job ..\n")
+        })
         else DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.sync({alter:true}).then((res:any)=>{
             for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries)
                 DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query).then((val:any)=>{
@@ -81,7 +87,7 @@ export class Migration extends FilesEngine{
         })
         .catch((e:any)=>{
             if(!this.freeze) this.update_FileStructure_onDown() //alter failed, fix file structure
-            new Log("Error: "+e.original.sqlMessage).FgRed().printValue()
+            new Log("Error: "+e.original.message).FgRed().printValue()
             new Log("critical Error found. migration Aborted.").FgYellow().printValue()
             console.log("closing migration job ..\n")
         })
@@ -114,6 +120,12 @@ export class Migration extends FilesEngine{
             new Log(`updated models for link '${this.dbConnectionSelector}' with no database ${this.freeze?"and version ":""}change`).FgGreen().printValue()
             console.log("closing migration job ..\n")
         })
+        .catch((e:any)=>{
+            if(!this.freeze) this.update_FileStructure_onUp()//alter failed, fix file structure
+            new Log("Error: "+e.original.message).FgRed().printValue()
+            new Log("critical Error found. migration Aborted.").FgYellow().printValue()
+            console.log("closing migration job ..\n")
+        })
         else DatabaseConnectionController.connections[this.dbConnectionSelector].ORM.interface.sync({alter:true}).then((res:any)=>{
             for(let query of DatabaseConnectionController.connections[this.dbConnectionSelector].migration.rawQueries)
                 DatabaseUserInterfaceController.interfaces[this.dbConnectionSelector].runRawQuery(query).then((val:any)=>{
@@ -127,7 +139,7 @@ export class Migration extends FilesEngine{
         })
         .catch((e:any)=>{
             if(!this.freeze) this.update_FileStructure_onUp()//alter failed, fix file structure
-            new Log("Error: "+e.original.sqlMessage).FgRed().printValue()
+            new Log("Error: "+e.original.message).FgRed().printValue()
             new Log("critical Error found. migration Aborted.").FgYellow().printValue()
             console.log("closing migration job ..\n")
         })

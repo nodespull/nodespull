@@ -35,7 +35,7 @@ export class NpUserActionSwitch {
                 break
             case(UserActions.test):
                 FilesLoader.All()
-                cmd("mocha",["./**/*.spec.js"])
+                cmd("mocha",["./src/**/*.spec.js"])
                 break
             case(UserActions.deploy):
                 deploy()
