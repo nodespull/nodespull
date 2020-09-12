@@ -81,6 +81,6 @@ export const filter = sequelize.Op
  * nodespull started within the mocha process
  */
 if(process.argv[1].split("/").pop() == "mocha"){
-    process.argv.push("--test")
+    process.argv.push("--unit-test")
     FilesLoader.All()
 }
