@@ -7,8 +7,10 @@ export class EnvCollector {
     constructor(private envType:EnvType){}
     loadVars = (userTags:string[], varsMap: {[varName:string]:string})=>{
         let collectedVars:any = {}
-        let flags = process.argv.filter(arg=>{if(arg.slice(0,2)=="--")return arg})
-        let processTag:string|undefined = flags[0]
+        let excludedTags:string[] = ["--freeze", "--readonly"]
+        let flags = process.argv.filter(arg=>{if(arg.slice(0,2)=="--" && !excludedTags.includes(arg))return arg})
+        let envTag = process.argv.filter(arg=>{if(arg.slice(0,4)=="env=")return arg}).map(v=>{return "--"+v.slice(4)})[0] // e.g. env=prod -> --prod
+        let processTag:string|undefined = envTag || flags[0]
         if(processTag && userTags.includes(processTag)) for(let vName of Object.keys(varsMap)){ // any tags that match
             if(StringParser.isExtendedAlphaNum(vName)){
                 collectedVars[vName] = String(varsMap[vName])

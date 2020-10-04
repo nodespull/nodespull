@@ -4,7 +4,7 @@ export default function getAppEnvTemplate(env:string):string{
 /**
  * accessible within app modules
  */
-npEnv.app.loadVars(forTags = [${env=="local"?'':env}], {
+npEnv.app.loadVars(forTags = [${env=="local"?'':("'"+env+"'")}], {
 
 })`
 }

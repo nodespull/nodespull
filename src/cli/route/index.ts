@@ -108,8 +108,6 @@ export async function newRoute(name:string, methods:any|string[]){
             if(Object.keys(mod._route).includes(rrk))
                 throw new Log(`route '${rrk.split(":")[0]}:${fileName.split(".").join("/")}' already exists in '${mod._name}'`).FgRed().getValue()
 
-
-    // setTimeout(() => {
         for(let templGroupKey of Object.keys(templateList)){
             let templDirPath:string = routeDirPath +"/"+fileName+"."+templGroupKey;
             cmd("mkdir", ["-p", PathVar.getAppModule()+"/"+ templDirPath], true);
@@ -126,13 +124,12 @@ export async function newRoute(name:string, methods:any|string[]){
                 }
                 else templFilePath += ".js";
                 cmd("touch",[PathVar.getAppModule()+"/"+templFilePath], true);
-                await fs.writeFile(PathVar.getAppModule()+"/"+templFilePath,getTemplate(
+                fs.writeFileSync(PathVar.getAppModule()+"/"+templFilePath,getTemplate(
                     moduleVarName,
                     templDirPath+"/"+fileName, //remove initial underscore
                     templateList[templGroupKey][templateKey], 
-                    templFilePath,extCount),()=>{})
+                    templFilePath,extCount))
             }
         }
         rebuildTemplateList()
-    // }, 2000);
 }
